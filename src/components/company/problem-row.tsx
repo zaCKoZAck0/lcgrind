@@ -1,5 +1,6 @@
 import { type SheetProblem, type Problem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import { LockIcon } from "lucide-react";
 
 import { difficultyColor } from "~/utils/sorting";
 import { getOrderKey } from "~/utils/sorting";
@@ -16,9 +17,18 @@ export const ProblemRow = ({ problem, index, order }: ProblemRowProps) => {
             <div className="flex items-center gap-6">
                 <p className="text-3xl text-foreground/75">{index + 1}</p>
                 <div>
-                    <a href={problem.problem.url} target="_blank" className="text-blue-600 hover:underline underline-offset-2">
-                        {problem.problem.title}
-                    </a>
+                    <div className="flex gap-2 items-center">
+                        <a href={problem.problem.url} target="_blank" className="text-blue-600 hover:underline underline-offset-2">
+                            {problem.problem.title}
+                        </a>
+                        {problem.problem.isPaid && (
+                            <>
+                                <span className="sr-only">Paid Problem</span>
+                                <LockIcon size={20} className="text-orange-300 " />
+                            </>
+
+                        )}
+                    </div>
                     <div className="text-sm flex gap-2 items-baseline">
                         <p className={difficultyColor(problem.problem.difficulty)}>{problem.problem.difficulty}</p>
                         <p className="text-xs font-medium">{(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}%</p>

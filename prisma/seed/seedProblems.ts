@@ -35,7 +35,6 @@ const csvNameToOrderFieldMap: Record<typeof csvNames[number], { order: keyof Pri
 const csvHeaders = ['Difficulty', 'Title', 'Frequency', 'Acceptance Rate', 'Link', 'Topics'];
 
 async function init() {
-    await db.sheetProblem.deleteMany();
     const dir = path.join(__dirname, '../../.data');
     const compnanies = await fs.readdir(dir);
     for (const company of compnanies) {
