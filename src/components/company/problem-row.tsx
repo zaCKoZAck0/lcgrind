@@ -1,4 +1,6 @@
-import { Prisma, SheetProblem, type Problem } from "@prisma/client";
+import { SheetProblem, type Problem } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
+
 import { difficultyColor } from "~/utils/sorting";
 import { getOrderKey } from "~/utils/sorting";
 
@@ -19,7 +21,7 @@ export const ProblemRow = ({ problem, index, order }: ProblemRowProps) => {
                     </a>
                     <div className="text-sm flex gap-2 items-baseline">
                         <p className={difficultyColor(problem.problem.difficulty)}>{problem.problem.difficulty}</p>
-                        <p className="text-xs font-medium">{(problem[getOrderKey(order) as keyof typeof problem] as Prisma.Decimal).toNumber()}%</p>
+                        <p className="text-xs font-medium">{(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}%</p>
                     </div>
                     <div className="flex gap-1 items-center mt-2 flex-wrap">
                         {problem.problem.topicTags.map((tag, i) => (
