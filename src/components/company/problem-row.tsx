@@ -1,4 +1,4 @@
-import { SheetProblem, type Problem } from "@prisma/client";
+import { type SheetProblem, type Problem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 import { difficultyColor } from "~/utils/sorting";
