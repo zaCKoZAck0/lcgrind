@@ -17,7 +17,7 @@ export default async function CompanyWiseQuestion({
     searchParams: Promise<SearchParams>;
 }) {
     const { 'company-slug': slug } = await params;
-    const { sort = 'frequency', order = 'sheetOrder' } = await searchParams;
+    const { sort = 'frequency', order = 'all' } = await searchParams;
 
     const sheet = await db.sheet.findFirstOrThrow({
         where: { slug },
@@ -39,13 +39,13 @@ export default async function CompanyWiseQuestion({
     ).then(res => res.json());
 
     const filteredProblems = sheet.SheetProblem
-        .filter(problem => (problem[getOrderKey(order) as unknown as keyof typeof problem] as Decimal).toNumber() !== -1)
+        .filter(problem => (problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber() !== -1)
         .sort((a, b) => {
             if (sort === 'difficulty') {
                 return a.problem.difficulty.localeCompare(b.problem.difficulty);
             }
             const orderKey = getOrderKey(order) as keyof typeof b;
-            return (b[orderKey] as number) - (a[orderKey] as number);
+            return (b[orderKey] as Decimal).toNumber() - (a[orderKey] as Decimal).toNumber();
         });
 
     return (

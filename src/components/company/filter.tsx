@@ -38,11 +38,11 @@ export const Filters = ({ filters }: { filters: { sorting: string; order: string
                     <SelectValue placeholder="Order" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="thirtyDaysOrder">30 Days</SelectItem>
-                    <SelectItem value="threeMonthsOrder">3 Months</SelectItem>
-                    <SelectItem value="sixMonthsOrder">6 Months</SelectItem>
-                    <SelectItem value="yearlyOrder">More that 6 Months</SelectItem>
-                    <SelectItem value="sheetOrder">All</SelectItem>
+                    <SelectItem value="monthly">30 Days</SelectItem>
+                    <SelectItem value="three-months">3 Months</SelectItem>
+                    <SelectItem value="six-months">6 Months</SelectItem>
+                    <SelectItem value="yearly">More that 6 Months</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                 </SelectContent>
             </Select>
             <Select value={sort} onValueChange={setSort}>
