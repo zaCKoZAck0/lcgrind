@@ -18,35 +18,39 @@ export default async function CompanyWiseQuestion({
 }) {
     const { 'company-slug': slug } = await params;
     const { sort = 'frequency', order = 'all' } = await searchParams;
+    const orderKey = getOrderKey(order);
 
-    const sheet = await db.sheet.findFirstOrThrow({
-        where: { slug },
-        include: {
-            _count: { select: { SheetProblem: true } },
-            SheetProblem: {
-                include: {
-                    problem: {
-                        include: { topicTags: { include: { topicTag: true } } }
+    // Parallelize data fetching
+    const [sheet, logoResponse] = await Promise.all([
+        db.sheet.findFirstOrThrow({
+            where: { slug },
+            select: {
+                name: true,
+                slug: true,
+                SheetProblem: {
+                    where: {
+                        [orderKey]: { not: -1 }
+                    },
+                    orderBy: sort === 'difficulty'
+                        ? { problem: { difficultyOrder: 'asc' } } :
+                        sort === 'question-id' ? { problem: { id: 'asc' } } :
+                            sort === 'acceptance' ? { problem: { acceptance: 'desc' } }
+                                : { [orderKey]: 'desc' },
+                    include: {
+                        problem: {
+                            include: { topicTags: { include: { topicTag: true } } }
+                        }
                     }
+                },
+                _count: {
+                    select: { SheetProblem: true }
                 }
             }
-        }
-    });
-
-    const [logoResponse] = await fetch(
-        `${COMPANY_LOGO_API}?q=${slug}.com`,
-        { next: { revalidate: DEFAULT_REVALIDATION } }
-    ).then(res => res.json());
-
-    const filteredProblems = sheet.SheetProblem
-        .filter(problem => (problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber() !== -1)
-        .sort((a, b) => {
-            if (sort === 'difficulty') {
-                return a.problem.difficulty.localeCompare(b.problem.difficulty);
-            }
-            const orderKey = getOrderKey(order) as keyof typeof b;
-            return (b[orderKey] as Decimal).toNumber() - (a[orderKey] as Decimal).toNumber();
-        });
+        }),
+        fetch(`${COMPANY_LOGO_API}?q=${slug}.com`, {
+            next: { revalidate: DEFAULT_REVALIDATION }
+        }).then(res => res.json().then(data => data[0]))
+    ]);
 
     return (
         <div className="w-full max-w-[1000px] py-6">
@@ -79,7 +83,7 @@ export default async function CompanyWiseQuestion({
 
             <Filters filters={{ sorting: sort, order }} />
 
-            {filteredProblems.map((problem, idx) => (
+            {sheet.SheetProblem.map((problem, idx) => (
                 <ProblemRow
                     key={problem.problemId}
                     problem={problem}

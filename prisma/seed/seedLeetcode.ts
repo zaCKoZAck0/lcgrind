@@ -118,7 +118,7 @@ async function fetchAndStoreQuestions() {
         let linksFound = 0; // Or skipped
 
         for (const question of questions) {
-            const { title, titleSlug, difficulty, paidOnly, topicTags } = question;
+            const { title, titleSlug, difficulty, paidOnly, topicTags, acRate } = question;
             const url = `https://leetcode.com/problems/${titleSlug}/`;
 
             try {
@@ -128,12 +128,16 @@ async function fetchAndStoreQuestions() {
                         update: {
                             title: title,
                             difficulty: difficulty,
+                            difficultyOrder: difficulty === 'Easy' ? 1 : difficulty === 'Medium' ? 2 : 3,
+                            acceptance: acRate,
                             isPaid: paidOnly,
                         },
                         create: {
                             title: title,
                             url: url,
                             difficulty: difficulty,
+                            acceptance: acRate,
+                            difficultyOrder: difficulty === 'Easy' ? 1 : difficulty === 'Medium' ? 2 : 3,
                             isPaid: paidOnly,
                         },
                     });

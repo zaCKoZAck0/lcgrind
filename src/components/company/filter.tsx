@@ -53,9 +53,13 @@ export const Filters = ({ filters }: { filters: { sorting: string; order: string
                 <SelectContent>
                     <SelectItem value="frequency">Frequency</SelectItem>
                     <SelectItem value="difficulty">Difficulty</SelectItem>
-                    {/* <SelectItem value="question-id">Question ID</SelectItem> */}
+                    <SelectItem value="acceptance">Acceptance</SelectItem>
+                    <SelectItem value="question-id">Question ID</SelectItem>
                 </SelectContent>
             </Select>
+        </div>
+        <div>
+
         </div>
     </div>
 }

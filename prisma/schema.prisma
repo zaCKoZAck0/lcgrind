@@ -15,11 +15,13 @@ datasource db {
 }
 
 model Problem {
-  id         Int     @id @default(autoincrement())
-  title      String
-  url        String  @unique
-  difficulty String
-  isPaid     Boolean
+  id              Int     @id @default(autoincrement())
+  title           String
+  url             String  @unique
+  difficulty      String
+  difficultyOrder Int     @default(0)
+  acceptance      Int     @default(0)
+  isPaid          Boolean
 
   topicTags ProblemsOnTopicTags[]
 
