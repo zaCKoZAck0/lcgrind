@@ -7,7 +7,6 @@ import { COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
 import { getOrderKey } from "~/utils/sorting";
-import { Decimal } from "@prisma/client/runtime/library";
 
 export default async function CompanyWiseQuestion({
     params,
