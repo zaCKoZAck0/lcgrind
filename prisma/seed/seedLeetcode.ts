@@ -1,4 +1,5 @@
-import {db as prisma} from '~/lib/db'
+// @ts-ignore
+import { db as prisma } from '~/lib/db'
 
 const LEETCODE_API_ENDPOINT = 'https://leetcode.com/graphql/';
 
