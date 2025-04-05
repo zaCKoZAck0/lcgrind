@@ -1,5 +1,3 @@
-// @ts-ignore
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,6 +59,7 @@ async function init() {
                     for (const csvProblem of csvProblems.slice(1)) {
                         // Add trailing slash to URL if not present
                         const normalizedLink = csvProblem.Link.endsWith('/') ? csvProblem.Link : `${csvProblem.Link}/`;
+                        console.log(normalizedLink)
 
                         // Only find the problem, assuming it exists
                         const problem = await db.problem.findFirst({

@@ -9,7 +9,8 @@
     "lint": "next lint",
     "seed:companies": "tsx prisma/seed/seedCompanies.ts",
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
-    "seed:problems": "tsx prisma/seed/seedProblems.ts"
+    "seed:problems": "tsx prisma/seed/seedProblems.ts",
+    "seed:all": "tsx prisma/seed/seedCompanies.ts  && tsx prisma/seed/seedLeetcode.ts && tsx prisma/seed/seedProblems.ts"
   },
   "dependencies": {
     "@prisma/client": "6.5.0",
