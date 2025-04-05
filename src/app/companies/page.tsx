@@ -74,8 +74,8 @@ export default async function CompaniesPage({
                     ).json();
                     const logo = companiesLogos[0]?.logo_url ?? null;
                     return (
-                        <Link href={`/companies/${company.slug}`} className="w-fit h-fit transition-transform hover:scale-105 hover:-translate-y-1">
-                            <Card key={company.id} >
+                        <Link key={company.id} href={`/companies/${company.slug}`} className="w-fit h-fit transition-transform hover:scale-105 hover:-translate-y-1">
+                            <Card >
                                 <div className="flex gap-6 min-w-[360px] px-6">
                                     <img src={logo} className="size-16 rounded-md" />
                                     <div>
