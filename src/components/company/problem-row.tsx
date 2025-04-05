@@ -30,10 +30,9 @@ export const ProblemRow = ({ problem, index, order }: ProblemRowProps) => {
                     </div>
                     <div className="text-sm md:text-base flex gap-2 items-baseline">
                         <p className={difficultyColor(problem.problem.difficulty)}>{problem.problem.difficulty}</p>
-                        <p className="text-xs md:text-sm font-medium">Frequency: {(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}%</p>
+                        <p className="text-xs md:text-sm font-medium text-slate-700">Frequency: {(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}%</p>
                     </div>
-                    <p className="text-xs md:text-sm font-medium">Acceptance: {problem.problem.acceptance}%</p>
-
+                    <p className="text-xs md:text-sm text-muted-foreground/50">Acceptance: {problem.problem.acceptance}%</p>
                     <div className="flex gap-1 items-center mt-2 flex-wrap">
                         {problem.problem.topicTags.map((tag, i) => (
                             <span key={i} className="py-0.5 px-1 border bg-card rounded-md text-xs md:text-sm">
