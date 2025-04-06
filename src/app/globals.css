@@ -63,13 +63,13 @@
       --destructive: hsl(3.19 100% 59.41%);
       --destructive-foreground: hsl(18 0% 100%);
       --ring: hsl(0 0% 60%);
-      --chart-1: hsl(211.29 100% 50%);
-      --chart-2: hsl(0 0% 85.49%);
-      --chart-3: hsl(211.29 100% 50%);
-      --chart-4: hsl(0 0% 88.49%);
-      --chart-5: hsl(211.29 103% 50%);
-      --radius: 0.5rem;
-    }
+      --chart-1: 173 58% 39%;
+    --chart-2: 12 76% 61%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+      --radius: 0.0rem;
+}
   
     .dark {
       --background: hsl(217.5 9.09% 17.25%);

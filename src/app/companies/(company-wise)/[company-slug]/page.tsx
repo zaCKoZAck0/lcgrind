@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChartLineIcon } from "lucide-react";
 import Link from 'next/link';
 import { Filters } from "~/components/company/filter";
 import { buttonVariants } from "~/components/ui/button";
@@ -53,30 +53,39 @@ export default async function CompanyWiseQuestion({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            <div className="p-1">
+            <div className="p-3 border border-b-0 border-muted-foreground/50 bg-card">
                 <Link
-                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                     href='/companies'
                 >
                     <ArrowLeft />All Companies
                 </Link>
             </div>
 
-            <div className='p-3'>
+            <div className='p-6 border border-muted-foreground/50 mb-6 bg-card flex justify-between items-center'>
                 <div className="w-fit h-fit">
-                    <div className="flex gap-3 min-w-[360px]">
+                    <div className="flex gap-6 min-w-[360px]">
                         <img
                             src={logoResponse?.logo_url || '/default-company.png'}
                             alt={`${sheet.name} logo`}
-                            className="size-16 rounded-md"
+                            className="size-14 rounded-md"
                         />
-                        <div>
+                        <div className="flex flex-col justify-between">
                             <h1 className="font-semibold text-2xl">{sheet.name}</h1>
-                            <p className="text-muted-foreground text-lg">
+                            <p className="text-muted-foreground/50 text-lg">
                                 {sheet._count.SheetProblem} Problems
                             </p>
                         </div>
                     </div>
+                </div>
+                <div>
+                    <Link
+                        href={`/companies/${slug}/prep-guide`}
+                        className={buttonVariants({ variant: 'outline' })}
+                    >
+                        <ChartLineIcon />
+                        Prep Guide
+                    </Link>
                 </div>
             </div>
 

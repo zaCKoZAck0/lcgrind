@@ -19,6 +19,7 @@ export const DATA_STRUCTURES = [
   "Doubly-Linked List",
   "Tree",
   "Array",
+  "String",
   "Hash Table",
   "Heap (Priority Queue)",
   "Binary Search Tree"
@@ -64,7 +65,6 @@ export const ALGORITHMS = [
   "Backtracking",
   "Enumeration",
   "Two Pointers",
-  "String",
   "Divide and Conquer",
   "Data Stream",
   "Math",

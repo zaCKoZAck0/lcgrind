@@ -30,7 +30,7 @@ export const Filters = ({ filters }: { filters: { sorting: string; order: string
 
     }, [sort, order, currentSearchParams])
 
-    return <div className="w-full bg-card flex items-center justify-between p-3 px-6 border border-muted-foreground/50">
+    return <div className="w-full bg-card flex items-center justify-between p-3 border border-muted-foreground/50">
         <div className="flex gap-3 items-center">
             <Select value={order} onValueChange={setOrder}>
                 <SelectTrigger className="min-w-[120px] w-fit">
