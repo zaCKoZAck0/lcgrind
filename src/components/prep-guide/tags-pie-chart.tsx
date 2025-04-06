@@ -7,7 +7,6 @@ import { PieSectorDataItem } from "recharts/types/polar/Pie"
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
 } from "~/components/ui/card"
 import {
@@ -23,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "~/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
 
 // TypeScript interfaces
 interface TagCount {
@@ -62,11 +61,6 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
         () => transformDataToChartData(algorithms),
         [algorithms]
     );
-
-    const totalProblems = React.useMemo(() => {
-        const total = chartType === "dataStructures" ? dsData : algoData;
-        return total.reduce((acc, item) => acc + item.value, 0);
-    }, [chartType, dsData, algoData]);
 
     // Select appropriate data based on chart type
     const chartData = chartType === "dataStructures" ? dsData : algoData;
