@@ -38,7 +38,9 @@ async function init() {
     const dir = path.join(__dirname, '../../.data');
     const compnanies = await fs.readdir(dir);
     for (const company of compnanies) {
-
+        if (company === '.git') continue; // Skip the .git directory
+        if (company === 'Readme.md') continue; // Skip the README file
+        if (company === '.gitignore') continue; // Skip the .gitignore file
         // 1. Capitalize the company name
         const capitalizedName = company
             .split(' ')
@@ -47,18 +49,18 @@ async function init() {
 
         for (const csvName of csvNames) {
             const rawCsv = await fs.readFile(path.join(__dirname, '../../.data', company, csvName), { encoding: 'utf-8' });
+            console.log(`Parsing ${company}`);
             parse(rawCsv, {
                 delimiter: ',',
                 columns: csvHeaders,
             }, async (error, csvProblems: CSVProblem[]) => {
                 if (error) {
-                    console.log(`Error at ${company}, filename: ${csvName}`)
+                    // console.log(`Error at ${company}, filename: ${csvName}`)
                 }
                 else {
                     for (const csvProblem of csvProblems.slice(1)) {
                         // Add trailing slash to URL if not present
                         const normalizedLink = csvProblem.Link.endsWith('/') ? csvProblem.Link : `${csvProblem.Link}/`;
-                        console.log(normalizedLink)
 
                         // Only find the problem, assuming it exists
                         const problem = await db.problem.findFirst({
@@ -79,7 +81,7 @@ async function init() {
                         });
 
                         if (!sheet) {
-                            console.error(`Sheet not found for company: ${capitalizedName}. Skipping SheetProblem creation for ${normalizedLink}.`);
+                            console.error(`company not found: ${capitalizedName}.`);
                             continue; // Skip to the next company or CSV
                         }
 

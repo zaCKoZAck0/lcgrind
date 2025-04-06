@@ -12,8 +12,11 @@ async function init() {
     const dir = path.join(__dirname, '../../.data');
     const compnanies = await fs.readdir(dir);
     for (const company of compnanies) {
-     
-        // 1. Capitalize the company name
+      if (company === '.git') continue; // Skip the .git directory
+      if (company === 'Readme.md') continue; // Skip the README file
+      if (company === '.gitignore') continue; // Skip the .gitignore file
+      
+      // 1. Capitalize the company name
       const capitalizedName = company
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -28,6 +31,16 @@ async function init() {
         .replace(/--+/g, '-') // Remove consecutive hyphens
         .replace(/^-+/, '') // Remove leading hyphens
         .replace(/-+$/, ''); // Remove trailing hyphens
+      
+      // Check if the slug already exists in the database
+      const existingSheet = await db.sheet.findFirst({
+        where: { slug },
+      });
+
+      if (existingSheet) {
+        console.log(`Sheet with slug ${slug} already exists. Skipping creation.`);
+        continue; // Skip to the next company if the slug already exists
+      }
 
       // 3. Create the Company as Sheet in the database
       await db.sheet.create({
