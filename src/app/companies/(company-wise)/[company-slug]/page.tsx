@@ -53,13 +53,22 @@ export default async function CompanyWiseQuestion({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            <div className="p-3 border border-b-0 border-muted-foreground/50 bg-card">
+            <div className="p-3 border border-b-0 border-muted-foreground/50 bg-card flex justify-between items-center">
                 <Link
                     className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                     href='/companies'
                 >
                     <ArrowLeft />All Companies
                 </Link>
+                <div>
+                    <Link
+                        href={`/companies/${slug}/prep-guide`}
+                        className={buttonVariants({ variant: 'outline' })}
+                    >
+                        <ChartLineIcon />
+                        Prep Guide
+                    </Link>
+                </div>
             </div>
 
             <div className='p-6 border border-muted-foreground/50 mb-6 bg-card flex justify-between items-center'>
@@ -77,15 +86,6 @@ export default async function CompanyWiseQuestion({
                             </p>
                         </div>
                     </div>
-                </div>
-                <div>
-                    <Link
-                        href={`/companies/${slug}/prep-guide`}
-                        className={buttonVariants({ variant: 'outline' })}
-                    >
-                        <ChartLineIcon />
-                        Prep Guide
-                    </Link>
                 </div>
             </div>
 
