@@ -63,7 +63,7 @@ export default async function CompanyWiseQuestion({
                 <div>
                     <Link
                         href={`/companies/${slug}/prep-guide`}
-                        className={buttonVariants({ variant: 'outline' })}
+                        className={buttonVariants({ variant: 'outline', size: 'sm' })}
                     >
                         <ChartLineIcon />
                         Prep Guide
