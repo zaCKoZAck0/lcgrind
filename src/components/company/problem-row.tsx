@@ -18,7 +18,7 @@ interface ProblemRowProps {
     tags: string[];
 }
 
-export const ProblemRow = ({ index, order, problemUrl, problemId, problemTitle, frequency, difficulty, acceptance, isPaid, tags }: ProblemRowProps) => {
+export const ProblemRow = ({ index, problemUrl, problemId, problemTitle, frequency, difficulty, acceptance, isPaid, tags }: ProblemRowProps) => {
     const dispatch = useAppDispatch();
     const isCompleted = useAppSelector((state) =>
         isProblemCompleted(state, problemId.toString())
