@@ -65,9 +65,16 @@ export default async function PrepGuidePage({
                     {favoriteProblems.map((problem, idx) => (
                         <ProblemRow
                             key={problem.problemId}
-                            problem={problem}
                             index={idx}
-                            order={'all'}
+                            order={"all"}
+                            problemUrl={problem.problem.url}
+                            problemTitle={problem.problem.title}
+                            problemId={problem.problemId.toString()}
+                            frequency={problem.sheetOrder.toNumber()}
+                            difficulty={problem.problem.difficulty}
+                            acceptance={problem.problem.acceptance}
+                            isPaid={problem.problem.isPaid}
+                            tags={problem.problem.topicTags.map(tag => tag.topicTag.name)}
                         />
                     ))}
                 </div>

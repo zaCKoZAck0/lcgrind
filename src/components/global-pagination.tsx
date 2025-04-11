@@ -9,7 +9,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "~/components/ui/pagination"
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React from "react";
 
 type GlobalPaginationProps = {
@@ -18,12 +18,13 @@ type GlobalPaginationProps = {
     relativeUrl: string, // e.g. /companies
 }
 
-export function GlobalPagination({ totalPages, currentPage, relativeUrl }: GlobalPaginationProps) {
+export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationProps) {
     const MAX_VISIBILITY = 3;
     const router = useRouter();
+    const pathname = usePathname();
 
     const handlePageClick = (page: number) => {
-        router.push(`${relativeUrl}?page=${page}`);
+        router.push(`${pathname}?page=${page}`);
     };
 
     if (totalPages <= 1) {
@@ -75,7 +76,7 @@ export function GlobalPagination({ totalPages, currentPage, relativeUrl }: Globa
             <PaginationContent>
                 <PaginationItem>
                     <PaginationPrevious
-                        href={currentPage > 1 ? `${relativeUrl}?page=${currentPage - 1}` : undefined}
+                        href={currentPage > 1 ? `${pathname}?page=${currentPage - 1}` : undefined}
                         onClick={() => currentPage > 1 && handlePageClick(currentPage - 1)}
                     // disabled={currentPage <= 1}
                     />
@@ -90,7 +91,7 @@ export function GlobalPagination({ totalPages, currentPage, relativeUrl }: Globa
                             <PaginationItem>
                                 <PaginationLink
                                     isActive={page === currentPage}
-                                    href={`${relativeUrl}?page=${page}`}
+                                    href={`${pathname}?page=${page}`}
                                     onClick={() => handlePageClick(page)}
                                 >
                                     {page}
@@ -101,7 +102,7 @@ export function GlobalPagination({ totalPages, currentPage, relativeUrl }: Globa
                 ))}
                 <PaginationItem>
                     <PaginationNext
-                        href={currentPage < totalPages ? `${relativeUrl}?page=${currentPage + 1}` : undefined}
+                        href={currentPage < totalPages ? `${pathname}?page=${currentPage + 1}` : undefined}
                         onClick={() => currentPage < totalPages && handlePageClick(currentPage + 1)}
                     // disabled={currentPage >= totalPages}
                     />

@@ -7,6 +7,8 @@ import { COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
 import { getOrderKey } from "~/utils/sorting";
+import { Decimal } from "@prisma/client/runtime/library";
+import { ProgressTracker } from "~/components/company/progress-tracker";
 
 export default async function CompanyWiseQuestion({
     params,
@@ -71,22 +73,25 @@ export default async function CompanyWiseQuestion({
                 </div>
             </div>
 
-            <div className='p-6 border border-muted-foreground/50 mb-6 bg-card flex justify-between items-center'>
-                <div className="w-fit h-fit">
-                    <div className="flex gap-6 min-w-[360px]">
-                        <img
-                            src={logoResponse?.logo_url || '/default-company.png'}
-                            alt={`${sheet.name} logo`}
-                            className="size-14 rounded-md"
-                        />
-                        <div className="flex flex-col justify-between">
-                            <h1 className="font-semibold text-2xl">{sheet.name}</h1>
-                            <p className="text-muted-foreground/50 text-lg">
-                                {sheet._count.SheetProblem} Problems
-                            </p>
+            <div className="mb-6">
+                <div className='p-6 border border-muted-foreground/50 bg-card flex justify-between items-center'>
+                    <div className="w-fit h-fit">
+                        <div className="flex gap-6 min-w-[360px]">
+                            <img
+                                src={logoResponse?.logo_url || '/default-company.png'}
+                                alt={`${sheet.name} logo`}
+                                className="size-14 rounded-md"
+                            />
+                            <div className="flex flex-col justify-between">
+                                <h1 className="font-semibold text-2xl">{sheet.name}</h1>
+                                <p className="text-muted-foreground/50 text-lg">
+                                    {sheet._count.SheetProblem} Problems
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <ProgressTracker problemIds={sheet.SheetProblem.map(problem => problem.problemId.toString())} />
             </div>
 
             <Filters filters={{ sorting: sort, order }} />
@@ -94,9 +99,16 @@ export default async function CompanyWiseQuestion({
             {sheet.SheetProblem.map((problem, idx) => (
                 <ProblemRow
                     key={problem.problemId}
-                    problem={problem}
                     index={idx}
                     order={order}
+                    problemUrl={problem.problem.url}
+                    problemTitle={problem.problem.title}
+                    problemId={problem.problemId.toString()}
+                    frequency={(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}
+                    difficulty={problem.problem.difficulty}
+                    acceptance={problem.problem.acceptance}
+                    isPaid={problem.problem.isPaid}
+                    tags={problem.problem.topicTags.map(tag => tag.topicTag.name)}
                 />
             ))}
         </div>
