@@ -152,7 +152,7 @@ function MultiSelectBadge({ value, children }: MultiSelectBadgeProps) {
                 onClick={handleRemove}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                        handleRemove(e as any)
+                        handleRemove(e as unknown as React.MouseEvent<HTMLSpanElement>)
                     }
                 }}
             >
