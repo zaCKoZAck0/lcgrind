@@ -7,6 +7,16 @@ export type CompanyParams = {
   'company-slug': string;
 };
 
+export interface TotalCountResult {
+  count: number;
+}
+
+export interface CompanyDetails {
+  name: string;
+  slug: string;
+  numOfProblems: number;
+}
+
 export type TSheetProblem = SheetProblem & {
   problem: Problem & {
     topicTags: {

@@ -15,7 +15,6 @@ import React from "react";
 type GlobalPaginationProps = {
     totalPages: number,
     currentPage: number,
-    relativeUrl: string, // e.g. /companies
 }
 
 export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationProps) {
