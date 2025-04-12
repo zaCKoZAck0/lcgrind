@@ -26,7 +26,6 @@ interface ProblemRowProps {
 }
 
 export const ProblemRow = ({
-    index,
     problemUrl,
     problemId,
     problemTitle,
