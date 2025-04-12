@@ -13,7 +13,9 @@ export default async function AllProblemsPage({
 }: {
     searchParams: Promise<SearchParams>;
 }) {
-    let { sort = 'question-id', order = 'all', companies = null, tags = null, search = '', page = 1 } = await searchParams;
+    const params = await searchParams;
+    let { companies = null, tags = null } = params;
+    const { sort = 'question-id', order = 'all', search = '', page = 1 } = params;
     const orderKey = getOrderKey(order);
     if (!Array.isArray(companies) && companies != null) companies = [companies];
     if (!Array.isArray(tags) && tags != null) tags = [tags];
@@ -23,7 +25,7 @@ export default async function AllProblemsPage({
     const query = `
         SELECT
             p.*,
-            AVG(s."${getOrderKey(order)}") AS "order",
+            AVG(s."${orderKey}") AS "order",
             COUNT(s."problemId") AS "askedIn",
             array_agg(DISTINCT sh.name) AS "companies",
             array_agg(DISTINCT t."name") AS tags

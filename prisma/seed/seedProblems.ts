@@ -47,6 +47,7 @@ async function init() {
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
 
+        await db.sheetProblem.deleteMany({});
         for (const csvName of csvNames) {
             const rawCsv = await fs.readFile(path.join(__dirname, '../../.data', company, csvName), { encoding: 'utf-8' });
             console.log(`Parsing ${company}`);
