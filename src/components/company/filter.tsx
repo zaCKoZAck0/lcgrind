@@ -14,8 +14,7 @@ import {
 import { MultiSelect, MultiSelectTrigger, MultiSelectValue, MultiSelectContent, MultiSelectInput, MultiSelectList, MultiSelectGroup, MultiSelectLabel, MultiSelectItem } from "../ui/multi-combobox";
 import { ALGORITHMS, COMPANIES, DATA_STRUCTURES, MAANG_COMPANIES } from "~/config/constants";
 import { Checkbox } from "../ui/checkbox";
-import Link from "next/link";
-import { buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
 
 export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
@@ -25,6 +24,13 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     const router = useRouter();
     const currentSearchParams = useSearchParams();
     const pathName = usePathname();
+
+    function reset() {
+        setSort(isProblemFilter ? 'question-id' : 'frequency');
+        setOrder('all');
+        setC([]);
+        setT([]);
+    }
 
     useEffect(() => {
         const params = new URLSearchParams(currentSearchParams.toString());
@@ -74,7 +80,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     <SelectItem value="question-id">Question ID</SelectItem>
                 </SelectContent>
             </Select>
-            <Link href={pathName} className={buttonVariants({ variant: "outline" })}><RotateCcwIcon /> Reset</Link>
+            <Button variant="outline" onClick={reset}><RotateCcwIcon /> Reset</Button>
         </div>
         <div className="flex gap-3 flex-col md:flex-row md:items-center w-full">
             <MultiSelect
@@ -159,9 +165,6 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     </div>
                 </>
             }
-        </div>
-        <div>
-
         </div>
     </div>
 }

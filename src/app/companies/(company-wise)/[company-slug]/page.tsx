@@ -20,7 +20,7 @@ export default async function CompanyWiseQuestion({
     const { 'company-slug': slug } = await params;
     const p = await searchParams;
     let { tags = null } = p;
-    const { sort = 'question-id', order = 'all' } = p;
+    const { sort = 'frequency', order = 'all' } = p;
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const whereClause = `WHERE sh.slug = '${slug}'`;
     const orderKey = getOrderKey(order);
