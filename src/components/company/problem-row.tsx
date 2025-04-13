@@ -51,7 +51,7 @@ export const ProblemRow = ({
 
     return (
         <div
-            className={`relative flex flex-col md:flex-row p-3 border 
+            className={`relative flex p-3 border 
       border-muted-foreground border-t-0 
       ${isCompleted ? "bg-green-50" : "bg-card"}`}
         >

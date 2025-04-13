@@ -53,12 +53,12 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
-                        <SelectLabel>Frequency</SelectLabel>
+                        <SelectLabel>Asked in last</SelectLabel>
                         <SelectItem value="monthly">30 Days</SelectItem>
                         <SelectItem value="three-months">3 Months</SelectItem>
                         <SelectItem value="six-months">6 Months</SelectItem>
                         <SelectItem value="yearly">More that 6 Months</SelectItem>
-                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="all">All Time</SelectItem>
                     </SelectGroup>
                 </SelectContent>
             </Select>

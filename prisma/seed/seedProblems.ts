@@ -1,127 +1,184 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {parse} from 'csv-parse';
+import { parse } from 'csv-parse';
 import { db } from '~/lib/db';
 import { Prisma } from '@prisma/client';
 
 type CSVProblem = {
-    Difficulty: string,
-    Title: string,
-    Frequency: number,
-    'Acceptance Rate': number,
-    Link: string,
-    Topics: string[]
-
-}
+  Difficulty: string;
+  Title: string;
+  Frequency: number;
+  'Acceptance Rate': number;
+  Link: string;
+  Topics: string[];
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const csvNames = [
+  '1. Thirty Days.csv',
+  '2. Three Months.csv',
+  '3. Six Months.csv',
+  '4. More Than Six Months.csv',
+  '5. All.csv'
+] as const;
 
-const csvNames = ['1. Thirty Days.csv',
-'2. Three Months.csv',
-'3. Six Months.csv',
-'4. More Than Six Months.csv',
-'5. All.csv'] as const;
-
-const csvNameToOrderFieldMap: Record<typeof csvNames[number], { order: keyof Prisma.SheetProblemUpdateInput, prevOrder: keyof Prisma.SheetProblemUpdateInput }> = {
-    '1. Thirty Days.csv': { order: 'thirtyDaysOrder', prevOrder: 'prevThirtyDaysOrder' },
-    '2. Three Months.csv': { order: 'threeMonthsOrder', prevOrder: 'prevThreeMonthsOrder' },
-    '3. Six Months.csv': { order: 'sixMonthsOrder', prevOrder: 'prevSixMonthsOrder' },
-    '4. More Than Six Months.csv': { order: 'yearlyOrder', prevOrder: 'prevYearlyOrder' },
-    '5. All.csv': { order: 'sheetOrder', prevOrder: 'prevOrder' },
+// Updated mapping: removed prevOrder fields since they don't exist in our schema
+const csvNameToOrderFieldMap: Record<
+  typeof csvNames[number],
+  { order: keyof Prisma.SheetProblemUpdateInput }
+> = {
+  '1. Thirty Days.csv': { order: 'thirtyDaysOrder' },
+  '2. Three Months.csv': { order: 'threeMonthsOrder' },
+  '3. Six Months.csv': { order: 'sixMonthsOrder' },
+  '4. More Than Six Months.csv': { order: 'yearlyOrder' },
+  '5. All.csv': { order: 'sheetOrder' }
 };
-const csvHeaders = ['Difficulty', 'Title', 'Frequency', 'Acceptance Rate', 'Link', 'Topics'];
+
+const csvHeaders = [
+  'Difficulty',
+  'Title',
+  'Frequency',
+  'Acceptance Rate',
+  'Link',
+  'Topics'
+];
+
+// Helper function to parse CSV content using a Promise
+async function parseCsv(rawCsv: string): Promise<CSVProblem[]> {
+  return new Promise((resolve, reject) => {
+    parse(
+      rawCsv,
+      {
+        delimiter: ',',
+        columns: csvHeaders,
+        // Skip header line
+        from_line: 2,
+        trim: true,
+        // Automatically cast numbers (for Frequency and Acceptance Rate)
+        cast: true
+      },
+      (error, records: CSVProblem[]) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(records);
+        }
+      }
+    );
+  });
+}
 
 async function init() {
+  try {
+    // Delete all existing SheetProblem records once at the start
+    await db.sheetProblem.deleteMany({});
+
     const dir = path.join(__dirname, '../../.data');
-    const compnanies = await fs.readdir(dir);
-    for (const company of compnanies) {
-        if (company === '.git') continue; // Skip the .git directory
-        if (company === 'Readme.md') continue; // Skip the README file
-        if (company === '.gitignore') continue; // Skip the .gitignore file
-        // 1. Capitalize the company name
-        const capitalizedName = company
-            .split(' ')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+    const companies = await fs.readdir(dir);
 
-        await db.sheetProblem.deleteMany({});
-        for (const csvName of csvNames) {
-            const rawCsv = await fs.readFile(path.join(__dirname, '../../.data', company, csvName), { encoding: 'utf-8' });
-            console.log(`Parsing ${company}`);
-            parse(rawCsv, {
-                delimiter: ',',
-                columns: csvHeaders,
-            }, async (error, csvProblems: CSVProblem[]) => {
-                if (error) {
-                    // console.log(`Error at ${company}, filename: ${csvName}`)
-                }
-                else {
-                    for (const csvProblem of csvProblems.slice(1)) {
-                        // Add trailing slash to URL if not present
-                        const normalizedLink = csvProblem.Link.endsWith('/') ? csvProblem.Link : `${csvProblem.Link}/`;
+    for (const company of companies) {
+      // Skip non-company directories/files
+      if (
+        company === '.git' ||
+        company === 'Readme.md' ||
+        company === '.gitignore'
+      ) {
+        continue;
+      }
 
-                        // Only find the problem, assuming it exists
-                        const problem = await db.problem.findFirst({
-                            where: {
-                                url: normalizedLink
-                            }
-                        });
+      // Capitalize the company name (assumes folder name is the company name)
+      const capitalizedName = company
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 
-                        if (!problem) {
-                            console.warn(`Problem with URL: ${normalizedLink} not found in the database. Skipping SheetProblem creation.`);
-                            continue; // Skip to the next problem if the Problem record doesn't exist
-                        }
-
-                        const sheet = await db.sheet.findFirst({
-                            where: {
-                                name: capitalizedName,
-                            }
-                        });
-
-                        if (!sheet) {
-                            console.error(`company not found: ${capitalizedName}.`);
-                            continue; // Skip to the next company or CSV
-                        }
-
-                        const existingSheetProblem = await db.sheetProblem.findFirst({
-                            where: {
-                                problemId: problem.id,
-                                sheetId: sheet.id,
-                            },
-                        });
-
-                        const orderFields = csvNameToOrderFieldMap[csvName];
-
-                        await db.sheetProblem.upsert({
-                            where: {
-                                problemId_sheetId: {
-                                    problemId: problem.id,
-                                    sheetId: sheet.id,
-                                }
-                            },
-                            create: {
-                                problemId: problem.id,
-                                sheetId: sheet.id,
-                                [orderFields.order]: csvProblem.Frequency,
-                                [orderFields.prevOrder]: existingSheetProblem?.[orderFields.order] ?? -1, // Set initial prevOrder to current or -1 if new
-                            },
-                            update: {
-                                [orderFields.prevOrder]: existingSheetProblem?.[orderFields.order] ?? -1, // Store current order as previous
-                                [orderFields.order]: csvProblem.Frequency,
-                            }
-                        });
-
-                    }
-                }
-
-
-            });
+      for (const csvName of csvNames) {
+        const filePath = path.join(dir, company, csvName);
+        let rawCsv: string;
+        try {
+          rawCsv = await fs.readFile(filePath, { encoding: 'utf-8' });
+        } catch (err) {
+          console.error(`Error reading file: ${filePath}`, err);
+          continue;
         }
 
+        console.log(`Parsing ${company} - ${csvName}`);
+
+        let csvProblems: CSVProblem[];
+        try {
+          csvProblems = await parseCsv(rawCsv);
+        } catch (err) {
+          console.error(
+            `Error parsing CSV for ${company} - ${csvName}`,
+            err
+          );
+          continue;
+        }
+
+        for (const csvProblem of csvProblems) {
+          // Normalize URL: add trailing slash if missing
+          const normalizedLink = csvProblem.Link.endsWith('/')
+            ? csvProblem.Link
+            : `${csvProblem.Link}/`;
+
+          // Find the corresponding Problem record by URL
+          const problem = await db.problem.findFirst({
+            where: { url: normalizedLink }
+          });
+
+          if (!problem) {
+            console.warn(
+              `Problem with URL: ${normalizedLink} not found in the database. Skipping SheetProblem creation.`
+            );
+            continue;
+          }
+
+          // Find the corresponding Sheet (company) record by name
+          const sheet = await db.sheet.findFirst({
+            where: { name: capitalizedName }
+          });
+
+          if (!sheet) {
+            console.error(
+              `Company (Sheet) not found: ${capitalizedName}. Skipping ${company} - ${csvName}.`
+            );
+            continue;
+          }
+
+          const orderFields = csvNameToOrderFieldMap[csvName];
+          if (!orderFields) {
+            console.error(`No mapping found for CSV file: ${csvName}`);
+            continue;
+          }
+
+          // Upsert the SheetProblem record with the new Frequency value
+          await db.sheetProblem.upsert({
+            where: {
+              problemId_sheetId: {
+                problemId: problem.id,
+                sheetId: sheet.id
+              }
+            },
+            create: {
+              problemId: problem.id,
+              sheetId: sheet.id,
+              [orderFields.order]: csvProblem.Frequency
+            },
+            update: {
+              [orderFields.order]: csvProblem.Frequency
+            }
+          });
+        }
+      }
     }
+
+    console.log('Seeding completed successfully.');
+  } catch (error) {
+    console.error('Error during seeding:', error);
+  }
 }
 
 init();

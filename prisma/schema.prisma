@@ -57,20 +57,14 @@ model SheetProblem {
   // Current Order in the Sheet
   // Store all time ordering here for company wise sheets
   sheetOrder Decimal @default(0)
-  // Previous order before the update, i.e. prevOrder = sheetOrder, before updating new sheetorder
-  prevOrder  Decimal @default(0)
 
-  thirtyDaysOrder     Decimal @default(0)
-  prevThirtyDaysOrder Decimal @default(0)
+  thirtyDaysOrder Decimal @default(0)
 
-  threeMonthsOrder     Decimal @default(0)
-  prevThreeMonthsOrder Decimal @default(0)
+  threeMonthsOrder Decimal @default(0)
 
-  sixMonthsOrder     Decimal @default(0)
-  prevSixMonthsOrder Decimal @default(0)
+  sixMonthsOrder Decimal @default(0)
 
-  yearlyOrder     Decimal @default(0)
-  prevYearlyOrder Decimal @default(0)
+  yearlyOrder Decimal @default(0)
 
   @@unique([problemId, sheetId])
 }
