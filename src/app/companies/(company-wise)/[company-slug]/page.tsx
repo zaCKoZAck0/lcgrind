@@ -48,7 +48,7 @@ export default async function CompanyWiseQuestion({
         GROUP BY p.id
         HAVING (
     ($1::text[] IS NULL OR
-      COUNT(CASE WHEN sh.name = ANY($1::text[]) THEN 1 END) > 0)
+      COUNT(CASE WHEN t."name" = ANY($1::text[]) THEN 1 END) > 0)
   )
         ORDER BY ${orderClause}
 `;
