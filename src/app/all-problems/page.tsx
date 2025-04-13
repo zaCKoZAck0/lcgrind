@@ -26,7 +26,6 @@ export default async function AllProblemsPage({
         SELECT
             p.*,
             AVG(s."${orderKey}") AS "order",
-            COUNT(s."problemId") AS "askedIn",
             array_agg(DISTINCT sh.name) AS "companies",
             array_agg(DISTINCT t."name") AS tags
         FROM "Problem" p

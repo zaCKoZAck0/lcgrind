@@ -18,7 +18,6 @@ export interface ProblemWithStats {
   acceptance: number;
   isPaid: boolean;
   order: Decimal; // Average of s."thirtyDaysOrder"
-  askedIn: number; // Count of SheetProblem entries
   companies: string[];
   tags: string[];
 };

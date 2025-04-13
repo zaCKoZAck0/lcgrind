@@ -1,6 +1,7 @@
 export type SearchParams = {
   sort?: string;
   order?: string;
+  tags?: string | string[];
 };
 
 export type CompanyParams = {

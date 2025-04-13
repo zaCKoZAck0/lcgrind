@@ -6,9 +6,9 @@ import { db } from "~/lib/db";
 import { COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
-import { getOrderKey } from "~/utils/sorting";
-import { Decimal } from "@prisma/client/runtime/library";
+import { getDbOrderByClause, getOrderKey } from "~/utils/sorting";
 import { ProgressTracker } from "~/components/company/progress-tracker";
+import { ProblemWithStats } from "~/types/problem";
 
 export default async function CompanyWiseQuestion({
     params,
@@ -18,39 +18,52 @@ export default async function CompanyWiseQuestion({
     searchParams: Promise<SearchParams>;
 }) {
     const { 'company-slug': slug } = await params;
-    const { sort = 'frequency', order = 'all' } = await searchParams;
+    const p = await searchParams;
+    let { tags = null } = p;
+    const { sort = 'question-id', order = 'all' } = p;
+    if (!Array.isArray(tags) && tags != null) tags = [tags];
+    const whereClause = `WHERE sh.slug = '${slug}'`;
     const orderKey = getOrderKey(order);
+    const orderClause = getDbOrderByClause(order, sort);
 
-    // Parallelize data fetching
-    const [sheet, logoResponse] = await Promise.all([
-        db.sheet.findFirstOrThrow({
-            where: { slug },
-            select: {
-                name: true,
-                slug: true,
-                SheetProblem: {
-                    where: {
-                        [orderKey]: { not: -1 }
-                    },
-                    orderBy: sort === 'difficulty'
-                        ? { problem: { difficultyOrder: 'asc' } } :
-                        sort === 'question-id' ? { problem: { id: 'asc' } } :
-                            sort === 'acceptance' ? { problem: { acceptance: 'desc' } }
-                                : { [orderKey]: 'desc' },
-                    include: {
-                        problem: {
-                            include: { topicTags: { include: { topicTag: true } } }
-                        }
-                    }
-                },
-                _count: {
-                    select: { SheetProblem: true }
-                }
-            }
-        }),
+    const query2 = `
+        SELECT
+            name
+        FROM "Sheet"
+        WHERE slug = '${slug}'
+    `;
+
+    const query = `
+        SELECT
+            p.*,
+            AVG(s."${orderKey}") AS "order",
+            array_agg(DISTINCT t."name") AS tags,
+            MAX(sh.name) AS "company"
+        FROM "Problem" p
+        LEFT JOIN "SheetProblem" s ON p.id = s."problemId"
+        LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
+        LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
+        LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
+        ${whereClause}
+        GROUP BY p.id
+        HAVING (
+    ($1::text[] IS NULL OR
+      COUNT(CASE WHEN sh.name = ANY($1::text[]) THEN 1 END) > 0)
+  )
+        ORDER BY ${orderClause}
+`;
+
+    const [logoResponse, problems, sheet] = await Promise.all([
         fetch(`${COMPANY_LOGO_API}?q=${slug}.com`, {
             next: { revalidate: DEFAULT_REVALIDATION }
-        }).then(res => res.json().then(data => data[0]))
+        }).then(res => res.json().then(data => data[0])),
+        db.$queryRawUnsafe<ProblemWithStats[]>(
+            query,
+            tags
+        ),
+        db.$queryRawUnsafe<Array<{ name: string }>>(
+            query2
+        )
     ]);
 
     return (
@@ -79,36 +92,36 @@ export default async function CompanyWiseQuestion({
                         <div className="flex gap-6 min-w-[360px]">
                             <img
                                 src={logoResponse?.logo_url || '/default-company.png'}
-                                alt={`${sheet.name} logo`}
+                                alt={`${sheet[0].name} logo`}
                                 className="size-14 rounded-md"
                             />
                             <div className="flex flex-col justify-between">
-                                <h1 className="font-semibold text-2xl">{sheet.name}</h1>
+                                <h1 className="font-semibold text-2xl">{sheet[0].name}</h1>
                                 <p className="text-muted-foreground/50 text-lg">
-                                    {sheet._count.SheetProblem} Problems
+                                    {problems.length} Problems
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <ProgressTracker problemIds={sheet.SheetProblem.map(problem => problem.problemId.toString())} />
+                <ProgressTracker problemIds={problems.map(problem => problem.id.toString())} />
             </div>
 
             <Filters filters={{ sorting: sort, order }} />
 
-            {sheet.SheetProblem.map((problem, idx) => (
+            {problems.map((problem, idx) => (
                 <ProblemRow
-                    key={problem.problemId}
+                    key={problem.id}
                     index={idx}
                     order={order}
-                    problemUrl={problem.problem.url}
-                    problemTitle={problem.problem.title}
-                    problemId={problem.problemId.toString()}
-                    frequency={(problem[getOrderKey(order) as keyof typeof problem] as Decimal).toNumber()}
-                    difficulty={problem.problem.difficulty}
-                    acceptance={problem.problem.acceptance}
-                    isPaid={problem.problem.isPaid}
-                    tags={problem.problem.topicTags.map(tag => tag.topicTag.name)}
+                    problemUrl={problem.url}
+                    problemTitle={problem.title}
+                    problemId={problem.id.toString()}
+                    frequency={problem.order?.toNumber()}
+                    difficulty={problem.difficulty}
+                    acceptance={problem.acceptance}
+                    isPaid={problem.isPaid}
+                    tags={problem.tags}
                 />
             ))}
         </div>
