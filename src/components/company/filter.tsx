@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon } from "lucide-react";
+import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -14,6 +14,8 @@ import {
 import { MultiSelect, MultiSelectTrigger, MultiSelectValue, MultiSelectContent, MultiSelectInput, MultiSelectList, MultiSelectGroup, MultiSelectLabel, MultiSelectItem } from "../ui/multi-combobox";
 import { ALGORITHMS, COMPANIES, DATA_STRUCTURES, MAANG_COMPANIES } from "~/config/constants";
 import { Checkbox } from "../ui/checkbox";
+import Link from "next/link";
+import { buttonVariants } from "../ui/button";
 
 export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
@@ -42,8 +44,8 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     }, [sort, order, t, c, currentSearchParams])
 
     return <div
-        className="w-full bg-card flex flex-col md:flex-row items-center justify-between gap-3 p-3 border border-muted-foreground/50">
-        <div className="flex gap-3 flex-col md:flex-row md:items-center">
+        className="w-full bg-card flex flex-col items-center justify-between gap-3 p-3 border border-muted-foreground/50">
+        <div className="flex gap-3 flex-col md:flex-row md:items-center w-full">
             <Select value={order} onValueChange={setOrder}>
                 <SelectTrigger className="min-w-[120px] w-fit">
                     <ClockIcon />
@@ -72,11 +74,14 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     <SelectItem value="question-id">Question ID</SelectItem>
                 </SelectContent>
             </Select>
+            <Link href={pathName} className={buttonVariants({ variant: "outline" })}><RotateCcwIcon /> Reset</Link>
+        </div>
+        <div className="flex gap-3 flex-col md:flex-row md:items-center w-full">
             <MultiSelect
                 value={t}
                 onValueChange={setT}
             >
-                <MultiSelectTrigger>
+                <MultiSelectTrigger className="max-w-[300px]">
                     <HashIcon size={16} className="mr-1" />
                     <MultiSelectValue placeholder="Problem Tags" />
                 </MultiSelectTrigger>
@@ -109,44 +114,10 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
             {
                 isProblemFilter && <>
                     <MultiSelect
-                        value={t}
-                        onValueChange={setT}
-                    >
-                        <MultiSelectTrigger>
-                            <HashIcon size={16} className="mr-1" />
-                            <MultiSelectValue placeholder="Problem Tags" />
-                        </MultiSelectTrigger>
-                        <MultiSelectContent>
-                            <MultiSelectInput placeholder="Search..." />
-                            <MultiSelectList>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>Algorithms</MultiSelectLabel>
-                                    {
-                                        ALGORITHMS.map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>Data Structures</MultiSelectLabel>
-                                    {
-                                        DATA_STRUCTURES.map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
-                            </MultiSelectList>
-                        </MultiSelectContent>
-                    </MultiSelect>
-                    <MultiSelect
                         value={c}
                         onValueChange={setC}
                     >
-                        <MultiSelectTrigger>
+                        <MultiSelectTrigger className="max-w-[300px]">
                             <BriefcaseBusinessIcon size={16} className="mr-1" />
                             <MultiSelectValue placeholder="Companies" />
                         </MultiSelectTrigger>

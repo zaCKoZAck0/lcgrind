@@ -53,7 +53,7 @@ export const ProblemRow = ({
         <div
             className={`relative flex flex-col md:flex-row p-3 border 
       border-muted-foreground border-t-0 
-      ${isCompleted ? "bg-green-50" : "bg-white"}`}
+      ${isCompleted ? "bg-green-50" : "bg-card"}`}
         >
             <div className="flex-grow">
                 <div className="flex items-center">
