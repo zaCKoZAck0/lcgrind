@@ -4,8 +4,6 @@ import { ALGORITHMS, COMPANY_LOGO_API, DATA_STRUCTURES, DEFAULT_REVALIDATION } f
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 
-export const dynamic = "force-static";
-
 export default async function PrepGuidePage({
     params,
 }: {

@@ -10,8 +10,6 @@ import { getDbOrderByClause, getOrderKey } from "~/utils/sorting";
 import { ProgressTracker } from "~/components/company/progress-tracker";
 import { ProblemWithStats } from "~/types/problem";
 
-export const dynamic = "force-static";
-
 export default async function CompanyWiseQuestion({
     params,
     searchParams
