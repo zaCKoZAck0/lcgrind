@@ -44,7 +44,7 @@ export const getDbOrderByClause = (order: string, sort: string): string => {
 export const getDbWhereClause = (order: string, sort: string, search: string) => {
   const searchQuery = search.trim().length > 0 ? `p.title ILIKE '%${search.trim()}%'` : '';
   if (sort === 'frequency') {
-    return `WHERE s."${getOrderKey(order)}"` + (searchQuery ? ` AND ${searchQuery}` : '');
+    return `WHERE s."${getOrderKey(order)}" > 0` + (searchQuery ? ` AND ${searchQuery}` : '');
   }
   return searchQuery ? `WHERE ${searchQuery}` : '';
 }
