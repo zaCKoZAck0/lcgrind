@@ -42,7 +42,7 @@ export default async function PrepGuidePage({
         });
     });
 
-    const favoriteProblems = problems.filter(problem => (problem.sheetOrder.toNumber() !== -1 && problem.sixMonthsOrder.toNumber() !== -1 && problem.yearlyOrder.toNumber() !== -1 && problem.threeMonthsOrder.toNumber() !== -1 && problem.thirtyDaysOrder.toNumber() !== -1)).sort((a, b) => b.sheetOrder.toNumber() - a.sheetOrder.toNumber());
+    const favoriteProblems = problems.filter(problem => (problem.sheetOrder.toNumber() > 0 && problem.sixMonthsOrder.toNumber() > 0 && problem.yearlyOrder.toNumber() > 0 && problem.threeMonthsOrder.toNumber() > 0 && problem.thirtyDaysOrder.toNumber() > 0)).sort((a, b) => b.sheetOrder.toNumber() - a.sheetOrder.toNumber());
 
 
     return (
