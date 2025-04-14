@@ -26,8 +26,8 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     const pathName = usePathname();
 
     function reset() {
-        setSort(isProblemFilter ? 'all-problems' : 'frequency');
-        setOrder('all');
+        setSort(isProblemFilter ? 'question-id' : 'frequency');
+        setOrder('all-problems');
         setC([]);
         setT([]);
     }
