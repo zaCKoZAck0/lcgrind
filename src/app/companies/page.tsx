@@ -7,6 +7,8 @@ import { CompanyDetails, TotalCountResult } from "~/types/company";
 
 const ITEMS_PER_PAGE = 24;
 
+export const dynamic = "force-static";
+
 export default async function CompaniesPage({
     searchParams,
 }: {
