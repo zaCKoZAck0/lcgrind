@@ -4,7 +4,7 @@ import { ProgressTracker } from "~/components/company/progress-tracker";
 import { GlobalPagination } from "~/components/global-pagination";
 import { db } from "~/lib/db";
 import { ProblemWithStats, SearchParams } from "~/types/problem";
-import { getDbOrderByClause, getOrderKey } from "~/utils/sorting";
+import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -20,8 +20,8 @@ export default async function AllProblemsPage({
     if (!Array.isArray(companies) && companies != null) companies = [companies];
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const offset = (Number(page) - 1) * ITEMS_PER_PAGE;
-    const searchQuery = search.trim().length > 0 ? `WHERE p.title ILIKE '%${search.trim()}%'` : '';
     const orderClause = getDbOrderByClause(order, sort);
+    const whereClause = getDbWhereClause(order, sort, search);
     const query = `
         SELECT
             p.*,
@@ -33,7 +33,7 @@ export default async function AllProblemsPage({
         LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
         LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
         LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
-        ${searchQuery}
+        ${whereClause}
         GROUP BY p.id
         HAVING (
     ($1::text[] IS NULL OR
@@ -54,7 +54,7 @@ export default async function AllProblemsPage({
         LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
         LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
         LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
-        ${searchQuery}
+        ${whereClause}
         GROUP BY p.id
         HAVING (
     ($1::text[] IS NULL OR

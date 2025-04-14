@@ -6,7 +6,7 @@ import { db } from "~/lib/db";
 import { COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
-import { getDbOrderByClause, getOrderKey } from "~/utils/sorting";
+import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
 import { ProgressTracker } from "~/components/company/progress-tracker";
 import { ProblemWithStats } from "~/types/problem";
 
@@ -22,9 +22,9 @@ export default async function CompanyWiseQuestion({
     let { tags = null } = p;
     const { sort = 'frequency', order = 'all' } = p;
     if (!Array.isArray(tags) && tags != null) tags = [tags];
-    const whereClause = `WHERE sh.slug = '${slug}'`;
     const orderKey = getOrderKey(order);
     const orderClause = getDbOrderByClause(order, sort);
+    const whereClause = getDbWhereClause(order, sort, '');
 
     const query2 = `
         SELECT
