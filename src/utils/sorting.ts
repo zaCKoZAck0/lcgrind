@@ -41,7 +41,7 @@ export const getDbOrderByClause = (order: string, sort: string): string => {
   }
 }
 
-export const getDbWhereClause = (order: string, sort: string, search: string, slug: string) => {
+export const getDbWhereClause = (order: string, search: string, slug: string): string => {
   const whereQueries = [];
   if (search.trim().length > 0) {
     whereQueries.push(`p.title ILIKE '%${search.trim()}%'`);
@@ -49,7 +49,7 @@ export const getDbWhereClause = (order: string, sort: string, search: string, sl
   if (slug.trim().length > 0) {
     whereQueries.push(`sh.slug = '${slug.trim()}'`);
   }
-  if (sort === 'frequency') {
+  if (order !== 'all-problems') {
     whereQueries.push(`s."${getOrderKey(order)}" > 0`);
   }
   if (whereQueries.length > 0) {

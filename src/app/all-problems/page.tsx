@@ -15,13 +15,13 @@ export default async function AllProblemsPage({
 }) {
     const params = await searchParams;
     let { companies = null, tags = null } = params;
-    const { sort = 'question-id', order = 'all', search = '', page = 1 } = params;
+    const { sort = 'question-id', order = 'all-problems', search = '', page = 1 } = params;
     const orderKey = getOrderKey(order);
     if (!Array.isArray(companies) && companies != null) companies = [companies];
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const offset = (Number(page) - 1) * ITEMS_PER_PAGE;
     const orderClause = getDbOrderByClause(order, sort);
-    const whereClause = getDbWhereClause(order, sort, search, '');
+    const whereClause = getDbWhereClause(order, search, '');
     const query = `
         SELECT
             p.*,

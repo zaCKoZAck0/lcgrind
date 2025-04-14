@@ -24,7 +24,7 @@ export default async function CompanyWiseQuestion({
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const orderKey = getOrderKey(order);
     const orderClause = getDbOrderByClause(order, sort);
-    const whereClause = getDbWhereClause(order, sort, '', slug);
+    const whereClause = getDbWhereClause(order, '', slug);
 
     const query2 = `
         SELECT

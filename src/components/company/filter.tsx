@@ -26,7 +26,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     const pathName = usePathname();
 
     function reset() {
-        setSort(isProblemFilter ? 'question-id' : 'frequency');
+        setSort(isProblemFilter ? 'all-problems' : 'frequency');
         setOrder('all');
         setC([]);
         setT([]);
@@ -58,6 +58,9 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     <SelectValue placeholder="Order" />
                 </SelectTrigger>
                 <SelectContent>
+                    <SelectGroup>
+                        <SelectItem value="all-problems">All Problems</SelectItem>
+                    </SelectGroup>
                     <SelectGroup>
                         <SelectLabel>Asked in last</SelectLabel>
                         <SelectItem value="monthly">30 Days</SelectItem>
