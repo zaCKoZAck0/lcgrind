@@ -41,12 +41,21 @@ export const getDbOrderByClause = (order: string, sort: string): string => {
   }
 }
 
-export const getDbWhereClause = (order: string, sort: string, search: string) => {
-  const searchQuery = search.trim().length > 0 ? `p.title ILIKE '%${search.trim()}%'` : '';
-  if (sort === 'frequency') {
-    return `WHERE s."${getOrderKey(order)}" > 0` + (searchQuery ? ` AND ${searchQuery}` : '');
+export const getDbWhereClause = (order: string, sort: string, search: string, slug: string) => {
+  const whereQueries = [];
+  if (search.trim().length > 0) {
+    whereQueries.push(`p.title ILIKE '%${search.trim()}%'`);
   }
-  return searchQuery ? `WHERE ${searchQuery}` : '';
+  if (slug.trim().length > 0) {
+    whereQueries.push(`sh.slug = '${slug.trim()}'`);
+  }
+  if (sort === 'frequency') {
+    whereQueries.push(`s."${getOrderKey(order)}" > 0`);
+  }
+  if (whereQueries.length > 0) {
+    return `WHERE ${whereQueries.join(' AND ')}`;
+  }
+  return '';
 }
 
 export const getDifficultyThreshold = (difficulty: string): number => {

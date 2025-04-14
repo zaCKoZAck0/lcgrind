@@ -21,7 +21,7 @@ export default async function AllProblemsPage({
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const offset = (Number(page) - 1) * ITEMS_PER_PAGE;
     const orderClause = getDbOrderByClause(order, sort);
-    const whereClause = getDbWhereClause(order, sort, search);
+    const whereClause = getDbWhereClause(order, sort, search, '');
     const query = `
         SELECT
             p.*,
