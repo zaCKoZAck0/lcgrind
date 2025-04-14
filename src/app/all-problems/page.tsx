@@ -8,6 +8,8 @@ import { getDbOrderByClause, getOrderKey } from "~/utils/sorting";
 
 const ITEMS_PER_PAGE = 100;
 
+export const dynamic = "force-static";
+
 export default async function AllProblemsPage({
     searchParams
 }: {
