@@ -5,7 +5,8 @@
       "use": "@vercel/next",
       "config": {
         "packageManager": "pnpm",
-        "buildCommand": "prisma generate && next build"
+        "buildCommand": "prisma generate && next build",
+        "installCommand": "pnpm install --no-frozen-lockfile"
       }
     }
   ]
