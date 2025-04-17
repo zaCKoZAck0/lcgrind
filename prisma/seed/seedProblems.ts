@@ -25,10 +25,10 @@ const csvNames = [
   '5. All.csv'
 ] as const;
 
-// Updated mapping: use a string type instead of referencing a non-existent Prisma type
+// Updated mapping: removed prevOrder fields since they don't exist in our schema
 const csvNameToOrderFieldMap: Record<
   typeof csvNames[number],
-  { order: string }
+  { order: keyof Prisma.SheetProblemUpdateInput }
 > = {
   '1. Thirty Days.csv': { order: 'thirtyDaysOrder' },
   '2. Three Months.csv': { order: 'threeMonthsOrder' },
