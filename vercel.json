@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "packageManager": "npm" // or "yarn" if you're using yarn
+      }
+    }
+  ]
+}
