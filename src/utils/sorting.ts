@@ -30,7 +30,7 @@ export const getDbOrderByClause = (order: string, sort: string, isSheet: boolean
 
   switch (sort) {
     case 'frequency':
-      return `AVG(s."${getOrderKey(order)}")${isSheet ? " * COUNT(sh.id)" : ""} DESC NULLS LAST, p.id`;
+      return `AVG(s."${getOrderKey(order)}")${!isSheet ? " * COUNT(sh.id)" : ""} DESC NULLS LAST, p.id`;
     case 'question-id':
       return `p.id`;
     case 'acceptance':
