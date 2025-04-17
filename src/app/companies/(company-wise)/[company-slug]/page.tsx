@@ -23,7 +23,7 @@ export default async function CompanyWiseQuestion({
     const { sort = 'frequency', order = 'all' } = p;
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const orderKey = getOrderKey(order);
-    const orderClause = getDbOrderByClause(order, sort);
+    const orderClause = getDbOrderByClause(order, sort, true);
     const whereClause = getDbWhereClause(order, '', slug);
 
     const query2 = `
