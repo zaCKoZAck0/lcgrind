@@ -29,7 +29,7 @@ export const getOrderKey = (order: string): string => {
 export const getDbOrderByClause = (order: string, sort: string): string => { 
   switch (sort) {
     case 'frequency':
-      return `AVG(s."${getOrderKey(order)}") DESC NULLS LAST, p.id`;
+      return `AVG(s."${getOrderKey(order)}") * COUNT(sh.id) DESC NULLS LAST, p.id`;
     case 'question-id':
       return `p.id`;
     case 'acceptance':
