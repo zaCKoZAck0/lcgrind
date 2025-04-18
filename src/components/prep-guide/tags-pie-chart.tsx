@@ -118,7 +118,7 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                 {chartData.length > 0 && (
                     <Select value={activeTag} onValueChange={setActiveTag}>
                         <SelectTrigger
-                            className="ml-auto h-7 w-[180px] rounded-lg pl-2.5"
+                            className="ml-auto h-7 max-w-[200px] rounded-lg pl-2.5"
                             aria-label="Select a tag"
                         >
                             <SelectValue placeholder="Select tag" />
