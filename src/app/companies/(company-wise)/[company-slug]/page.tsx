@@ -9,6 +9,7 @@ import { ProblemRow } from "~/components/company/problem-row";
 import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
 import { ProgressTracker } from "~/components/company/progress-tracker";
 import { ProblemWithStats } from "~/types/problem";
+import { notFound } from "next/navigation";
 
 export default async function CompanyWiseQuestion({
     params,
@@ -27,10 +28,11 @@ export default async function CompanyWiseQuestion({
     const whereClause = getDbWhereClause(order, '', slug);
 
     const query2 = `
-        SELECT
-            name
-        FROM "Sheet"
-        WHERE slug = '${slug}'
+        SELECT s.name, COUNT(sp."problemId") AS "numOfProblems"
+        FROM "Sheet" s
+        LEFT JOIN "SheetProblem" sp ON s.id = sp."sheetId"
+        WHERE s.slug = '${slug}'
+        GROUP BY s.name
     `;
 
     const query = `
@@ -61,10 +63,12 @@ export default async function CompanyWiseQuestion({
             query,
             tags
         ),
-        db.$queryRawUnsafe<Array<{ name: string }>>(
+        db.$queryRawUnsafe<Array<{ name: string, numOfProblems: number }>>(
             query2
         )
     ]);
+
+    if (!sheet || sheet.length === 0) return notFound();
 
     return (
         <div className="w-full max-w-[1000px] py-6">
@@ -99,7 +103,7 @@ export default async function CompanyWiseQuestion({
                                 <div className="flex flex-col justify-between">
                                     <h1 className="font-semibold text-2xl">{sheet[0].name}</h1>
                                     <p className="text-muted-foreground/50 text-lg">
-                                        {problems.length} Problems
+                                        {sheet[0].numOfProblems} Problems
                                     </p>
                                 </div>
                             </div>

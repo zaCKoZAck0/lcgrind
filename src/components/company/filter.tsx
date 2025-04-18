@@ -28,7 +28,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
 
     function reset() {
         setSort(isProblemFilter ? 'question-id' : 'frequency');
-        setOrder('all-problems');
+        setOrder(isProblemFilter ? 'all-problems' : 'all');
         setC([]);
         setT([]);
     }
