@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BriefcaseBusinessIcon, CircleCheck, LockIcon } from "lucide-react";
+import { BriefcaseBusinessIcon, CheckCheckIcon, CircleCheck, ClockIcon, LockIcon } from "lucide-react";
 import { difficultyColor } from "~/utils/sorting";
 import {
     useAppDispatch,
@@ -10,6 +10,7 @@ import {
 } from "~/hooks/redux";
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { MAANG_COMPANIES, TOP_PRODUCT_COMPANIES_INDIA, TOP_PRODUCT_MNCS } from "~/config/constants";
+import { Badge } from "../ui/badge";
 
 interface ProblemRowProps {
     index: number;
@@ -51,66 +52,59 @@ export const ProblemRow = ({
 
     return (
         <div
-            className={`relative flex p-3 border 
-      border-muted-foreground border-t-0 
-      ${isCompleted ? "bg-green-50" : "bg-card"}`}
+            className={`relative flex p-3 border-2 
+      border-border border-t-0 
+      ${isCompleted ? "bg-background" : ""}`}
         >
             <div className="flex-grow">
                 <div className="flex items-center">
                     <a
                         href={problemUrl}
                         target="_blank"
-                        className="text-blue-600 hover:underline underline-offset-2 text-lg"
+                        className="text-blue-500 hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
                     >
                         {problemId}. {problemTitle}
                     </a>
                     {isPaid && (
-                        <span
+                        <Badge
                             className="ml-2 inline-flex items-center px-2 py-1 text-xs 
               font-medium bg-orange-100 text-orange-700 border border-orange-700"
                         >
                             <LockIcon size={16} className="mr-1" /> Paid
-                        </span>
+                        </Badge>
                     )}
                 </div>
                 {tags.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-2 text-xs">
-                        {tags.map((tag, i) => (
-                            <span
-                                key={i}
-                                className="px-2 py-1 border border-muted-foreground/50 text-xs"
-                            >
-                                {tag}
-                            </span>
-                        ))}
+                    <div title="Tags" className="flex flex-wrap gap-2 text-sm md:text-base font-base">
+                        {tags.join(", ")}
                     </div>
                 )}
-                <div className="mt-2 flex flex-wrap gap-4 text-xs">
-                    <span className={`${difficultyColor(difficulty)} font-semibold`}>
+                <div className="flex flex-wrap gap-4 mt-1 font-base">
+                    <Badge className={`${difficultyColor(difficulty)} text-main-foreground`}>
                         {difficulty}
+                    </Badge>
+                    <span title="Frequency" className="flex items-center gap-1">
+                        <ClockIcon size={18} /> {frequency?.toFixed(1) ? frequency.toFixed(1) + "%" : "N/A"}
                     </span>
-                    <span>
-                        Frequency:{" "}
-                        {frequency?.toFixed(1) ? frequency.toFixed(1) + "%" : "N/A"}
-                    </span>
-                    <span>Acceptance: {acceptance}%</span>
+                    <span title="Acceptance" className="flex items-center gap-1"><CheckCheckIcon size={18} /> {acceptance}%</span>
                 </div>
                 {companies.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                        <span
+                        <Badge
                             title={`Asked at ${companies.join(", ")}`}
                             className="px-2 py-1 bg-muted text-xs flex items-center gap-1 text-muted-foreground"
                         >
                             <BriefcaseBusinessIcon size={14} /> {companies.length}
-                        </span>
+                        </Badge>
                         {companies.map((company, i) => {
                             return ((MAANG_COMPANIES.includes(company) || TOP_PRODUCT_MNCS.includes(company) || TOP_PRODUCT_COMPANIES_INDIA.includes(company)) ? (
-                                <span
+                                <Badge
+                                    variant="neutral"
                                     key={i}
                                     className="px-2 py-1 bg-muted text-xs text-muted-foreground"
                                 >
                                     {company}
-                                </span>
+                                </Badge>
                             ) : null)
                         })}
                     </div>

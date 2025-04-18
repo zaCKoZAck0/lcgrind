@@ -89,7 +89,7 @@ export function MultiSelectTrigger({ className, children }: MultiSelectTriggerPr
                 role="button"
                 tabIndex={0}
                 className={cn(
-                    "flex min-h-9 w-full flex-shrink-0 items-center justify-between rounded-md border border-input bg-card px-3 py-1 text-sm ring-offset-background",
+                    "flex h-fit w-full items-center justify-between rounded-base border-2 border-border bg-main gap-2 px-3 py-2 text-sm font-base text-main-foreground ring-offset-white placeholder:text-foreground/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus:outline-hidden focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                     disabled && "cursor-not-allowed opacity-50",
                     className
                 )}
@@ -110,7 +110,7 @@ export function MultiSelectValue({ placeholder = "Select items...", className }:
     const { value, getOptionLabel } = useMultiSelect()
 
     return (
-        <div className={cn("flex flex-1 flex-shrink-0 flex-wrap gap-1", className)}>
+        <div className={cn("flex flex-1 flex-shrink-0 flex-wrap gap-1 w-fit", className)}>
             {value.length > 0 ? (
                 value.map((item) => (
                     <MultiSelectBadge key={item} value={item}>
@@ -118,7 +118,7 @@ export function MultiSelectValue({ placeholder = "Select items...", className }:
                     </MultiSelectBadge>
                 ))
             ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground flex-shrink-0">{placeholder}</span>
             )}
         </div>
     )
@@ -139,7 +139,7 @@ function MultiSelectBadge({ value, children }: MultiSelectBadgeProps) {
     }
 
     return (
-        <Badge variant="secondary" className="flex items-center gap-1 px-2 py-0.5">
+        <Badge variant="neutral" className="flex items-center gap-1 px-2 py-0.5">
             {children}
             <span
                 role="button"
