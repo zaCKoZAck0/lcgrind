@@ -72,7 +72,7 @@ export default async function CompanyWiseQuestion({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            <div className="mb-6 shadow-shadow">
+            <div className="mb-12 shadow-shadow">
                 <div className='p-3 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                     <Link
                         className={buttonVariants({ variant: 'neutral', size: 'sm' })}
