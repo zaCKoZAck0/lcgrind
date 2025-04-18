@@ -1,8 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { configureStore, combineReducers, Middleware } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-// import { thunk } from 'redux-thunk';
 
 import completedProblemsReducer from './completedProblemsSlice';
 
@@ -26,7 +24,6 @@ export const store = configureStore({
         ignoredActions: ['persist/PERSIST']
       }
     })
-    // .concat(thunk as unknown as Middleware)
 });
 
 export const persistor = persistStore(store);
