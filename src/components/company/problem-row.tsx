@@ -54,14 +54,14 @@ export const ProblemRow = ({
         <div
             className={`relative flex p-3 border-2 
       border-border border-t-0 
-      ${isCompleted ? "bg-background" : ""}`}
+      ${isCompleted ? "bg-secondary-background" : ""}`}
         >
             <div className="flex-grow">
                 <div className="flex items-center">
                     <a
                         href={problemUrl}
                         target="_blank"
-                        className="text-blue-500 hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
+                        className="dark:text-blue-300 text-blue-700 hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
                     >
                         {problemId}. {problemTitle}
                     </a>
@@ -120,9 +120,9 @@ export const ProblemRow = ({
                     }
                 >
                     {isCompleted ? (
-                        <CircleCheck className="text-green-600 h-10 w-10" />
+                        <CircleCheck className="text-main h-10 w-10" />
                     ) : (
-                        <CircleCheck className="text-gray-400 h-10 w-10 hover:text-gray-600" />
+                        <CircleCheck className="text-text-foreground h-10 w-10 hover:main-foreground" />
                     )}
                 </button>
             </div>

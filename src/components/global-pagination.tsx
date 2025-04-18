@@ -18,7 +18,7 @@ type GlobalPaginationProps = {
 }
 
 export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationProps) {
-    const MAX_VISIBILITY = 3;
+    const MAX_VISIBILITY = 2;
     const router = useRouter();
     const pathname = usePathname();
 
@@ -75,6 +75,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
             <PaginationContent>
                 <PaginationItem>
                     <PaginationPrevious
+                        size='sm'
                         href={currentPage > 1 ? `${pathname}?page=${currentPage - 1}` : undefined}
                         onClick={() => currentPage > 1 && handlePageClick(currentPage - 1)}
                     // disabled={currentPage <= 1}
@@ -89,6 +90,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
                         ) : (
                             <PaginationItem>
                                 <PaginationLink
+                                    size='sm'
                                     isActive={page === currentPage}
                                     href={`${pathname}?page=${page}`}
                                     onClick={() => handlePageClick(page)}
@@ -101,6 +103,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
                 ))}
                 <PaginationItem>
                     <PaginationNext
+                        size='sm'
                         href={currentPage < totalPages ? `${pathname}?page=${currentPage + 1}` : undefined}
                         onClick={() => currentPage < totalPages && handlePageClick(currentPage + 1)}
                     // disabled={currentPage >= totalPages}

@@ -2,20 +2,19 @@
 
 import { Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Toggle } from "~/components/ui/toggle"
+import { Button } from "./ui/button"
 
 export function ThemeToggle() {
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   useEffect(() => {
-    // Check initial theme on mount
     setIsDarkMode(document.documentElement.classList.contains("dark"))
   }, [])
 
   const toggleTheme = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
-    
+
     if (newMode) {
       document.documentElement.classList.add("dark")
       localStorage.setItem("theme", "dark")
@@ -26,15 +25,13 @@ export function ThemeToggle() {
   }
 
   return (
-    <Toggle 
-      pressed={isDarkMode}
-      onPressedChange={toggleTheme}
+    <Button
+      onClick={toggleTheme}
       aria-label="Toggle theme"
-      variant="outline"
-      size="sm"
-      className="text-foreground"
+      variant="neutral"
+      size="icon"
     >
-      {isDarkMode ? <Moon className="size-4" /> : <Sun className="size-4" />}
-    </Toggle>
+      {isDarkMode ? <Moon className="size-10" /> : <Sun className="size-10" />}
+    </Button>
   )
 }

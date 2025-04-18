@@ -21,11 +21,11 @@ export default async function CompanyWiseQuestion({
     const { 'company-slug': slug } = await params;
     const p = await searchParams;
     let { tags = null } = p;
-    const { sort = 'frequency', order = 'all' } = p;
+    const { sort = 'frequency', order = 'all', search = '' } = p;
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     const orderKey = getOrderKey(order);
     const orderClause = getDbOrderByClause(order, sort, true);
-    const whereClause = getDbWhereClause(order, '', slug);
+    const whereClause = getDbWhereClause(order, search, slug);
 
     const query2 = `
         SELECT s.name, COUNT(sp."problemId") AS "numOfProblems"
@@ -73,7 +73,7 @@ export default async function CompanyWiseQuestion({
     return (
         <div className="w-full max-w-[1000px] py-6">
             <div className="mb-6 shadow-shadow">
-                <div className='p-6 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
+                <div className='p-3 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                     <Link
                         className={buttonVariants({ variant: 'neutral', size: 'sm' })}
                         href='/companies'
@@ -114,7 +114,7 @@ export default async function CompanyWiseQuestion({
             </div>
 
             <div className='shadow-shadow'>
-                <Filters filters={{ sorting: sort, order }} />
+                <Filters filters={{ sorting: sort, order, search }} />
 
                 {problems.map((problem, idx) => (
                     <ProblemRow

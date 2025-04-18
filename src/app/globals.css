@@ -4,11 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(96.47% 0.0401 157.79);
+  --background: oklch(92.13% 0.0388 282.36);
   --secondary-background: oklch(100% 0 0);
   --foreground: oklch(0% 0 0);
   --main-foreground: oklch(0% 0 0);
-  --main: oklch(79.76% 0.2044 153.08);
+  --main: oklch(66.34% 0.1806 277.2);
   --border: oklch(0% 0 0);
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
@@ -21,11 +21,11 @@
 }
 
 .dark {
-  --background: oklch(22.45% 0.0316 158.41);
+  --background: oklch(26.58% 0.0737 283.96);
   --secondary-background: oklch(23.93% 0 0);
   --foreground: oklch(92.49% 0 0);
   --main-foreground: oklch(0% 0 0);
-  --main: oklch(73.03% 0.1865 153.23);
+  --main: oklch(66.34% 0.1806 277.2);
   --border: oklch(0% 0 0);
   --ring: oklch(100% 0 0);
   --shadow: 4px 4px 0px 0px var(--border);

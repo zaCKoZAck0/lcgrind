@@ -65,6 +65,7 @@ export default async function AllProblemsPage({
   )
 `;
 
+
     const [problems, allProblems] = await Promise.all([db.$queryRawUnsafe<ProblemWithStats[]>(
         query,
         companies,
@@ -78,7 +79,7 @@ export default async function AllProblemsPage({
     const totalPages = Math.ceil(allProblems.length / ITEMS_PER_PAGE);
 
     return (<div className="w-full max-w-[1000px] py-6">
-        <div className="mb-6 shadow-shadow">
+        <div className="mb-12 shadow-shadow">
             <div className='p-6 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                 <h1 className="text-xl font-bold">ALL PROBLEMS</h1>
             </div>
@@ -87,7 +88,7 @@ export default async function AllProblemsPage({
 
 
         <div className="shadow-shadow">
-            <Filters filters={{ sorting: sort, order }} companies={companies} tags={tags} isProblemFilter />
+            <Filters filters={{ sorting: sort, order, search }} companies={companies} tags={tags} isProblemFilter />
 
             <div className="min-w-full border-collapse">
 
