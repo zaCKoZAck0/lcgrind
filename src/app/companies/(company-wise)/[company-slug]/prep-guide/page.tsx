@@ -60,7 +60,7 @@ export default async function PrepGuidePage({
                 <TagsPieChart dataStructures={dataStructures} algorithms={algorithms} totalProblemsCount={problems.length} />
             </div>
             <div className="p-6 border-2 border-border mb-6 bg-card flex flex-col gap-6 mt-6">
-                <h2 className="text-xl font-medium">{sheet.name}'s Go-To Interview Problems</h2>
+                <h2 className="text-xl font-medium">{sheet.name}&apos;s Go-To Interview Problems</h2>
                 <div className="border-t-2 border-border shadow-shadow">
                     {favoriteProblems.map((problem, idx) => (
                         <ProblemRow
