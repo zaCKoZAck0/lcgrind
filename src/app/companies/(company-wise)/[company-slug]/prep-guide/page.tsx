@@ -47,7 +47,7 @@ export default async function PrepGuidePage({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            <div className="w-full flex items-center gap-2 justify-center p-3 border border-muted-foreground/50 bg-card">
+            <div className="w-full flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <img
                     src={logoResponse?.logo_url || '/default-company.png'}
                     alt={`${sheet.name} logo`}
@@ -55,13 +55,13 @@ export default async function PrepGuidePage({
                 />
                 <h1 className="text-2xl font-medium text-center">{sheet.name} Interview Prep Guide</h1>
             </div>
-            <div className="p-6 border border-muted-foreground/50 mb-6 bg-card flex flex-col gap-6 mt-6">
-                <h2 className="text-xl font-medium">Top Topics asked at {sheet.name} Interviews</h2>
+            <div className="p-6 border-2 border-border mb-6 bg-card flex flex-col gap-6 mt-6">
+                <h2 className="text-xl font-medium"> Most-Frequent {sheet.name} Interview Topics</h2>
                 <TagsPieChart dataStructures={dataStructures} algorithms={algorithms} totalProblemsCount={problems.length} />
             </div>
-            <div className="p-6 border border-muted-foreground/50 mb-6 bg-card flex flex-col gap-6 mt-6">
-                <h2 className="text-xl font-medium">{sheet.name} Interviews Most favorite problems</h2>
-                <div className="border-t border-muted-foreground/50 bg-card">
+            <div className="p-6 border-2 border-border mb-6 bg-card flex flex-col gap-6 mt-6">
+                <h2 className="text-xl font-medium">{sheet.name}&apos;s Go-To Interview Problems</h2>
+                <div className="border-t-2 border-border shadow-shadow">
                     {favoriteProblems.map((problem, idx) => (
                         <ProblemRow
                             key={problem.problemId}
