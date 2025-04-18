@@ -78,33 +78,36 @@ export default async function AllProblemsPage({
     const totalPages = Math.ceil(allProblems.length / ITEMS_PER_PAGE);
 
     return (<div className="w-full max-w-[1000px] py-6">
-        <div className="mb-6">
-            <div className='p-6 border border-muted-foreground/50 bg-card flex justify-between items-center'>
+        <div className="mb-6 shadow-shadow">
+            <div className='p-6 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                 <h1 className="text-xl font-bold">ALL PROBLEMS</h1>
             </div>
             <ProgressTracker problemIds={allProblems.map(problem => problem.id.toString())} />
         </div>
 
-        <Filters filters={{ sorting: sort, order }} companies={companies} tags={tags} isProblemFilter />
 
-        <div className="min-w-full border-collapse">
+        <div className="shadow-shadow">
+            <Filters filters={{ sorting: sort, order }} companies={companies} tags={tags} isProblemFilter />
 
-            {problems.map((problem, idx) => (
-                <ProblemRow
-                    key={problem.id}
-                    index={idx}
-                    order={order}
-                    problemUrl={problem.url}
-                    problemTitle={problem.title}
-                    problemId={problem.id.toString()}
-                    frequency={problem.order?.toNumber()}
-                    difficulty={problem.difficulty}
-                    acceptance={problem.acceptance}
-                    isPaid={problem.isPaid}
-                    tags={problem.tags}
-                    companies={problem.companies}
-                />
-            ))}
+            <div className="min-w-full border-collapse">
+
+                {problems.map((problem, idx) => (
+                    <ProblemRow
+                        key={problem.id}
+                        index={idx}
+                        order={order}
+                        problemUrl={problem.url}
+                        problemTitle={problem.title}
+                        problemId={problem.id.toString()}
+                        frequency={problem.order?.toNumber()}
+                        difficulty={problem.difficulty}
+                        acceptance={problem.acceptance}
+                        isPaid={problem.isPaid}
+                        tags={problem.tags}
+                        companies={problem.companies}
+                    />
+                ))}
+            </div>
         </div>
         <div className="p-6">
             <GlobalPagination currentPage={Number(page)} totalPages={totalPages} />

@@ -1,11 +1,11 @@
 export const difficultyColor = (difficulty: string): string => {
   switch (difficulty) {
     case 'Easy':
-      return 'text-green-600';
+      return 'bg-green-300';
     case 'Medium':
-      return 'text-yellow-600';
+      return 'bg-yellow-300';
     case 'Hard':
-      return 'text-red-600';
+      return 'bg-red-300';
     default:
       return '';
   }

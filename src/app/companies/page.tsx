@@ -70,7 +70,7 @@ export default async function CompaniesPage({
                         <Link
                             key={company.slug}
                             href={`/companies/${company.slug}`}
-                            className="w-fit h-fit transition-transform hover:scale-105 hover:-translate-y-1"
+                            className="w-fit h-fit"
                         >
                             <Card>
                                 <div className="flex gap-6 min-w-[360px] px-6">
