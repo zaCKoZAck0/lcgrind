@@ -4,7 +4,7 @@ import { SearchIcon } from 'lucide-react';
 import { Input } from './ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export const CompanySearch = ({ query }: { query?: string }) => {
+export const CompanySearch = ({ query, className }: { query?: string, className?: string }) => {
     const [company, setCompany] = useState<string>(query ?? "");
     const router = useRouter();
     const currentSearchParams = useSearchParams();
@@ -44,7 +44,7 @@ export const CompanySearch = ({ query }: { query?: string }) => {
                 placeholder="Search company..."
                 value={company}
                 onChange={handleInputChange}
-                className="placeholder:text-2xl md:text-2xl h-12 placeholder:text-muted-foreground/50 bg-card"
+                className={`placeholder:text-2xl md:text-2xl h-12 font-base ${className}`}
 
             />
         </div>

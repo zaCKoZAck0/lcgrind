@@ -44,13 +44,15 @@ export const getDbOrderByClause = (order: string, sort: string, isSheet: boolean
 
 export const getDbWhereClause = (order: string, search: string, slug: string): string => {
   const whereQueries = [];
-  if (search.trim().length > 0) {
-    whereQueries.push(`p.title ILIKE '%${search.trim()}%'`);
+  const trimmedSearch = search.trim();
+  const trimmedSlug = slug.trim();
+  if (trimmedSearch.length > 0) {
+    whereQueries.push(`p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%'`);
   }
-  if (slug.trim().length > 0) {
-    whereQueries.push(`sh.slug = '${slug.trim()}'`);
+  if (trimmedSlug.length > 0) {
+    whereQueries.push(`sh.slug = '${trimmedSlug}'`);
   }
-  if (order !== 'all-problems') {
+  if (order !== 'all-problems') { 
     whereQueries.push(`s."${getOrderKey(order)}" > 0`);
   }
   if (whereQueries.length > 0) {

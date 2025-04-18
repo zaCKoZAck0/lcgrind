@@ -1,7 +1,7 @@
 "use client";
 import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -16,12 +16,14 @@ import { ALGORITHMS, COMPANIES, DATA_STRUCTURES, MAANG_COMPANIES } from "~/confi
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
+export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
     const [t, setT] = useState<string[]>(tags ?? []);
+    const [problemQuery, setProblemQuery] = useState<string>((filters.search && filters.search.trim()) ?? '');
     const router = useRouter();
     const currentSearchParams = useSearchParams();
     const pathName = usePathname();
@@ -29,9 +31,36 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     function reset() {
         setSort(isProblemFilter ? 'question-id' : 'frequency');
         setOrder(isProblemFilter ? 'all-problems' : 'all');
+        setProblemQuery('');
         setC([]);
         setT([]);
     }
+
+    const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setProblemQuery(event.target.value);
+    };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            const params = new URLSearchParams(currentSearchParams.toString());
+
+            if (problemQuery && problemQuery.trim() !== '') {
+                params.set('search', problemQuery.trim());
+                params.set('page', '1');
+            } else {
+                params.delete('search');
+            }
+
+            const newQueryString = params.toString();
+            const targetPath = `${pathName}${newQueryString ? `?${newQueryString}` : ''}`;
+
+            router.replace(targetPath);
+
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+
+    }, [problemQuery, currentSearchParams]);
 
     useEffect(() => {
         const params = new URLSearchParams(currentSearchParams.toString());
@@ -51,8 +80,8 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
     }, [sort, order, t, c, currentSearchParams])
 
     return <div
-        className="w-full bg-card flex flex-col md:flex-row border-2 border-border">
-        <div className="flex gap-3 flex-col p-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
+        className="w-full bg-card flex flex-col md:flex-row border-2 border-border relative">
+        <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
             <div className='flex gap-3'>
                 <Select value={order} onValueChange={setOrder}>
                     <SelectTrigger className="min-w-[120px] w-fit">
@@ -86,9 +115,9 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     </SelectContent>
                 </Select>
             </div>
-            <Button className="bg-secondary-background cursor-pointer" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
+            <Input placeholder="Search Problem.." value={problemQuery} onChange={handleSearchInputChange} />
         </div>
-        <div className="flex flex-col-reverse md:flex-row p-3 flex-1 gap-3 flex-shrink-0">
+        <div className="flex flex-col-reverse md:flex-row py-6 px-3 flex-1 gap-3 flex-shrink-0">
             {
                 isProblemFilter && <div className="flex flex-col gap-3 md:max-w-[70%]">
                     <MultiSelect
@@ -172,6 +201,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                 </MultiSelectContent>
             </MultiSelect>
         </div>
+        <Button className="bg-secondary-background absolute top-0 right-3 -translate-y-1/2 text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
 
 
     </div>

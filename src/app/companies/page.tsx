@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { GlobalPagination } from "~/components/global-pagination";
 import { CompanySearch } from "~/components/search";
-import { Card } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
 import { db } from "~/lib/db";
 import { CompanyDetails, TotalCountResult } from "~/types/company";
 
@@ -70,10 +70,10 @@ export default async function CompaniesPage({
                         <Link
                             key={company.slug}
                             href={`/companies/${company.slug}`}
-                            className="w-fit h-fit"
+                            className="w-full md:w-fit h-fit"
                         >
-                            <Card>
-                                <div className="flex gap-6 min-w-[360px] px-6">
+                            <Button className="h-fit py-6 cursor-pointer w-full" variant="neutral">
+                                <div className="flex gap-6 md:min-w-[360px] w-full h-fit text-left px-6">
                                     <img src={logo} className="size-16 rounded-md" />
                                     <div>
                                         <p className="font-semibold text-2xl">{company.name}</p>
@@ -82,12 +82,12 @@ export default async function CompaniesPage({
                                         </p>
                                     </div>
                                 </div>
-                            </Card>
+                            </Button>
                         </Link>
                     );
                 })}
             </div>
-            <div className="p-6">
+            <div className="py-6">
                 <GlobalPagination currentPage={currentPage} totalPages={totalPages} />
             </div>
         </>
