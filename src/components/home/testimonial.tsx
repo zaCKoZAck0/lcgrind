@@ -10,49 +10,11 @@ import {
 } from "~/components/ui/carousel";
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
+import { ClientTweetCard } from "./tweet-client";
 
-// Extended testimonials array with Twitter metadata
+//  Testimonials array with Tweet IDs
 const testimonials = [
-    {
-        name: "Alex Chen",
-        handle: "@alexcodes",
-        text: "CodePrep's company-specific questions helped me nail my Google interview. The curated problem sets were spot-on!",
-        rating: 5,
-        profileImage: "https://avatars.githubusercontent.com/u/1234567?v=4",
-        tweetUrl: "https://twitter.com/alexcodes/status/1234567890"
-    },
-    {
-        name: "Sarah Miller",
-        handle: "@sarahdev",
-        text: "The 90-day preparation timeline was exactly what I needed. It helped me structure my practice and focus on the right topics.",
-        rating: 5,
-        profileImage: "https://avatars.githubusercontent.com/u/2345678?v=4",
-        tweetUrl: "https://twitter.com/sarahdev/status/2345678901"
-    },
-    {
-        name: "Raj Patel",
-        handle: "@rajcodes",
-        text: "Having all DSA sheets in one place saved me countless hours. The progress tracking feature is incredibly useful.",
-        rating: 5,
-        profileImage: "https://avatars.githubusercontent.com/u/3456789?v=4",
-        tweetUrl: "https://twitter.com/rajcodes/status/3456789012"
-    },
-    {
-        name: "Emily Wang",
-        handle: "@emilytech",
-        text: "The company-specific guides are gold! They helped me understand exactly what Microsoft looks for in candidates.",
-        rating: 5,
-        profileImage: "https://avatars.githubusercontent.com/u/4567890?v=4",
-        tweetUrl: "https://twitter.com/emilytech/status/4567890123"
-    },
-    {
-        name: "James Wilson",
-        handle: "@jameswdev",
-        text: "From zero to Netflix in 90 days! The structured approach and quality of practice questions made all the difference.",
-        rating: 5,
-        profileImage: "https://avatars.githubusercontent.com/u/5678901?v=4",
-        tweetUrl: "https://twitter.com/jameswdev/status/5678901234"
-    }
+    "1913558597688009006"
 ];
 
 export const TestimonialsSection = () => {
@@ -92,28 +54,7 @@ export const TestimonialsSection = () => {
                     <CarouselContent className="py-6 px-2">
                         {testimonials.map((testimonial, index) => (
                             <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                                <div className="p-6 bg-secondary-background border-2 border-border rotate-0 hover:rotate-1 transition-all duration-200 shadow-none hover:shadow-shadow">
-                                    <p className="text-secondary-foreground mb-4">{testimonial.text}</p>
-                                    <div className="border-t-2 border-border pt-4">
-                                        <div className="flex items-center gap-2">
-                                            <img
-                                                src={testimonial.profileImage}
-                                                alt={testimonial.name}
-                                                className="w-8 h-8 rounded-full border-2 border-black"
-                                            />
-                                            <div className="flex-1">
-                                                <a
-                                                    href={testimonial.tweetUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm text-foreground hover:underline hover:underline-offset-2 flex items-center gap-1 mt-1"
-                                                >
-                                                    {testimonial.handle}
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <ClientTweetCard id={testimonial} />
                             </CarouselItem>
                         ))}
                     </CarouselContent>
