@@ -14,7 +14,8 @@ import { ClientTweetCard } from "./tweet-client";
 
 //  Testimonials array with Tweet IDs
 const testimonials = [
-    "1913558597688009006"
+    "1913558597688009006",
+    "1913684197614735688"
 ];
 
 export const TestimonialsSection = () => {
