@@ -1,0 +1,130 @@
+"use client";
+import { ArrowLeft, ChartLineIcon } from "lucide-react";
+import Link from "next/link";
+import { COMPANIES } from "~/config/constants";
+import { buttonVariants } from "../ui/button";
+import { Filters } from "./filter";
+import { ProblemRow } from "./problem-row";
+import { ProgressTracker } from "./progress-tracker";
+import { useQuery } from "@tanstack/react-query";
+import { getCompanyWiseProblems } from "~/server/actions/companies/getCompanyWiseProblems";
+import { Skeleton } from "../ui/skeleton";
+import { getCompanyMetadata } from "~/server/actions/companies/getCompanyMetadata";
+
+export function CompanyPage({ sort, order, search, slug, tags }: { sort: string; order: string; search: string; slug: string; tags: string | string[] }) {
+    const tagsKey = Array.isArray(tags) ? tags.join(",") : tags;
+    const { data: problems, isLoading: isProblemsLoading } = useQuery({
+        queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey],
+        queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags),
+    });
+
+    const { data: sheet, isLoading: isSheetLoading } = useQuery({
+        queryKey: [`companies/${slug}/metadata`],
+        queryFn: () => getCompanyMetadata(slug),
+    })
+
+    const selectedSheet = sheet?.[0];
+
+    return <div className="w-full max-w-[1000px] py-6">
+        <div className="mb-12 shadow-shadow">
+            <div className='p-3 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
+                <Link
+                    className={buttonVariants({ variant: 'neutral', size: 'sm' })}
+                    href='/companies'
+                >
+                    <ArrowLeft />All Companies
+                </Link>
+                <div>
+                    <Link
+                        href={`/companies/${slug}/prep-guide`}
+                        className={buttonVariants({ variant: 'neutral', size: 'sm' })}
+                    >
+                        <ChartLineIcon />
+                        Prep Guide
+                    </Link>
+                </div>
+            </div>
+
+            <div>
+                <div className='p-6 border-2 border-t-0 border-border bg-card flex justify-between items-center'>
+                    {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
+                        <div className="flex gap-6 min-w-[360px]">
+                            <img
+                                src={`https://img.logo.dev/${COMPANIES[selectedSheet?.name.trim()] ?? `${selectedSheet?.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
+                                alt={`${selectedSheet?.name} logo`}
+                                className="size-14 rounded-md"
+                            />
+                            <div className="flex flex-col justify-between">
+                                <h1 className="font-semibold text-2xl">{selectedSheet?.name}</h1>
+                                <p className="text-muted-foreground/50 text-lg">
+                                    {selectedSheet?.numOfProblems} Problems
+                                </p>
+                            </div>
+                        </div>
+                    </div>)}
+                </div>
+                <ProgressTracker problemIds={problems?.map(problem => problem.id.toString()) ?? []} />
+            </div>
+        </div>
+
+        <div className='shadow-shadow'>
+            <Filters filters={{ sorting: sort, order, search }} />
+
+            {
+                isProblemsLoading
+                    ? Array.from({ length: 5 }).map((_, i) => (
+                        <ProblemRowSkeleton key={i} />
+                    ))
+                    : problems?.map((problem, idx) => (
+                        <ProblemRow
+                            key={problem.id}
+                            index={idx}
+                            order={order}
+                            problemUrl={problem.url}
+                            problemTitle={problem.title}
+                            problemId={problem.id.toString()}
+                            frequency={problem.order}
+                            difficulty={problem.difficulty}
+                            acceptance={problem.acceptance}
+                            isPaid={problem.isPaid}
+                            tags={problem.tags}
+                        />
+                    ))}
+        </div>
+    </div>
+}
+
+
+const SheetSkeleton = () => {
+    return (<div className="w-fit h-fit">
+        <div className="flex gap-6 min-w-[360px]">
+            <Skeleton className="size-14 rounded-md" />
+            <div className="pt-1">
+                <Skeleton className="h-5 w-[120px] mb-3" />
+                <Skeleton className="h-4 w-[180px]" />
+            </div>
+        </div>
+    </div>)
+}
+
+const ProblemRowSkeleton = () => (
+    <div className="relative flex p-3 border-2 border-border border-t-0 items-center">
+        <div className="flex-grow space-y-2">
+            <div className="flex items-center gap-2">
+                <Skeleton className="h-6 w-1/3 md:w-1/4" />
+            </div>
+            <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-12" />
+                <Skeleton className="h-5 w-12" />
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+                <Skeleton className="h-5 w-12" />
+                <Skeleton className="h-5 w-12" />
+            </div>
+        </div>
+        <div className="ml-6">
+            <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+    </div>
+);
