@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "~/components/header";
+import { Footer } from "~/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LC Grind",
-  description: "F*ck leetcode premium",
+  description: "Focused Interview Preparation",
 };
 
 export default function RootLayout({
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Header />
             <main className="flex-1">{children}</main>
           </div>
+          <Footer />
         </Providers>
       </body>
     </html>

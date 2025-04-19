@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GlobalPagination } from "~/components/global-pagination";
 import { CompanySearch } from "~/components/search";
+import { Star9 } from "~/components/stars/s9";
 import { Button } from "~/components/ui/button";
 import { COMPANIES } from "~/config/constants";
 import { db } from "~/lib/db";
@@ -47,7 +48,15 @@ export default async function CompaniesPage({
 
     return (
         <>
-            <h1 className="md:text-5xl text-3xl font-bold p-12">All Companies</h1>
+            <div className="p-6">
+                <h1 className="md:text-5xl text-3xl p-6 font-bold relative">
+                    <Star9 className="absolute size-10 top-0 left-0 text-main" />
+                    <span>
+                        All Companies
+                    </span>
+                    <Star9 className="absolute size-10 bottom-0 right-0 text-main" />
+                </h1>
+            </div>
             <CompanySearch query={query} />
             {companies.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground/50">
@@ -80,7 +89,7 @@ export default async function CompaniesPage({
                     );
                 })}
             </div >
-            <div className="py-6">
+            <div className="pb-6 pt-12  ">
                 <GlobalPagination currentPage={currentPage} totalPages={totalPages} />
             </div>
         </>
