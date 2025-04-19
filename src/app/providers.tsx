@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '~/store';
 import { useEffect } from 'react';
+import Script from 'next/script';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -19,8 +20,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     return (
         <Provider store={store}>
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9506252833411117"
-                crossOrigin="anonymous"></script>
+            <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9506252833411117"
+                crossOrigin="anonymous"></Script>
             <PersistGate loading={null} persistor={persistor}>
                 {children}
             </PersistGate>
