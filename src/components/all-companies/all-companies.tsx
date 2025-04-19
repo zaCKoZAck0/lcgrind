@@ -10,22 +10,19 @@ import { AllCompaniesSkeleton } from "./skeleton";
 
 export function AllCompanies({ query, currentPage, perPage, offset }: { query: string, currentPage: number, perPage: number, offset: number }) {
 
-    const { data: { companies, totalCountResult }, isLoading } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
-        queryFn: ({ queryKey }) => {
-            const [, searchQuery, searchOffset] = queryKey;
-            return getCompanies(searchQuery as string, searchOffset as number, perPage);
-        },
-    })
+        queryFn: () => getCompanies(query, offset, perPage),
+    });
 
     if (isLoading) {
         return <AllCompaniesSkeleton />;
     }
 
-    const totalCompaniesCount = Number(totalCountResult[0].count);
+    const totalCompaniesCount = Number(data.totalCountResult[0].count);
     const totalPages = Math.ceil(totalCompaniesCount / perPage);
     return <>
-        {companies.length === 0 && (
+        {data.companies.length === 0 && (
             <div className="p-8 text-center text-muted-foreground/50">
                 No companies found{query ? ` matching "${query}"` : ""}.
             </div>
@@ -34,7 +31,7 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
             className="max-w-[1200px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 
                        md:gap-6 gap-3"
         >
-            {companies.map(async (company) => {
+            {data.companies.map((company) => {
                 return (
                     <Link
                         key={company.slug}
