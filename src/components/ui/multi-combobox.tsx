@@ -6,6 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { Badge } from "~/components/ui/badge"
 import { cn } from "~/lib/utils"
+import { ScrollArea } from "./scroll-area"
 
 interface MultiSelectContextValue {
     value: string[]
@@ -184,7 +185,7 @@ export function MultiSelectInput({ placeholder = "Search..." }: { placeholder?: 
 }
 
 export function MultiSelectList({ className, children }: { className?: string, children: React.ReactNode }) {
-    return <CommandList className={className}>{children}</CommandList>
+    return <CommandList className={className}><ScrollArea className="h-[300px]">{children}</ScrollArea></CommandList>
 }
 
 export function MultiSelectEmpty({ children = "No results found." }: { children?: React.ReactNode }) {

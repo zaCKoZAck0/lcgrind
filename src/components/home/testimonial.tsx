@@ -75,7 +75,7 @@ export const TestimonialsSection = () => {
     }, [api, autoPlay]);
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-main text-main-foreground border-y-2 border-border" id="testimonials">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-main border-y-2 border-border" id="testimonials">
             <div className="max-w-7xl mx-auto">
                 <h2 className="text-4xl font-bold text-center mb-12 text-secondary-foreground border-2 border-border bg-secondary-background p-4 inline-block -rotate-1 shadow-shadow">
                     <span className="flex items-center gap-2">

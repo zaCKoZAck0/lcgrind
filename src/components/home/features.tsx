@@ -67,7 +67,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ title, description, icon }: FeatureCardProps) => {
     return (
-        <div className="p-6 bg-secondary-background border-2 border-border rotate-1 hover:rotate-0 transition-all duration-200 shadow-shadow hover:shadow-none hover:rotate-0">
+        <div className="p-6 bg-secondary-background border-2 border-border rotate-1 transition-all duration-200 shadow-shadow hover:shadow-none hover:rotate-0">
             <div className="w-12 h-12 bg-main border-2 border-border rounded-none flex items-center justify-center mb-4">
                 {icon}
             </div>
