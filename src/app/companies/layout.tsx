@@ -3,7 +3,7 @@ import React from "react";
 
 export const metadata: Metadata = {
     title: "All Companies - LC Grind",
-    description: "F*ck leetcode premium",
+    description: "Focused Interview Preparation",
 };
 
 export default function SheetPageLayout({ children }: { children: React.ReactNode }) {

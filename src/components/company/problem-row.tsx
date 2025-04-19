@@ -87,11 +87,11 @@ export const ProblemRow = ({
                     )}
                 </div>
                 {tags.length > 0 && (
-                    <div title="Tags" className="flex flex-wrap gap-2 text-sm md:text-base font-base">
+                    <div title="Tags" className="flex flex-wrap gap-2 mt-1 text-sm md:text-base font-base">
                         {tags.join(", ")}
                     </div>
                 )}
-                <div className="flex flex-wrap gap-4 mt-1 font-base">
+                <div className="flex flex-wrap gap-4 mt-2 font-base">
                     <Badge className={`${difficultyColor(difficulty)} text-main-foreground`}>
                         {difficulty}
                     </Badge>
@@ -101,7 +101,7 @@ export const ProblemRow = ({
                     <span title="Acceptance" className="flex items-center gap-1"><CheckCheckIcon size={18} /> {acceptance}%</span>
                 </div>
                 {companies.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                         <Badge
                             title={`Asked at ${companies.join(", ")}`}
                             className="px-2 py-1 bg-muted text-xs flex items-center gap-1 text-muted-foreground"
