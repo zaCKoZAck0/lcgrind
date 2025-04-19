@@ -1,6 +1,6 @@
 import { ProblemRow } from "~/components/company/problem-row";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, COMPANIES, COMPANY_LOGO_API, DATA_STRUCTURES, DEFAULT_REVALIDATION } from "~/config/constants";
+import { ALGORITHMS, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 
