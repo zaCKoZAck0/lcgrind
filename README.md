@@ -4,7 +4,7 @@
 
 <h1 align="center">LC Grind</h1>
 <p align="center">Focused Leetcode Preperation</p>
-<p align="center">Company-wise leetcode questions | Topic Wise Leetcode Preperation | Interview Prep Guide</p>
+<p align="center">Company-wise LeetCode questions | Topic-wise LeetCode preparation | Interview prep guide</p>
 
 > Note:
 > Currently, this platform relies on [liquidslr/leetcode-company-wise-problems](https://github.com/liquidslr/leetcode-company-wise-problems.git) for company-wise question data.
