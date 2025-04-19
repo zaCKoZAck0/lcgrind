@@ -13,11 +13,11 @@
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
   --shadow: 4px 4px 0px 0px var(--border);
-  --chart-1: 139 65% 20%;
-  --chart-2: 140 74% 44%;
-  --chart-3: 142 88% 28%;
-  --chart-4: 137 55% 15%;
-  --chart-5: 141 40% 9%;
+    --chart-1: 221.2 83.2% 53.3%;
+    --chart-2: 212 95% 68%;
+    --chart-3: 216 92% 60%;
+    --chart-4: 210 98% 78%;
+    --chart-5: 212 97% 87%;
 }
 
 .dark {
@@ -29,11 +29,11 @@
   --border: oklch(0% 0 0);
   --ring: oklch(100% 0 0);
   --shadow: 4px 4px 0px 0px var(--border);
-  --chart-1: 142 88% 28%;
-  --chart-2: 139 65% 20%;
-  --chart-3: 140 74% 24%;
-  --chart-4: 137 55% 15%;
-  --chart-5: 141 40% 9%;
+    --chart-1: 221.2 83.2% 53.3%;
+    --chart-2: 212 95% 68%;
+    --chart-3: 216 92% 60%;
+    --chart-4: 210 98% 78%;
+    --chart-5: 212 97% 87%;
 }
 
 @theme inline {

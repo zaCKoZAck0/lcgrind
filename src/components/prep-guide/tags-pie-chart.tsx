@@ -201,7 +201,7 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                                                     <tspan
                                                         x={viewBox.cx}
                                                         y={(viewBox.cy || 0) + 24}
-                                                        className="fill-muted-foreground text-sm"
+                                                        className="fill-foreground text-sm"
                                                     >
                                                         Problems
                                                     </tspan>

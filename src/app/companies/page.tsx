@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GlobalPagination } from "~/components/global-pagination";
 import { CompanySearch } from "~/components/search";
 import { Button } from "~/components/ui/button";
+import { COMPANIES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyDetails, TotalCountResult } from "~/types/company";
 
@@ -58,14 +59,6 @@ export default async function CompaniesPage({
                    md:gap-6 gap-3"
             >
                 {companies.map(async (company) => {
-                    // Fetch company logo from external API
-                    const companiesLogos = await (
-                        await fetch(
-                            `https://www.logo.dev/api/search?q=${company.slug}.com&token=pk_Ovv0aVUwQNK80p_PGY_xcg`,
-                            { next: { revalidate: 3600 * 24 * 5 } }
-                        )
-                    ).json();
-                    const logo = companiesLogos[0]?.logo_url ?? null;
                     return (
                         <Link
                             key={company.slug}
@@ -74,7 +67,7 @@ export default async function CompaniesPage({
                         >
                             <Button className="h-fit py-6 cursor-pointer w-full" variant="neutral">
                                 <div className="flex gap-6 md:min-w-[360px] w-full h-fit text-left px-6">
-                                    <img src={logo} className="size-16 rounded-md" />
+                                    <img src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} className="size-16 rounded-md" />
                                     <div>
                                         <p className="font-semibold text-2xl">{company.name}</p>
                                         <p className="text-muted-foreground text-lg">
@@ -86,7 +79,7 @@ export default async function CompaniesPage({
                         </Link>
                     );
                 })}
-            </div>
+            </div >
             <div className="py-6">
                 <GlobalPagination currentPage={currentPage} totalPages={totalPages} />
             </div>
