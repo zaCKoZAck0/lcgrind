@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BriefcaseBusinessIcon, CheckCheckIcon, CircleCheck, ClockIcon, LockIcon } from "lucide-react";
+import { BriefcaseBusinessIcon, CheckCheckIcon, CircleCheck, ClockIcon, Loader2Icon, LockIcon } from "lucide-react";
 import { difficultyColor } from "~/utils/sorting";
 import {
     useAppDispatch,
@@ -11,6 +11,7 @@ import {
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { MAANG_COMPANIES, TOP_PRODUCT_COMPANIES_INDIA, TOP_PRODUCT_MNCS } from "~/config/constants";
 import { Badge } from "../ui/badge";
+import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
 
 interface ProblemRowProps {
     index: number;
@@ -37,6 +38,7 @@ export const ProblemRow = ({
     tags,
     companies = [],
 }: ProblemRowProps) => {
+    const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
     const dispatch = useAppDispatch();
     const isCompleted = useAppSelector((state) =>
         isProblemCompleted(state, problemId.toString())
@@ -49,6 +51,14 @@ export const ProblemRow = ({
             dispatch(markCompleted(problemId));
         }
     };
+
+    const onLintCodeRedirect = (title: string) => {
+        setFetchingAlternative(true);
+        getLintCodeAlternative(title)
+            .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
+            .catch((error) => console.log(error))
+            .finally(() => setFetchingAlternative(false));
+    }
 
     return (
         <div
@@ -67,10 +77,12 @@ export const ProblemRow = ({
                     </a>
                     {isPaid && (
                         <Badge
-                            className="ml-2 inline-flex items-center px-2 py-1 text-xs 
-              font-medium bg-orange-100 text-orange-700 border border-orange-700"
+                            onClick={() => onLintCodeRedirect(problemTitle)}
+                            variant="neutral"
+                            className="ml-2 cursor-pointer"
                         >
-                            <LockIcon size={16} className="mr-1" /> Paid
+                            {fetchingAlternative ? (<Loader2Icon size={16} className="animate-spin mr-1" />) : (<LockIcon size={16} className="mr-1 text-orange-700 dark:text-orange-300" />)}
+                            Solve on LintCode
                         </Badge>
                     )}
                 </div>
