@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">LC Grind</h1>
-<p align="center">Focused Leetcode Preperation</p>
+<p align="center">Focused Interview Preperation</p>
 <p align="center">Company-wise LeetCode questions | Topic-wise LeetCode preparation | DSA Sheets | Interview prep guide</p>
 
 > Note:
