@@ -71,7 +71,7 @@ export const ProblemRow = ({
                     <a
                         href={problemUrl}
                         target="_blank"
-                        className="text-main hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
+                        className="text-foreground hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
                     >
                         {problemId}. {problemTitle}
                     </a>
