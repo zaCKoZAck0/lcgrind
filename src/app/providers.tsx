@@ -9,7 +9,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         // Check for theme preference in localStorage
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
+
         if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -19,6 +19,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     return (
         <Provider store={store}>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9506252833411117"
+                crossOrigin="anonymous"></script>
             <PersistGate loading={null} persistor={persistor}>
                 {children}
             </PersistGate>
