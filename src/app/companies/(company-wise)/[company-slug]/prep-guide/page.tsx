@@ -1,6 +1,6 @@
 import { ProblemRow } from "~/components/company/problem-row";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, COMPANY_LOGO_API, DATA_STRUCTURES, DEFAULT_REVALIDATION } from "~/config/constants";
+import { ALGORITHMS, COMPANIES, COMPANY_LOGO_API, DATA_STRUCTURES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 
@@ -10,13 +10,10 @@ export default async function PrepGuidePage({
     params: Promise<CompanyParams>;
 }) {
     const { 'company-slug': slug } = await params;
-    const [sheet, logoResponse, problems] = await Promise.all([
+    const [sheet, problems] = await Promise.all([
         db.sheet.findFirst({
             where: { slug }
         }),
-        fetch(`${COMPANY_LOGO_API}?q=${slug}.com`, {
-            next: { revalidate: DEFAULT_REVALIDATION }
-        }).then(res => res.json().then(data => data[0])),
         db.sheetProblem.findMany({
             where: { sheet: { slug } },
             include: {
@@ -49,7 +46,7 @@ export default async function PrepGuidePage({
         <div className="w-full max-w-[1000px] py-6">
             <div className="w-full flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <img
-                    src={logoResponse?.logo_url || '/default-company.png'}
+                    src={`https://img.logo.dev/${COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
                     alt={`${sheet.name} logo`}
                     className="size-8 rounded-md"
                 />

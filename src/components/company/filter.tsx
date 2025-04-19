@@ -144,7 +144,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                                 <MultiSelectGroup>
                                     <MultiSelectLabel>All Companies</MultiSelectLabel>
                                     {
-                                        COMPANIES.map(tag => (
+                                        Object.keys(COMPANIES).map(tag => (
                                             <MultiSelectItem key={tag} value={tag}>
                                                 {tag}
                                             </MultiSelectItem>

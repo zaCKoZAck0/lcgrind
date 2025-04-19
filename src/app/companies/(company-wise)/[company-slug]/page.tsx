@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Filters } from "~/components/company/filter";
 import { buttonVariants } from "~/components/ui/button";
 import { db } from "~/lib/db";
-import { COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
+import { COMPANIES, COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
 import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
@@ -28,11 +28,11 @@ export default async function CompanyWiseQuestion({
     const whereClause = getDbWhereClause(order, search, slug);
 
     const query2 = `
-        SELECT s.name, COUNT(sp."problemId") AS "numOfProblems"
+        SELECT s.name, s.slug, COUNT(sp."problemId") AS "numOfProblems"
         FROM "Sheet" s
         LEFT JOIN "SheetProblem" sp ON s.id = sp."sheetId"
         WHERE s.slug = '${slug}'
-        GROUP BY s.name
+        GROUP BY s.name, s.slug
     `;
 
     const query = `
@@ -55,15 +55,12 @@ export default async function CompanyWiseQuestion({
         ORDER BY ${orderClause}
 `;
 
-    const [logoResponse, problems, sheet] = await Promise.all([
-        fetch(`${COMPANY_LOGO_API}?q=${slug}.com`, {
-            next: { revalidate: DEFAULT_REVALIDATION }
-        }).then(res => res.json().then(data => data[0])),
+    const [problems, sheet] = await Promise.all([
         db.$queryRawUnsafe<ProblemWithStats[]>(
             query,
             tags
         ),
-        db.$queryRawUnsafe<Array<{ name: string, numOfProblems: number }>>(
+        db.$queryRawUnsafe<Array<{ name: string, slug: string, numOfProblems: number }>>(
             query2
         )
     ]);
@@ -96,7 +93,7 @@ export default async function CompanyWiseQuestion({
                         <div className="w-fit h-fit">
                             <div className="flex gap-6 min-w-[360px]">
                                 <img
-                                    src={logoResponse?.logo_url || '/default-company.png'}
+                                    src={`https://img.logo.dev/${COMPANIES[sheet[0].name.trim()] ?? `${sheet[0].slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
                                     alt={`${sheet[0].name} logo`}
                                     className="size-14 rounded-md"
                                 />

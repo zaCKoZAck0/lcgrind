@@ -18,7 +18,7 @@ type GlobalPaginationProps = {
 }
 
 export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationProps) {
-    const MAX_VISIBILITY = 2;
+    const MAX_VISIBILITY = 3;
     const router = useRouter();
     const pathname = usePathname();
 
