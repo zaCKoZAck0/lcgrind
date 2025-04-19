@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Filters } from "~/components/company/filter";
 import { buttonVariants } from "~/components/ui/button";
 import { db } from "~/lib/db";
-import { COMPANIES, COMPANY_LOGO_API, DEFAULT_REVALIDATION } from "~/config/constants";
+import { COMPANIES } from "~/config/constants";
 import { type SearchParams, type CompanyParams } from "~/types/company";
 import { ProblemRow } from "~/components/company/problem-row";
 import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
