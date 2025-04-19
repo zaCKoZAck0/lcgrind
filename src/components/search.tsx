@@ -4,8 +4,8 @@ import { SearchIcon } from 'lucide-react';
 import { Input } from './ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export const CompanySearch = ({ query, className }: { query?: string, className?: string }) => {
-    const [company, setCompany] = useState<string>(query ?? "");
+export const CompanySearch = ({ className }: { className?: string }) => {
+    const [company, setCompany] = useState<string>("");
     const router = useRouter();
     const currentSearchParams = useSearchParams();
 
