@@ -1,4 +1,4 @@
-import { BarChart, BookOpen, Target, Filter, Database, Book, List, Gift, Building, Timer } from "lucide-react";
+import { Target, Filter, Database, Book, List, Gift, Building, Timer } from "lucide-react";
 
 const features = [
     {
