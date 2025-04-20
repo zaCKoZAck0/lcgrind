@@ -76,7 +76,7 @@ function PaginationPrevious({
       {...props}
     >
       <ChevronLeft className="size-4" />
-      <span>Previous</span>
+      <span className="hidden md:inline-block">Previous</span>
     </PaginationLink>
   )
 }
@@ -93,7 +93,7 @@ function PaginationNext({
       className={cn("gap-1 pr-2.5", className)}
       {...props}
     >
-      <span>Next</span>
+      <span className="hidden md:inline-block">Next</span>
       <ChevronRight className="size-4" />
     </PaginationLink>
   )

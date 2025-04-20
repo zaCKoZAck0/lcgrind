@@ -38,7 +38,7 @@ export const CompanySearch = ({ className }: { className?: string }) => {
     }, [company, currentSearchParams]);
 
     return (
-        <div className="pb-6 w-full max-w-xl flex items-center gap-2">
+        <div className="p-6 pt-0 w-full max-w-xl flex items-center gap-2">
             <SearchIcon className='text-muted-foreground/50' />
             <Input
                 placeholder="Search company..."

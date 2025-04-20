@@ -39,10 +39,10 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
                         className="w-full md:w-fit h-fit"
                     >
                         <Button className="h-fit py-6 cursor-pointer w-full" variant="neutral">
-                            <div className="flex gap-6 md:min-w-[360px] w-full h-fit text-left px-6">
+                            <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
                                 <img src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} className="size-16 rounded-md" />
                                 <div>
-                                    <p className="font-semibold text-2xl">{company.name}</p>
+                                    <p className="font-semibold text-2xl min-w-[220px]">{company.name}</p>
                                     <p className="text-muted-foreground text-lg">
                                         {company.numOfProblems} Problems
                                     </p>
