@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { COMPANIES } from "~/config/constants";
 import { GlobalPagination } from "../global-pagination";
-import { Button, buttonVariants } from "../ui/button";
+import { buttonVariants } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getCompanies } from "~/server/actions/companies/getCompanies";
 import { AllCompaniesSkeleton } from "./skeleton";
