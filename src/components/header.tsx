@@ -46,13 +46,13 @@ export async function Header() {
           <div className="hidden sm:flex items-center gap-6">
             <Link
               href="/all-problems"
-              className="text-lg font-base text-muted-foreground hover:underline hover:underline-offset-2"
+              className="text-lg font-base text-muted-foreground"
             >
               Problems
             </Link>
             <Link
               href="/companies"
-              className="text-lg font-base text-muted-foreground hover:underline hover:underline-offset-2"
+              className="text-lg font-base text-muted-foreground"
             >
               Companies
             </Link>
