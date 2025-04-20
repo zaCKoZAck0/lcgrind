@@ -10,7 +10,7 @@ export default async function CompanyWiseQuestion({
 }) {
     const { 'company-slug': slug } = await params;
     const p = await searchParams;
-    let { tags = [] } = p;
+    const { tags = [] } = p;
     const { sort = 'frequency', order = 'all', search = '' } = p;
     return (
         <CompanyPage
