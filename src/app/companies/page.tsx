@@ -1,6 +1,5 @@
 import { CompanySearch } from "~/components/search";
 import { Star9 } from "~/components/stars/s9";
-import { getCompanies } from "~/server/actions/companies/getCompanies";
 import { AllCompanies } from "~/components/all-companies/all-companies";
 
 const ITEMS_PER_PAGE = 24;
