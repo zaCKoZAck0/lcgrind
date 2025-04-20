@@ -19,12 +19,12 @@ export function HeroSection() {
                     <Image src='/images/platform-screenshot.png' className="md:w-[800px] border-2 border-border shadow-shadow" height={500} width={600} alt="Platform Screenshot" />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                    <Link href="/all-problems">
+                    <Link href="/companies">
                         <Button size="lg" className="text-2xl cursor-pointer py-4 h-fit">
                             All Companies
                         </Button>
                     </Link>
-                    <Link href="/companies">
+                    <Link href="/all-problems">
                         <Button size="lg" variant="neutral" className="text-2xl cursor-pointer py-4 h-fit">
                             All Problems
                         </Button>
