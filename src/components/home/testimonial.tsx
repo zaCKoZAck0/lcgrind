@@ -11,12 +11,7 @@ import {
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { ClientTweetCard } from "./tweet-client";
-
-//  Testimonials array with Tweet IDs
-const testimonials = [
-    "1913558597688009006",
-    "1913684197614735688"
-];
+import { TESTIMONIALS } from "~/lib/testimonials";
 
 export const TestimonialsSection = () => {
     const [autoPlay, setAutoPlay] = useState(true);
@@ -53,7 +48,7 @@ export const TestimonialsSection = () => {
                     onMouseLeave={() => setAutoPlay(true)}
                 >
                     <CarouselContent className="py-6 px-2">
-                        {testimonials.map((testimonial, index) => (
+                        {TESTIMONIALS.map((testimonial, index) => (
                             <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                                 <ClientTweetCard id={testimonial} />
                             </CarouselItem>
