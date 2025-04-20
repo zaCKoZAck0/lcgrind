@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { COMPANIES } from "~/config/constants";
 import { GlobalPagination } from "../global-pagination";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getCompanies } from "~/server/actions/companies/getCompanies";
 import { AllCompaniesSkeleton } from "./skeleton";
+import { cn } from "~/lib/utils";
 
 export function AllCompanies({ query, currentPage, perPage, offset }: { query: string, currentPage: number, perPage: number, offset: number }) {
 
@@ -36,19 +37,17 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
                     <Link
                         key={company.slug}
                         href={`/companies/${company.slug}`}
-                        className="w-full md:w-fit h-fit"
+                        className={cn(buttonVariants({ variant: "neutral" }), "h-fit py-6 cursor-pointer w-full")}
                     >
-                        <Button className="h-fit py-6 cursor-pointer w-full" variant="neutral">
-                            <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
-                                <img src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} className="size-16 rounded-md" />
-                                <div>
-                                    <p className="font-semibold text-2xl min-w-[220px]">{company.name}</p>
-                                    <p className="text-muted-foreground text-lg">
-                                        {company.numOfProblems} Problems
-                                    </p>
-                                </div>
+                        <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
+                            <img src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} className="size-16 rounded-md" />
+                            <div>
+                                <p className="font-semibold text-2xl">{company.name}</p>
+                                <p className="text-muted-foreground text-lg">
+                                    {company.numOfProblems} Problems
+                                </p>
                             </div>
-                        </Button>
+                        </div>
                     </Link>
                 );
             })}
