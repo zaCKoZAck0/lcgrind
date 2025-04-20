@@ -17,7 +17,7 @@ export function ProblemsPage({ order, sort, search, tags, companies, page, perPa
         queryFn: () => getProblems(order, search, sort, tags, companies, page, perPage),
     });
 
-    const { data: problemIds } = useQuery({
+    const { data: problemIds, isLoading: problemIdsLoading } = useQuery({
         queryKey: ['problems-ids', order, search, tags, companies],
         queryFn: () => getProblemIds(order, search, tags, companies),
     })
@@ -29,7 +29,7 @@ export function ProblemsPage({ order, sort, search, tags, companies, page, perPa
             <div className='p-6 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                 <h1 className="text-xl font-bold">ALL PROBLEMS</h1>
             </div>
-            <ProgressTracker problemIds={problemIds ?? []} />
+            <ProgressTracker problemIds={problemIds ?? []} isLoading={problemIdsLoading} />
         </div>
 
 

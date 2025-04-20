@@ -64,7 +64,7 @@ export function CompanyPage({ sort, order, search, slug, tags }: { sort: string;
                         </div>
                     </div>)}
                 </div>
-                <ProgressTracker problemIds={problems?.map(problem => problem.id.toString()) ?? []} />
+                <ProgressTracker problemIds={problems?.map(problem => problem.id.toString()) ?? []} isLoading={isProblemsLoading} />
             </div>
         </div>
 
