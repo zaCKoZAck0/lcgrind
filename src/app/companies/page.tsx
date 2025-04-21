@@ -2,18 +2,9 @@ import { CompanySearch } from "~/components/search";
 import { Star9 } from "~/components/stars/s9";
 import { AllCompanies } from "~/components/all-companies/all-companies";
 
-const ITEMS_PER_PAGE = 24;
+export const dynamic = "force-static";
 
-export default async function CompaniesPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    const awaitedParams = await searchParams;
-    const currentPage = Number(awaitedParams["page"]) || 1;
-    const query = ((awaitedParams["search"] as string) ?? "").trim().toLowerCase();
-    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
+export default async function CompaniesPage() {
     return (
         <>
             <div className="p-6">
@@ -26,7 +17,7 @@ export default async function CompaniesPage({
                 </h1>
             </div>
             <CompanySearch />
-            <AllCompanies query={query} currentPage={currentPage} perPage={ITEMS_PER_PAGE} offset={offset} />
+            <AllCompanies />
         </>
     );
 }
