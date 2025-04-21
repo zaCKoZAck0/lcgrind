@@ -32,7 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <ReactQueryDevtools initialIsOpen={false} />
                     {children}
                 </PersistGate>
-                <Script>
+                <Script id="banner-ad">
                     (adsbygoogle = window.adsbygoogle || []).push({ });
                 </Script>
             </QueryClientProvider>
