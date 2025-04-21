@@ -7,6 +7,7 @@ import { GlobalPagination } from "../global-pagination";
 import { getProblems } from "~/server/actions/problems/getProblems";
 import { getProblemIds } from "~/server/actions/problems/getProblemIds";
 import { ProblemRowSkeleton } from "./problem-row-skeleton";
+import { DEFAULT_REVALIDATION } from "~/config/constants";
 
 export function ProblemsPage({ order, sort, search, tags, companies, page, perPage }: {
     order: string, sort: string, search: string, tags: string[], companies: string[], page: number, perPage: number
@@ -15,11 +16,13 @@ export function ProblemsPage({ order, sort, search, tags, companies, page, perPa
     const { data: problems, isLoading: problemsLoading } = useQuery({
         queryKey: ['problems', order, sort, search, tags, companies, page],
         queryFn: () => getProblems(order, search, sort, tags, companies, page, perPage),
+        staleTime: DEFAULT_REVALIDATION
     });
 
     const { data: problemIds, isLoading: problemIdsLoading } = useQuery({
         queryKey: ['problems-ids', order, search, tags, companies],
         queryFn: () => getProblemIds(order, search, tags, companies),
+        staleTime: DEFAULT_REVALIDATION
     })
 
     const totalPages = Math.ceil(problemIds?.length / perPage);
