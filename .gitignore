@@ -42,4 +42,3 @@ next-env.d.ts
 
 #project specific
 .data
-/prisma/seed/sheets

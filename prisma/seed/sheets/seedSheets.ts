@@ -1,0 +1,78 @@
+import { db } from '~/lib/db';
+import * as s from '.';
+
+type Metadata = {
+    slug: string;
+    title: string,
+    description: string,
+    ownerName: string,
+    website: string
+}
+
+type Problem = {
+    order: number;
+    url: string;
+    group: string;
+}
+
+async function seed(metadata: Metadata, problems: Problem[]) {
+    try {
+        const sheet = await db.sheet.create({
+            data: {
+                name: metadata.title,
+                slug: metadata.slug,
+                description: metadata.description,
+                ownerName: metadata.ownerName,
+                website: metadata.website
+            }
+        });
+
+        for (const problem of problems) {
+        try {
+                const normalizedLink = problem.url.endsWith('/')
+                    ? problem.url
+                    : `${problem.url}/`;
+
+                const dbProblem = await db.problem.findFirst({
+                    where: { url: normalizedLink }
+                });
+
+                if (!dbProblem) {
+                    console.warn(
+                        `Problem with URL: ${normalizedLink} not found in the database. Skipping SheetProblem creation.`
+                    );
+                    return;
+                }
+
+                await db.sheetProblem.create({
+                    data: {
+                        problemId: dbProblem.id,
+                        sheetId: sheet.id,
+                        sheetOrder: problem.order,
+                        group: problem.group
+                    }
+                });
+            } catch (error) {
+                console.error(`Error creating SheetProblem for URL: ${problem.url}`);
+                console.error(error);
+            }
+        }
+
+    } catch (error) {
+        console.error(`Error creating sheet: ${metadata.title}`);
+        console.error(error);
+        return;
+    }
+
+    
+}
+
+async function init() {
+    await seed(s.BLIND_75.METADATA, s.BLIND_75.PROBLEMS);
+    await seed(s.GRIND_75.METADATA, s.GRIND_75.PROBLEMS);
+    await seed(s.LEETCODE_75.METADATA, s.LEETCODE_75.PROBLEMS);
+    await seed(s.LEETCODE_150.METADATA, s.LEETCODE_150.PROBLEMS);
+    await seed(s.LEETCODE_MOST_LIKED.METADATA, s.LEETCODE_MOST_LIKED.PROBLEMS);
+}
+
+init()
