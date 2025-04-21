@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { COMPANIES } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { GlobalPagination } from "../global-pagination";
 import { buttonVariants } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
         queryFn: () => getCompanies(query, offset, perPage),
+        staleTime: DEFAULT_REVALIDATION
     });
 
     if (isLoading) {

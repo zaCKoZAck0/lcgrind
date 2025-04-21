@@ -1,7 +1,7 @@
 "use client";
 import { ArrowLeft, ChartLineIcon } from "lucide-react";
 import Link from "next/link";
-import { COMPANIES } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { buttonVariants } from "../ui/button";
 import { Filters } from "./filter";
 import { ProblemRow } from "./problem-row";
@@ -17,11 +17,13 @@ export function CompanyPage({ sort, order, search, slug, tags }: { sort: string;
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey],
         queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags),
+        staleTime: DEFAULT_REVALIDATION
     });
 
     const { data: sheet, isLoading: isSheetLoading } = useQuery({
         queryKey: [`companies/${slug}/metadata`],
         queryFn: () => getCompanyMetadata(slug),
+        staleTime: DEFAULT_REVALIDATION
     })
 
     const selectedSheet = sheet?.[0];

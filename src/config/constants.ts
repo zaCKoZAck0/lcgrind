@@ -1,5 +1,5 @@
 export const COMPANY_LOGO_API = 'https://www.logo.dev/api/search';
-export const DEFAULT_REVALIDATION = 3600 * 24 * 5; // 5 days
+export const DEFAULT_REVALIDATION = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 export const MAANG_COMPANIES = [
   "Meta",
