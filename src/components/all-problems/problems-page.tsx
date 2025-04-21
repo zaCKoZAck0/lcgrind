@@ -16,13 +16,16 @@ export function ProblemsPage({ order, sort, search, tags, companies, page, perPa
     const { data: problems, isLoading: problemsLoading } = useQuery({
         queryKey: ['problems', order, sort, search, tags, companies, page],
         queryFn: () => getProblems(order, search, sort, tags, companies, page, perPage),
-        staleTime: DEFAULT_REVALIDATION
+        staleTime: DEFAULT_REVALIDATION,
+        gcTime: DEFAULT_REVALIDATION,
+
     });
 
     const { data: problemIds, isLoading: problemIdsLoading } = useQuery({
         queryKey: ['problems-ids', order, search, tags, companies],
         queryFn: () => getProblemIds(order, search, tags, companies),
-        staleTime: DEFAULT_REVALIDATION
+        staleTime: DEFAULT_REVALIDATION,
+        gcTime: DEFAULT_REVALIDATION,
     })
 
     const totalPages = Math.ceil(problemIds?.length / perPage);

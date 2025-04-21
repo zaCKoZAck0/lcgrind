@@ -14,7 +14,8 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
         queryFn: () => getCompanies(query, offset, perPage),
-        staleTime: DEFAULT_REVALIDATION
+        staleTime: DEFAULT_REVALIDATION,
+        gcTime: DEFAULT_REVALIDATION,
     });
 
     if (isLoading) {

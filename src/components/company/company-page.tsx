@@ -17,13 +17,15 @@ export function CompanyPage({ sort, order, search, slug, tags }: { sort: string;
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey],
         queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags),
-        staleTime: DEFAULT_REVALIDATION
+        staleTime: DEFAULT_REVALIDATION,
+        gcTime: DEFAULT_REVALIDATION,
     });
 
     const { data: sheet, isLoading: isSheetLoading } = useQuery({
         queryKey: [`companies/${slug}/metadata`],
         queryFn: () => getCompanyMetadata(slug),
-        staleTime: DEFAULT_REVALIDATION
+        staleTime: DEFAULT_REVALIDATION,
+        gcTime: DEFAULT_REVALIDATION,
     })
 
     const selectedSheet = sheet?.[0];
