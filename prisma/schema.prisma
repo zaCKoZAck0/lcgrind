@@ -54,6 +54,9 @@ model SheetProblem {
   problemId Int
   sheetId   Int
 
+  // Custom grouping by the sheet owner
+  group String @default("N/A")
+
   // Current Order in the Sheet
   // Store all time ordering here for company wise sheets
   sheetOrder Decimal @default(0)
@@ -73,7 +76,9 @@ model Sheet {
   id           Int            @id @default(autoincrement())
   slug         String         @unique
   name         String
+  description  String         @default("")
   website      String         @default("")
+  ownerName    String         @default("N/A")
   SheetProblem SheetProblem[]
   isCompany    Boolean        @default(false)
 }

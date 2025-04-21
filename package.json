@@ -10,6 +10,7 @@
     "seed:companies": "tsx prisma/seed/seedCompanies.ts",
     "seed:all": "concurrently \"tsx prisma/seed/seedCompanies.ts\" \"tsx prisma/seed/seedLeetcode.ts\" && tsx prisma/seed/seedProblems.ts",
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
+    "seed:sheets": "tsx prisma/seed/seedSheets.ts",
     "seed:problems": "tsx prisma/seed/seedProblems.ts",
     "seed:sync": "cd .data && git pull && cd .. && tsx prisma/seed/seedProblems.ts"
   },
