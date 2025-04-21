@@ -1,0 +1,58 @@
+name: Monitor External Repository
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  check-for-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for new commits
+        id: check
+        run: |
+          # Get latest commit SHA from the external repository
+          LATEST_SHA=$(curl -s https://api.github.com/repos/liquidslr/leetcode-company-wise-problems/commits/master | jq -r .sha)
+          
+          # Create directory if it doesn't exist
+          mkdir -p .github/workflow-data
+          
+          # Check if we have a stored SHA
+          if [ -f .github/workflow-data/last_sha.txt ]; then
+            STORED_SHA=$(cat .github/workflow-data/last_sha.txt)
+          else
+            STORED_SHA=""
+          fi
+          
+          # Compare SHAs
+          if [ "$LATEST_SHA" != "$STORED_SHA" ]; then
+            echo "New commits detected!"
+            echo "create_issue=true" >> $GITHUB_OUTPUT
+            echo "$LATEST_SHA" > .github/workflow-data/last_sha.txt
+          else
+            echo "No new commits."
+            echo "create_issue=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue if updates found
+        if: steps.check.outputs.create_issue == 'true'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/update_questions.md
+          update_existing: true
+          search_existing: title
+
+      - name: Commit and push changes to SHA file
+        if: steps.check.outputs.create_issue == 'true'
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add .github/workflow-data/last_sha.txt
+          git commit -m "Update tracked SHA for external repository"
+          git push
