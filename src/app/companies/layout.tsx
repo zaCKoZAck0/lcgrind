@@ -6,6 +6,8 @@ export const metadata: Metadata = {
     description: "Focused Interview Preparation",
 };
 
+export const dynamic = "force-static";
+
 export default function SheetPageLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen flex flex-col items-center">
