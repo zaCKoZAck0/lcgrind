@@ -8,14 +8,27 @@ import { getProblems } from "~/server/actions/problems/getProblems";
 import { getProblemIds } from "~/server/actions/problems/getProblemIds";
 import { ProblemRowSkeleton } from "./problem-row-skeleton";
 import { DEFAULT_REVALIDATION } from "~/config/constants";
+import { useSearchParams } from 'next/navigation';
 
-export function ProblemsPage({ order, sort, search, tags, companies, page, perPage }: {
-    order: string, sort: string, search: string, tags: string[], companies: string[], page: number, perPage: number
-}) {
+const ITEMS_PER_PAGE = 100;
+
+export function ProblemsPage() {
+
+    const searchParams = useSearchParams();
+
+    let companies = searchParams.getAll('companies');
+    let tags = searchParams.getAll('tags');
+    const sort = searchParams.get('sort') || 'question-id';
+    const order = searchParams.get('order') || 'all-problems';
+    const search = searchParams.get('search') || '';
+    const page = Number(searchParams.get('page') || 1);
+
+    if (companies.length === 0) companies = null;
+    if (tags.length === 0) tags = null;
 
     const { data: problems, isLoading: problemsLoading } = useQuery({
         queryKey: ['problems', order, sort, search, tags, companies, page],
-        queryFn: () => getProblems(order, search, sort, tags, companies, page, perPage),
+        queryFn: () => getProblems(order, search, sort, tags, companies, page, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
 
@@ -28,7 +41,7 @@ export function ProblemsPage({ order, sort, search, tags, companies, page, perPa
         gcTime: DEFAULT_REVALIDATION,
     })
 
-    const totalPages = Math.ceil(problemIds?.length / perPage);
+    const totalPages = Math.ceil(problemIds?.length / ITEMS_PER_PAGE);
 
     return (<div className="w-full max-w-[1000px] py-6">
         <div className="mb-12 shadow-shadow">

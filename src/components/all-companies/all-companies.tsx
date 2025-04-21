@@ -8,12 +8,20 @@ import { useQuery } from "@tanstack/react-query";
 import { getCompanies } from "~/server/actions/companies/getCompanies";
 import { AllCompaniesSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
+import { useSearchParams } from "next/navigation";
 
-export function AllCompanies({ query, currentPage, perPage, offset }: { query: string, currentPage: number, perPage: number, offset: number }) {
+const ITEMS_PER_PAGE = 24;
+
+export function AllCompanies() {
+
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
+    const query = (searchParams.get('search') || '').trim().toLowerCase();
+    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
-        queryFn: () => getCompanies(query, offset, perPage),
+        queryFn: () => getCompanies(query, offset, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
     });
@@ -23,7 +31,7 @@ export function AllCompanies({ query, currentPage, perPage, offset }: { query: s
     }
 
     const totalCompaniesCount = Number(data.totalCountResult[0].count);
-    const totalPages = Math.ceil(totalCompaniesCount / perPage);
+    const totalPages = Math.ceil(totalCompaniesCount / ITEMS_PER_PAGE);
     return <>
         {data.companies.length === 0 && (
             <div className="p-8 text-center text-muted-foreground/50">

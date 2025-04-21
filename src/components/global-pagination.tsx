@@ -23,7 +23,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
     const pathname = usePathname();
 
     const handlePageClick = (page: number) => {
-        router.replace(`${pathname}?page=${page}`);
+        router.push(`${pathname}?page=${page}`);
     };
 
     if (totalPages <= 1) {

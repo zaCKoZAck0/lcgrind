@@ -11,9 +11,18 @@ import { getCompanyWiseProblems } from "~/server/actions/companies/getCompanyWis
 import { Skeleton } from "../ui/skeleton";
 import { getCompanyMetadata } from "~/server/actions/companies/getCompanyMetadata";
 import { ProblemRowSkeleton } from "../all-problems/problem-row-skeleton";
+import { useSearchParams } from "next/navigation";
 
-export function CompanyPage({ sort, order, search, slug, tags }: { sort: string; order: string; search: string; slug: string; tags: string | string[] }) {
+export function CompanyPage({ slug }: { slug: string }) {
+    const searchParams = useSearchParams();
+
+    const tagsParam = searchParams.getAll('tags');
+    const tags = tagsParam.length > 0 ? tagsParam : [];
+    const sort = searchParams.get('sort') || 'frequency';
+    const order = searchParams.get('order') || 'all';
+    const search = searchParams.get('search') || '';
     const tagsKey = Array.isArray(tags) ? tags.join(",") : tags;
+
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey],
         queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags),
