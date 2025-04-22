@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
+import { DM_Sans } from "next/font/google"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSans = DM_Sans({
   subsets: ["latin"],
-});
+  display: "swap",
+  adjustFontFallback: false,
+})
+
 
 export const metadata: Metadata = {
   title: "LC Grind",
@@ -28,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${dmSans.className} antialiased`}
       >
         <Providers>
           <div className="flex min-h-screen flex-col bg-background text-foreground text-base px-2">

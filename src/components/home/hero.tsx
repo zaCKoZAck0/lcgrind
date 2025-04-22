@@ -21,12 +21,12 @@ export function HeroSection() {
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                     <Link href="/companies">
                         <Button size="lg" className="text-2xl cursor-pointer py-4 h-fit">
-                            All Companies
+                            Companies
                         </Button>
                     </Link>
                     <Link href="/all-problems">
                         <Button size="lg" variant="neutral" className="text-2xl cursor-pointer py-4 h-fit">
-                            All Problems
+                            Problems
                         </Button>
                     </Link>
                 </div>

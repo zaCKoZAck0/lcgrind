@@ -2,7 +2,7 @@ export const COMPANY_LOGO_API = 'https://www.logo.dev/api/search';
 export const DEFAULT_REVALIDATION = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 export const SHEET_OWNER_LOGO_SRC = {
-  "Neetcode": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRzhaTNSjub5uXrLm8EJjBGM4PN7ZQpVDOsgyTe",
+  "neetcode": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRzhaTNSjub5uXrLm8EJjBGM4PN7ZQpVDOsgyTe",
   "tech interview handbook": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRz8UZeBzKskcTQ9NJVa4z2GF1OARDSE3j7PUlM",
   "leetcode": "https://img.logo.dev/leetcode.com?token=pk_Ovv0aVUwQNK80p_PGY_xcg"
 }

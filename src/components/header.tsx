@@ -3,6 +3,9 @@ import Link from "next/link"
 import { ThemeToggle } from "~/components/theme-toggle"
 import { buttonVariants } from "./ui/button"
 import { Twitter } from "./home/tweet"
+import { NavLinks } from "./nav-links"
+
+
 
 interface RepoData {
   stargazers_count: number
@@ -43,20 +46,7 @@ export async function Header() {
               className="mr-2"
             />
           </Link>
-          <div className="hidden sm:flex items-center gap-6">
-            <Link
-              href="/all-problems"
-              className="text-lg font-base text-muted-foreground"
-            >
-              Problems
-            </Link>
-            <Link
-              href="/companies"
-              className="text-lg font-base text-muted-foreground"
-            >
-              Companies
-            </Link>
-          </div>
+          <NavLinks />
         </div>
         <div className="ml-auto flex items-center gap-4">
           <a
