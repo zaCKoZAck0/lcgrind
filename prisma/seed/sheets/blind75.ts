@@ -61,7 +61,6 @@ export const PROBLEMS = [
   { order: 40, url: "https://leetcode.com/problems/reverse-linked-list/", group: "Linked List" },
   { order: 41, url: "https://leetcode.com/problems/linked-list-cycle/", group: "Linked List" },
   { order: 42, url: "https://leetcode.com/problems/merge-two-sorted-lists/", group: "Linked List" },
-  { order: 43, url: "https://leetcode.com/problems/merge-k-sorted-lists/", group: "Linked List" },
   { order: 44, url: "https://leetcode.com/problems/remove-nth-node-from-end-of-list/", group: "Linked List" },
   { order: 45, url: "https://leetcode.com/problems/reorder-list/", group: "Linked List" },
 
@@ -96,7 +95,7 @@ export const PROBLEMS = [
   { order: 69, url: "https://leetcode.com/problems/kth-smallest-element-in-a-bst/", group: "Tree" },
   { order: 70, url: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/", group: "Tree" },
   { order: 71, url: "https://leetcode.com/problems/implement-trie-prefix-tree/", group: "Tree" },
-  { order: 72, url: "https://leetcode.com/problems/design-add-and-search-word-data-structure-design/", group: "Tree" },
+  { order: 72, url: "https://leetcode.com/problems/design-add-and-search-words-data-structure/", group: "Tree" },
   { order: 73, url: "https://leetcode.com/problems/word-search-ii/", group: "Tree" },
 
   // Heap
