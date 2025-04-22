@@ -118,14 +118,18 @@ async function fetchAndStoreQuestions() {
         let linksFound = 0; // Or skipped
 
         for (const question of questions) {
-            const { title, titleSlug, difficulty, paidOnly, topicTags, acRate } = question;
+            const { title, titleSlug, difficulty, paidOnly, topicTags, acRate, frontendQuestionId } = question;
             const url = `https://leetcode.com/problems/${titleSlug}/`;
+
+            
 
             try {
                 await prisma.$transaction(async (tx) => {
                     const problem = await tx.problem.upsert({
                         where: { url: url },
                         update: {
+                            frontendQuestionId,
+                            platform: 'LeetCode',
                             title: title,
                             difficulty: difficulty,
                             difficultyOrder: difficulty === 'Easy' ? 1 : difficulty === 'Medium' ? 2 : 3,
@@ -133,6 +137,8 @@ async function fetchAndStoreQuestions() {
                             isPaid: paidOnly,
                         },
                         create: {
+                            frontendQuestionId,
+                            platform: 'LeetCode',
                             title: title,
                             url: url,
                             difficulty: difficulty,

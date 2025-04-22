@@ -1,5 +1,5 @@
 import { db } from '~/lib/db';
-import * as s from '.';
+import * as s from './sheets';
 
 type Metadata = {
     slug: string;

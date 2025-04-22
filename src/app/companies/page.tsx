@@ -1,5 +1,5 @@
 import { CompanySearch } from "~/components/search";
-import { Star9 } from "~/components/stars/s9";
+import { Star9 } from "~/components/ui/stars/s9";
 import { AllCompanies } from "~/components/all-companies/all-companies";
 
 export const dynamic = "force-static";

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed:companies": "tsx prisma/seed/seedCompanies.ts",
-    "seed:all": "concurrently \"tsx prisma/seed/seedCompanies.ts\" \"tsx prisma/seed/seedLeetcode.ts\" && tsx prisma/seed/seedProblems.ts",
+    "seed:all": "concurrently \"tsx prisma/seed/seedCompanies.ts\" \"tsx prisma/seed/seedLeetcode.ts\" && concurrently \"tsx prisma/seed/seedProblems.ts\" \"tsx prisma/seed/sheets/seedSheets.ts\"",
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
     "seed:sheets": "tsx prisma/seed/seedSheets.ts",
     "seed:problems": "tsx prisma/seed/seedProblems.ts",
