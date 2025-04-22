@@ -30,13 +30,12 @@ export const Footer = () => {
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
-                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Questions</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
                             </ul>
                         </div>
 
                         <div>
                             <a className="flex gap-1 w-fit text-lg border-2 border-border shadow-shadow pl-2 pr-4 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={"https://img.logo.dev/logo.dev?token=pk_Ovv0aVUwQNK80p_PGY_xcg"} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
-
                         </div>
                     </div>
 
