@@ -71,10 +71,17 @@ export async function Header() {
           <a
             target="_blank"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
-            className={buttonVariants({ variant: "neutral", size: "sm" })}
+            className={buttonVariants({ variant: "neutral", size: "sm", className: "hidden md:flex" })}
           >
             <HeartIcon className="size-5" />
             Support
+          </a>
+          <a
+            target="_blank"
+            href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
+            className={buttonVariants({ variant: "neutral", size: "icon", className: "flex md:hidden" })}
+          >
+            <HeartIcon className="size-5" />
           </a>
           <a
             target="_blank"
