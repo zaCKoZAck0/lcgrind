@@ -5,7 +5,7 @@ import { buttonVariants } from "./ui/button"
 import { Twitter } from "./home/tweet"
 import { HeartIcon } from "lucide-react"; 
 import { NavLinks } from "./nav-links"
-
+import { cn } from "~/lib/utils"
 
 
 interface RepoData {
@@ -71,7 +71,7 @@ export async function Header() {
           <a
             target="_blank"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
-            className={buttonVariants({ variant: "neutral", size: "sm", className: "hidden md:flex" })}
+            className={cn(buttonVariants({ variant: "neutral"}), "hidden md:flex")}
           >
             <HeartIcon className="size-5" />
             Support
@@ -79,7 +79,7 @@ export async function Header() {
           <a
             target="_blank"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
-            className={buttonVariants({ variant: "neutral", size: "icon", className: "flex md:hidden" })}
+            className={cn(buttonVariants({ variant: "neutral", size: "icon" }), "flex md:hidden")}
           >
             <HeartIcon className="size-5" />
           </a>
