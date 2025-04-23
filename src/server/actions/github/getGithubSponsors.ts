@@ -1,26 +1,16 @@
 "use server";
 
-type SponsorEntity = {
+type Sponsor = {
   login: string;
   name: string;
 };
 
-type Tier = {
-  monthlyPriceInDollars: number;
-};
-
-type SponsorshipNode = {
-  sponsorEntity: SponsorEntity;
-  tier: Tier;
-  createdAt: string;
-};
-
-type SponsorshipsAsMaintainer = {
-  nodes: SponsorshipNode[];
+type Sponsors = {
+  nodes: Sponsor[];
 };
 
 type User = {
-  sponsorshipsAsMaintainer: SponsorshipsAsMaintainer;
+  sponsors: Sponsors;
 };
 
 type Data = {
@@ -29,38 +19,28 @@ type Data = {
 
 type GraphQLResponse = {
   data: Data;
-  errors?: unknown;
+  errors?: any;
 };
 
 export async function getGithubSponsors(
   username: string,
 ): Promise<GraphQLResponse> {
-    const token = process.env.GH_API_KEY;
+  
+  const token = process.env.GH_API_KEY;
+  
   const query = `
     query {
       user(login: "${username}") {
-        sponsorshipsAsMaintainer(first: 100) {
+        sponsors(first: 100, orderBy: {field: RELEVANCE, direction: DESC}) {
           nodes {
-            sponsorEntity {
-              ... on User {
-                login
-                name
-              }
-              ... on Organization {
-                login
-                name
-              }
-            }
-            tier {
-              monthlyPriceInDollars
-            }
-            createdAt
+            ... on User { login, name }
+            ... on Organization { login, name }
           }
         }
       }
     }
   `;
-
+  
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: {
