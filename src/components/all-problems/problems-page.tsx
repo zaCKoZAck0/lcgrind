@@ -48,7 +48,7 @@ export function ProblemsPage() {
             <div className='p-6 border-2 border-border bg-card flex justify-between items-center bg-main text-main-foreground'>
                 <h1 className="text-xl font-bold">ALL PROBLEMS</h1>
             </div>
-            <ProgressTracker problemIds={problemIds ?? []} isLoading={problemIdsLoading} />
+            <ProgressTracker text="COMPLETED" className="border-2 border-border border-t-0 p-3" problemIds={problemIds ?? []} isLoading={problemIdsLoading} />
         </div>
 
 

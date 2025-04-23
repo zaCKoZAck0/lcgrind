@@ -1,4 +1,5 @@
+import { Sheet } from "~/components/sheets/sheet-page";
 
-export default function SheetPage() {
-    return <h1 className="text-3xl font-semibold">{"Coming Soon ;)"}</h1>;
+export default function SheetsPage() {
+    return (<Sheet />);
 }

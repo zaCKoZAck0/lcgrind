@@ -19,7 +19,7 @@ interface ProblemRowProps {
     problemUrl: string;
     problemTitle: string;
     problemId: string;
-    frequency: number;
+    frequency?: number;
     difficulty: string;
     isPaid: boolean;
     acceptance: number;
@@ -108,9 +108,9 @@ export const ProblemRow = ({
                         <Badge className={`${difficultyColor(difficulty)} text-main-foreground`}>
                             {difficulty}
                         </Badge>
-                        <span title="Frequency" className="flex items-center gap-1">
+                        {frequency && <span title="Frequency" className="flex items-center gap-1">
                             <ClockIcon size={18} /> {frequency?.toFixed(1) ? frequency.toFixed(1) + "%" : "N/A"}
-                        </span>
+                        </span>}
                         <span title="Acceptance" className="flex items-center gap-1"><CheckCheckIcon size={18} /> {acceptance}%</span>
                     </div>
                     {companies.length > 0 && (

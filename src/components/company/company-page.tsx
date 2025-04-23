@@ -9,7 +9,7 @@ import { ProgressTracker } from "./progress-tracker";
 import { useQuery } from "@tanstack/react-query";
 import { getCompanyWiseProblems } from "~/server/actions/companies/getCompanyWiseProblems";
 import { Skeleton } from "../ui/skeleton";
-import { getCompanyMetadata } from "~/server/actions/companies/getCompanyMetadata";
+import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { ProblemRowSkeleton } from "../all-problems/problem-row-skeleton";
 import { useSearchParams } from "next/navigation";
 
@@ -32,7 +32,7 @@ export function CompanyPage({ slug }: { slug: string }) {
 
     const { data: sheet, isLoading: isSheetLoading } = useQuery({
         queryKey: [`companies/${slug}/metadata`],
-        queryFn: () => getCompanyMetadata(slug),
+        queryFn: () => getSheetMetadata(slug),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
     })
@@ -77,7 +77,7 @@ export function CompanyPage({ slug }: { slug: string }) {
                         </div>
                     </div>)}
                 </div>
-                <ProgressTracker problemIds={problems?.map(problem => problem.id.toString()) ?? []} isLoading={isProblemsLoading} />
+                <ProgressTracker text="COMPLETED" className="border-2 border-border border-t-0 p-3" problemIds={problems?.map(problem => problem.id.toString()) ?? []} isLoading={isProblemsLoading} />
             </div>
         </div>
 

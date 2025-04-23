@@ -7,6 +7,8 @@ export const SHEET_OWNER_LOGO_SRC = {
   "leetcode": "https://img.logo.dev/leetcode.com?token=pk_Ovv0aVUwQNK80p_PGY_xcg"
 }
 
+export const SHEETS_GROUPED_BY_TOPIC = ['blind-75', 'leetcode-75', 'leetcode-top-interview-150', 'leetcode-top-100-liked'];
+
 export const MAANG_COMPANIES = [
   "Meta",
   "Apple",

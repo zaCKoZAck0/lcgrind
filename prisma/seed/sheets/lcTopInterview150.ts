@@ -2,7 +2,7 @@ export const METADATA = {
     slug: "leetcode-top-interview-150",
     title: "Top Interview 150",
     description: "150 Original & Classic Questions, covers comprehensive interview topics, best for 3+ months of prep time.",
-    ownerName: "Leetcode",
+    ownerName: "LeetCode",
     website: "https://leetcode.com/studyplan/top-interview-150/"
 }
 
