@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from "@vercel/analytics/react"
 import { store, persistor } from '~/store';
+import { Toaster } from "~/components/ui/sonner"
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 
@@ -31,6 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <PersistGate loading={null} persistor={persistor}>
                     <ReactQueryDevtools initialIsOpen={false} />
                     {children}
+                    <Toaster />
                 </PersistGate>
                 <Script id="banner-ad">
                     (adsbygoogle = window.adsbygoogle || []).push({ });

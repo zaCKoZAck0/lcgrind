@@ -1,3 +1,5 @@
+"use server";
+
 type SponsorEntity = {
   login: string;
   name: string;
@@ -27,13 +29,13 @@ type Data = {
 
 type GraphQLResponse = {
   data: Data;
-  errors?: any;
+  errors?: unknown;
 };
 
-async function getGithubSponsors(
+export async function getGithubSponsors(
   username: string,
-  token: string
 ): Promise<GraphQLResponse> {
+    const token = process.env.GH_API_KEY;
   const query = `
     query {
       user(login: "${username}") {
@@ -67,6 +69,8 @@ async function getGithubSponsors(
     },
     body: JSON.stringify({ query }),
   });
+    
+    const res = await response.json();
 
-  return response.json();
+    return res;
 }
