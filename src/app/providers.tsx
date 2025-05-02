@@ -7,7 +7,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { store, persistor } from "~/store";
 import { Toaster } from "~/components/ui/sonner";
 import { useEffect, useState } from "react";
-import Script from "next/script";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
