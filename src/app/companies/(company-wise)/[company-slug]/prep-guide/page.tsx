@@ -1,8 +1,51 @@
+import { Metadata } from "next";
 import { ProblemRow } from "~/components/company/problem-row";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
+import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
+import { getCompanyNameFromSlug } from "~/utils/slug";
+
+type Props = {
+    params: { "company-slug": string };
+};
+
+export async function generateMetadata(
+    { params }: Props,
+): Promise<Metadata> {
+    const companySlug = params["company-slug"];
+    const companyName = getCompanyNameFromSlug(companySlug);
+
+    if (!companyName) {
+        return { title: 'Prep Guide Not Found' };
+    }
+
+    const pageTitle = `${companyName} Interview Prep Guide | LC Grind`;
+    const pageDescription = `Comprehensive guide to prepare for ${companyName} coding interviews. Tips, resources, strategies, and key LeetCode problems.`;
+    const pageUrl = `${BASE_URL}/companies/${companySlug}/prep-guide`;
+
+    return {
+        title: pageTitle,
+        description: pageDescription,
+        keywords: [
+            `${companyName} interview preparation`,
+            `${companyName} coding interview guide`,
+            `how to prepare for ${companyName} interview`,
+            `${companyName} interview tips`,
+            `leetcode ${companyName}`,
+            companyName,
+        ],
+        alternates: {
+            canonical: pageUrl,
+        },
+        openGraph: {
+            title: pageTitle,
+            description: pageDescription,
+            url: pageUrl,
+            type: 'article', // Good type for a guide
+        },
+    };
+}
 
 export default async function PrepGuidePage({
     params,

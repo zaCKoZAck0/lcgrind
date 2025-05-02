@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
 import { DM_Sans } from "next/font/google"
+import { BASE_URL } from "~/config/constants";
 
 
 const dmSans = DM_Sans({
@@ -12,10 +13,29 @@ const dmSans = DM_Sans({
   adjustFontFallback: false,
 })
 
-
 export const metadata: Metadata = {
-  title: "LC Grind",
-  description: "Focused Interview Preparation",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "LC Grind - Company Wise LeetCode Problems",
+    template: "%s | LC Grind",
+  },
+  description:
+    "Practice company-wise LeetCode problems for free. Access interview questions, DSA sheets, and premium problems for top tech companies like Google, Meta, Amazon, and more.",
+  openGraph: {
+    title: "LC Grind - Company Wise LeetCode Problems",
+    description:
+      "Free company-wise LeetCode problems and interview preparation.",
+    url: BASE_URL,
+    siteName: "LC Grind",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LC Grind - Company Wise LeetCode Problems",
+    description:
+      "Free company-wise LeetCode problems and interview preparation.",
+  },
 };
 
 export default function RootLayout({

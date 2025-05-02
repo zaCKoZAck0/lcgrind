@@ -4,8 +4,44 @@ import { Star13 } from "~/components/ui/stars/s13";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { getAllSheets } from "~/server/actions/sheets/getAllSheets";
-import { SHEET_OWNER_LOGO_SRC } from "~/config/constants";
+import { BASE_URL, SHEET_OWNER_LOGO_SRC } from "~/config/constants";
 import Image from "next/image";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "DSA Sheets for Interview Preparation",
+    description:
+        "Explore popular DSA sheets like Striver's SDE Sheet, Blind 75, and NeetCode 150. Structure your LeetCode practice for coding interviews.",
+    keywords: [
+        "dsa sheets",
+        "leetcode sheets",
+        "data structures algorithms sheet",
+        "interview preparation sheets",
+        "coding practice sheets",
+        "striver sde sheet",
+        "blind 75",
+        "neetcode 150",
+        "leetcode problem list",
+        "systematic coding practice",
+        "faang preparation",
+    ],
+    alternates: {
+        canonical: `${BASE_URL}/sheets`,
+    },
+    openGraph: {
+        title: "DSA Sheets for Interview Preparation | LC Grind",
+        description:
+            "Find structured LeetCode problem lists (DSA Sheets) to boost your interview prep.",
+        url: `${BASE_URL}/sheets`,
+        type: "website",
+    },
+    twitter: {
+        card: "summary",
+        title: "DSA Sheets for Interview Preparation | LC Grind",
+        description:
+            "Find structured LeetCode problem lists (DSA Sheets) to boost your interview prep.",
+    },
+};
 
 export default async function SheetsPage() {
     const sheets = await getAllSheets();
