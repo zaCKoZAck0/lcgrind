@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import {
   BASE_URL,
   COMPANIES,
-} from "~/config/constants"; // Adjust the import path as needed
+} from "~/config/constants";
 
 import {
   generateSlug
@@ -43,10 +43,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
-    // Add more static pages if needed
   ];
 
-  const companyPages: MetadataRoute.Sitemap = ALL_COMPANIES.map((company) => {
+  const companyPages: MetadataRoute.Sitemap = COMPANIES.map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}`,
@@ -56,7 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
   });
 
-  const prepGuidePages: MetadataRoute.Sitemap = ALL_COMPANIES.map((company) => {
+  const prepGuidePages: MetadataRoute.Sitemap = COMPANIES.map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
