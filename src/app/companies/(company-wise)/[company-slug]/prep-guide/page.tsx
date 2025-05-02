@@ -7,13 +7,13 @@ import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
 
 type Props = {
-    params: { "company-slug": string };
+    params: Promise<CompanyParams>;
 };
 
 export async function generateMetadata(
     { params }: Props,
 ): Promise<Metadata> {
-    const companySlug = params["company-slug"];
+    const { 'company-slug': companySlug } = await params;
     const companyName = getCompanyNameFromSlug(companySlug);
 
     if (!companyName) {
