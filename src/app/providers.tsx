@@ -34,25 +34,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <Toaster />
         </PersistGate>
         <ReactQueryDevtools initialIsOpen={false} />
-        <Script
-          id="atOptions"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              atOptions = {
-                'key' : 'c6b884eaa60b59453fa7daeba089f55f',
-                'format' : 'iframe',
-                'height' : 600,
-                'width' : 160,
-                'params' : {}
-              };
-            `,
-          }}
-        />
-        <Script
-          strategy="afterInteractive"
-          src="//www.highperformanceformat.com/c6b884eaa60b59453fa7daeba089f55f/invoke.js"
-        />
       </QueryClientProvider>
     </Provider>
   );
