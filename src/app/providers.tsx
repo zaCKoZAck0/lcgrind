@@ -27,16 +27,21 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <Provider store={store}>
             <Analytics />
             <QueryClientProvider client={queryClient}>
-                <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9506252833411117"
-                    crossOrigin="anonymous"></Script>
                 <PersistGate loading={null} persistor={persistor}>
                     <ReactQueryDevtools initialIsOpen={false} />
                     {children}
                     <Toaster />
                 </PersistGate>
-                <Script id="banner-ad">
-                    (adsbygoogle = window.adsbygoogle || []).push({ });
-                </Script>
+                <Script type="text/javascript">
+	atOptions = {
+		'key' : 'c6b884eaa60b59453fa7daeba089f55f',
+		'format' : 'iframe',
+		'height' : 600,
+		'width' : 160,
+		'params' : {}
+	};
+</Script>
+<Script type="text/javascript" src="//www.highperformanceformat.com/c6b884eaa60b59453fa7daeba089f55f/invoke.js"></Script>
             </QueryClientProvider>
         </Provider>
     );
