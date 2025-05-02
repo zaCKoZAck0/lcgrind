@@ -16,7 +16,8 @@ async function getRepoData(): Promise<RepoData> {
   const res = await fetch(
     "https://api.github.com/repos/zaCKoZAck0/lcgrind",
     {
-      cache: "force-cache",
+      // todo: add it back later
+      // cache: "force-cache",
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
         Authorization: `Bearer ${process.env.GH_API_KEY}`,
