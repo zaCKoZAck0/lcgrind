@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import {
   BASE_URL,
-  ALL_COMPANIES,
+  COMPANIES,
 } from "~/config/constants"; // Adjust the import path as needed
 
 import {
