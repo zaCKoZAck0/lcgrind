@@ -45,7 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const companyPages: MetadataRoute.Sitemap = COMPANIES.map((company) => {
+  const companyPages: MetadataRoute.Sitemap = Object.keys(COMPANIES).map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}`,
@@ -55,7 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
   });
 
-  const prepGuidePages: MetadataRoute.Sitemap = COMPANIES.map((company) => {
+  const prepGuidePages: MetadataRoute.Sitemap = Object.keys(COMPANIES).map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
