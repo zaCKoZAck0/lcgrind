@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 import { ProblemRow } from "~/components/company/problem-row";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES, DEFAULT_REVALIDATION } from "~/config/constants";
+import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
 
-export const revalidate = DEFAULT_REVALIDATION;
+export const revalidate = 86400;
 
 type Props = {
     params: Promise<CompanyParams>;

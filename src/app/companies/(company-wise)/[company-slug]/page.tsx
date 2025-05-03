@@ -1,14 +1,14 @@
 import { type CompanyParams } from "~/types/company";
 import { CompanyPage } from "~/components/company/company-page";
 import type { Metadata } from "next";
-import { BASE_URL, DEFAULT_REVALIDATION } from "~/config/constants";
+import { BASE_URL } from "~/config/constants";
 import { getCompanyNameFromSlug } from "~/utils/slug";
 
 type Props = {
     params: Promise<CompanyParams>;
 };
 
-export const revalidate = DEFAULT_REVALIDATION;
+export const revalidate = 86400;
 
 export async function generateMetadata(
     { params }: Props,
