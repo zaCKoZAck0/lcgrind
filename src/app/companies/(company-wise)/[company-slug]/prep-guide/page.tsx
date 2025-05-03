@@ -6,6 +6,8 @@ import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
 
+export const revalidate = 3600 * 24;
+
 type Props = {
     params: Promise<CompanyParams>;
 };
