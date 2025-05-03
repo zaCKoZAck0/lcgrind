@@ -8,6 +8,8 @@ type Props = {
     params: Promise<CompanyParams>;
 };
 
+export const revalidate = 86400;
+
 export async function generateMetadata(
     { params }: Props,
 ): Promise<Metadata> {
@@ -21,8 +23,8 @@ export async function generateMetadata(
     }
 
     const currentYear = new Date().getFullYear();
-    const pageTitle = `${companyName} LeetCode Questions | ${companyName} Interview Questions & Solutions [${currentYear}]`;
-    const pageDescription = `Practice ${companyName} company-wise LeetCode problems for free. Get the latest ${companyName} interview questions, DSA sheets, and premium problems without a subscription. Prepare for your ${companyName} coding interview.`;
+    const pageTitle = `${companyName} LeetCode Questions | ${companyName} Interview Questions [${currentYear}]`;
+    const pageDescription = `Practice ${companyName} company-wise LeetCode problems for free. Get the latest ${companyName} interview questions, DSA sheets for free. Prepare for your ${companyName} coding interview.`;
     const pageUrl = `${BASE_URL}/companies/${companySlug}`;
 
     const keywords = [

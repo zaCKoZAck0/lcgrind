@@ -8,10 +8,12 @@ import { BASE_URL, SHEET_OWNER_LOGO_SRC } from "~/config/constants";
 import Image from "next/image";
 import { Metadata } from "next";
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
     title: "DSA Sheets for Interview Preparation",
     description:
-        "Explore popular DSA sheets like Striver's SDE Sheet, Blind 75, and NeetCode 150. Structure your LeetCode practice for coding interviews.",
+        "Explore popular DSA sheets like Blind 75, Leetcode 75 and NeetCode 150. Structure your LeetCode practice for coding interviews.",
     keywords: [
         "dsa sheets",
         "leetcode sheets",
