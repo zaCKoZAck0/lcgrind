@@ -8,7 +8,7 @@ type Props = {
     params: Promise<CompanyParams>;
 };
 
-export const revalidate = 3600;
+export const revalidate = 3600 * 24;
 
 export async function generateMetadata(
     { params }: Props,
