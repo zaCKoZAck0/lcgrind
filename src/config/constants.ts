@@ -2,7 +2,7 @@ export const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const COMPANY_LOGO_API = 'https://www.logo.dev/api/search';
-export const DEFAULT_REVALIDATION = 10 * 24 * 60 * 60 * 1000; // 10 days
+export const DEFAULT_REVALIDATION = 86400; // 1 day
 
 export const SHEET_OWNER_LOGO_SRC = {
   "neetcode": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRzhaTNSjub5uXrLm8EJjBGM4PN7ZQpVDOsgyTe",
