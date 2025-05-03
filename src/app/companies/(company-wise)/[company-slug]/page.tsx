@@ -8,7 +8,6 @@ type Props = {
     params: Promise<CompanyParams>;
 };
 
-export const dynamic = "force-static";
 
 export async function generateMetadata(
     { params }: Props,
