@@ -7,13 +7,13 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "~/components/ui/carousel";
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { ClientTweetCard } from "./tweet-client";
 import { TESTIMONIALS } from "~/lib/testimonials";
+import Autoplay from "embla-carousel-autoplay"
+
 
 export const TestimonialsSection = () => {
-    const [autoPlay, setAutoPlay] = useState(true);
 
     return (
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-main border-y-2 border-border" id="testimonials">
@@ -26,14 +26,13 @@ export const TestimonialsSection = () => {
                 </h2>
                 <Carousel
                     className="w-full max-w-5xl mx-auto h-fit"
-                    opts={{
-                      align: "center",
-                      loop: true,
-                      autoplay: autoPlay,
-                      autoplayInterval: 5000,
-                    }}
-                    onMouseEnter={() => setAutoPlay(false)}
-                    onMouseLeave={() => setAutoPlay(true)}
+                    plugins={[
+                        Autoplay({
+                            stopOnFocusIn: true,
+                            stopOnMouseEnter: true,
+                            delay: 5000,
+                        }),
+                    ]}
                 >
                     <CarouselContent className="py-6 px-2">
                         {TESTIMONIALS.map((testimonial, index) => (
