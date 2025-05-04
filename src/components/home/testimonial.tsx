@@ -17,21 +17,6 @@ export const TestimonialsSection = () => {
     const [autoPlay, setAutoPlay] = useState(true);
     const [api, setApi] = useState<CarouselApi>();
 
-    useEffect(() => {
-        if (!api) return;
-
-        const interval = setInterval(() => {
-            if (autoPlay) {
-                if (!api.canScrollNext()) {
-                    api.scrollTo(0);
-                }
-                api.scrollNext();
-            }
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, [api, autoPlay]);
-
     return (
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-main border-y-2 border-border" id="testimonials">
             <div className="max-w-7xl mx-auto">
@@ -44,6 +29,12 @@ export const TestimonialsSection = () => {
                 <Carousel
                     setApi={setApi}
                     className="w-full max-w-5xl mx-auto h-fit"
+                    opts={{
+                      align: "center",
+                      loop: true,
+                      autoplay: autoPlay,
+                      autoplayInterval: 5000,
+                    }}
                     onMouseEnter={() => setAutoPlay(false)}
                     onMouseLeave={() => setAutoPlay(true)}
                 >
