@@ -23,7 +23,7 @@ export const TestimonialsSection = () => {
         const interval = setInterval(() => {
             if (autoPlay) {
                 if (!api.canScrollNext()) {
-                    api.scrollTo(0);
+                    api.scrollTo(-1);
                 }
                 api.scrollNext();
             }
