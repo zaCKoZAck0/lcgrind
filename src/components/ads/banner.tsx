@@ -20,7 +20,7 @@ export const AdBanner = () => {
       className="flex items-center justify-center w-full"
     >
       <Script
-        id="ad-script-468x60"
+        id="ad-script-90x728"
         strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
