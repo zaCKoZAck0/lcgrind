@@ -15,3 +15,11 @@ export const sanitizeProblems = (problems: ProblemWithStats[]) => {
 }
 
 export type SanitizedProblem = ReturnType<typeof sanitizeProblems>[number];
+
+
+export function onClickAdUrl() {
+    window.open(
+        "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6",
+        "_blank",
+    );
+}
