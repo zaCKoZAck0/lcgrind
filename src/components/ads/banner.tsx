@@ -1,27 +1,35 @@
 "use client";
 
-import { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export const AdBanner = () => {
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src =
-            '//www.highperformanceformat.com/c6b884eaa60b59453fa7daeba089f55f/invoke.js';
-        document.body.appendChild(script);
+    const banner = useRef<HTMLDivElement>(null);
 
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
+    const atOptions = {
+        key: 'c6b884eaa60b59453fa7daeba089f55f',
+        format: 'iframe',
+        height: 600,
+        width: 160,
+        params: {},
+    };
+
+    useEffect(() => {
+        if (banner.current && !banner.current.firstChild) {
+            const conf = document.createElement('script');
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = `//www.highperformanceformat.com/${atOptions.key}/invoke.js`;
+            conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+
+            banner.current.append(conf);
+            banner.current.append(script);
+        }
+    }, [atOptions]); // Added atOptions to the dependency array
 
     return (
-        <iframe
-            src="//www.highperformanceformat.com/c6b884eaa60b59453fa7daeba089f55f/index.html"
-            title="Advertisement"
-            width="160"
-            height="600"
-            style={{ border: '0px', margin: '0px', padding: '0px' }}
+        <div
+            className="mx-2 my-5 border border-gray-200 justify-center items-center text-white text-center"
+            ref={banner}
         />
     );
 };
