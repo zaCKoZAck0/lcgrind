@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const AdBanner = () => {
     const banner = useRef<HTMLDivElement>(null);
