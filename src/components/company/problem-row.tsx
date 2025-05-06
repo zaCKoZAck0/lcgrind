@@ -23,6 +23,7 @@ import {
 } from "~/config/constants";
 import { Badge } from "../ui/badge";
 import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
+import { AdBanner } from "../ads/banner";
 
 interface ProblemRowProps {
   index: number;
@@ -76,13 +77,7 @@ export const ProblemRow = ({
     <>
       {(index + 1) % 10 === 0 && (
         <div className="relative flex p-3 border-2 border-border border-t-0">
-          <ins
-            className="adsbygoogle block"
-            data-ad-format="fluid"
-            data-ad-layout-key="-fb+5w+4e-db+86"
-            data-ad-client="ca-pub-9506252833411117"
-            data-ad-slot="7532138529"
-          ></ins>
+          <AdBanner />
         </div>
       )}
       <div

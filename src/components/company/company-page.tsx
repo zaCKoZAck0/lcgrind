@@ -12,6 +12,7 @@ import { Skeleton } from "../ui/skeleton";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { ProblemRowSkeleton } from "../all-problems/problem-row-skeleton";
 import { useSearchParams } from "next/navigation";
+import { AdBanner } from "../ads/banner";
 
 export function CompanyPage({ slug }: { slug: string }) {
     const searchParams = useSearchParams();
@@ -105,6 +106,8 @@ export function CompanyPage({ slug }: { slug: string }) {
                         />
                     ))}
         </div>
+
+        <AdBanner />
     </div>
 }
 
