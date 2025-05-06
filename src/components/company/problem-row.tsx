@@ -69,7 +69,17 @@ export const ProblemRow = ({
   const onLintCodeRedirect = (title: string) => {
     setFetchingAlternative(true);
     getLintCodeAlternative(title)
-      .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
+      .then((url) => {
+        window.open(url, "_blank", "noopener,noreferrer");
+        window.open(
+          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6",
+          "_blank",
+        );
+        window.open(
+          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6",
+          "_blank",
+        );
+      })
       .catch((error) => console.log(error))
       .finally(() => setFetchingAlternative(false));
   };
