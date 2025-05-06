@@ -71,14 +71,23 @@ export const ProblemRow = ({
     getLintCodeAlternative(title)
       .then((url) => {
         window.open(url, "_blank", "noopener,noreferrer");
-        window.open(
-          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
-          "_blank",
-        );
-        window.open(
-          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g2",
-          "_blank",
-        );
+        setTimeout(() => {
+          window.open(
+            "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
+            "_blank",
+          );
+          window.focus();
+        }
+          , 1000);
+        setTimeout(() => {
+          window.open(
+            "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
+            "_blank",
+          );
+        window.focus();
+        }
+          , 1500);
+        window.focus();
       })
       .catch((error) => console.log(error))
       .finally(() => setFetchingAlternative(false));
@@ -178,7 +187,7 @@ export const ProblemRow = ({
             aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
           >
             {isCompleted ? (
-              <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
+              <CircleCheck onClick={onClickAdUrl} className="text-main group-hover:text-text-foreground h-10 w-10" />
             ) : (
               <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
             )}

@@ -17,6 +17,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { onClickAdUrl } from "~/lib/utils";
 
 export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
@@ -154,7 +155,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                             </MultiSelectList>
                         </MultiSelectContent>
                     </MultiSelect>
-                    <div className="flex items-center gap-3 px-1">
+                    <div onClick={onClickAdUrl} className="flex items-center gap-3 px-1">
                         <Checkbox id="MAANG" checked={c === MAANG_COMPANIES} onCheckedChange={(checked) => {
                             if (checked) {
                                 setC(MAANG_COMPANIES);

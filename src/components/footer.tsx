@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { onClickAdUrl } from "~/lib/utils";
 
 export const Footer = () => {
     return (
@@ -27,10 +28,10 @@ export const Footer = () => {
                         <div>
                             <h3 className="font-bold tracking-wide uppercase mb-4">Resources</h3>
                             <ul className="space-y-3">
-                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
-                                <li><Link className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
-                                <li><Link className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
-                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
+                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
+                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
+                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
+                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
                             </ul>
                         </div>
 
