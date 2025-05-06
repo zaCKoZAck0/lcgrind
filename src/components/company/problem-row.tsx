@@ -72,11 +72,11 @@ export const ProblemRow = ({
       .then((url) => {
         window.open(url, "_blank", "noopener,noreferrer");
         window.open(
-          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6",
+          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
           "_blank",
         );
         window.open(
-          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6",
+          "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g2",
           "_blank",
         );
       })
