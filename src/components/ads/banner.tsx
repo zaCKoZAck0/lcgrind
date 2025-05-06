@@ -1,41 +1,36 @@
 "use client";
 
-import { useRef } from "react";
-import Script from 'next/script';
+import { useEffect, useRef } from 'react';
 
 export const AdBanner = () => {
-  const container = useRef<HTMLDivElement>(null);
+    const banner = useRef<HTMLDivElement>(null);
 
-  const atOptions = {
-    key: "93c46aa9fc2321a90646168921d5ff10",
-    format: "iframe",
-    height: 90,
-    width: 728,
-    params: {},
-  };
+    const atOptions = {
+        key: '93c46aa9fc2321a90646168921d5ff10',
+        format: 'iframe',
+        height: 90,
+        width: 728,
+        params: {},
+    };
 
-  return (
-    <div
-      ref={container}
-      className="flex items-center justify-center w-full"
-    >
-      <Script
-        id="ad-script-90x728"
-        strategy="lazyOnload"
-        dangerouslySetInnerHTML={{
-          __html: `
-            var atOptions = ${JSON.stringify(atOptions)};
-            (function() {
-              var script = document.createElement('script');
-              script.type = 'text/javascript';
-              script.src = '//www.topcreativeformat.com/' + atOptions.key + '/invoke.js';
-              script.async = true;
-              script.defer = true;
-              container.current.append(script);
-            })();
-          `,
-        }}
-      />
-    </div>
-  );
+    useEffect(() => {
+        if (banner.current && !banner.current.firstChild) {
+            const conf = document.createElement('script');
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = `//www.highperformanceformat.com/${atOptions.key}/invoke.js`;
+            conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+
+            banner.current.append(conf);
+            banner.current.append(script);
+        }
+    }, [atOptions]); // Added atOptions to the dependency array
+
+    return (
+        <div
+            className="mx-2 my-5 border border-gray-200 justify-center items-center text-white text-center"
+            ref={banner}
+        />
+    );
 };
+
