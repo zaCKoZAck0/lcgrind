@@ -76,7 +76,7 @@ export const ProblemRow = ({
   return (
     <>
       {(index + 1) % 10 === 0 && (
-        <div className="p-3 border-2 border-border border-t-0">
+        <div className="border-2 border-border border-t-0">
           <AdBanner />
         </div>
       )}
