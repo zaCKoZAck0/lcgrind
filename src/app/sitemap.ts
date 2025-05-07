@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import {
   BASE_URL,
-  COMPANIES,
+  MAANG_COMPANIES, 
+  TOP_PRODUCT_COMPANIES_INDIA, 
+  TOP_PRODUCT_MNCS
 } from "~/config/constants";
 
 import {
@@ -45,7 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const companyPages: MetadataRoute.Sitemap = Object.keys(COMPANIES).map((company) => {
+  const companyPages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}`,
@@ -55,7 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
   });
 
-  const prepGuidePages: MetadataRoute.Sitemap = Object.keys(COMPANIES).map((company) => {
+  const prepGuidePages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
     const slug = generateSlug(company);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
