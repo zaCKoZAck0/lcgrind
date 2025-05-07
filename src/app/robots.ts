@@ -15,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
       //   allow: '/',
       // }
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`, // Location of your sitemap
+    sitemap: `${BASE_URL}/sitemap.xml/`, // Location of your sitemap
   };
 }
