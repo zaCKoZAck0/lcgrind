@@ -42,7 +42,7 @@ jobs:
         if: steps.check.outputs.create_issue == 'true'
         uses: JasonEtco/create-an-issue@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           filename: .github/ISSUE_TEMPLATE/update_questions.md
           update_existing: true
