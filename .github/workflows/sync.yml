@@ -16,7 +16,7 @@ jobs:
         id: check
         run: |
           # Get latest commit SHA from the external repository
-          LATEST_SHA=$(curl -s https://api.github.com/repos/liquidslr/leetcode-company-wise-problems/branches/master | jq -r .commit.sha)
+          LATEST_SHA=$(curl -s https://api.github.com/repos/liquidslr/leetcode-company-wise-problems/branches/main | jq -r .commit.sha)
           
           # Create directory if it doesn't exist
           mkdir -p .github/workflow-data
