@@ -1,4 +1,4 @@
-name: Monitor External Repository
+name: Monitor liquidslr/leetcode-company-wise-problems
 
 on:
   schedule:
@@ -45,8 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           filename: .github/ISSUE_TEMPLATE/update_questions.md
-          update_existing: true
-          search_existing: title
 
       - name: Commit and push changes to SHA file
         if: steps.check.outputs.create_issue == 'true'
