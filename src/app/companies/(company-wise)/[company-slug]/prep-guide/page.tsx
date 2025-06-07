@@ -89,7 +89,7 @@ export default async function PrepGuidePage({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            <div className="w-full flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
+            <div className="w-full bg-card flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <img
                     src={`https://img.logo.dev/${COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
                     alt={`${sheet.name} logo`}

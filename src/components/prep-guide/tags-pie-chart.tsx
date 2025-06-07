@@ -48,7 +48,7 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
             .map(([name, value], index) => ({
                 name,
                 value,
-                fill: `hsl(var(--chart-${(index % 5) + 1}))`
+                fill: `var(--chart-${(index % 5) + 1})`
             }));
     };
 
@@ -90,7 +90,7 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
         chartData.forEach((item, index) => {
             config[item.name] = {
                 label: item.name,
-                color: `hsl(var(--chart-${(index % 5) + 1}))`
+                color: `var(--chart-${(index % 5) + 1})`
             };
         });
         return config;
@@ -103,27 +103,27 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
         <Card data-chart={id} className="flex flex-col">
             <ChartStyle id={id} config={chartConfig} />
             <CardHeader className="flex-col flex items-start space-y-0 pb-0">
-                <div className="grid gap-1">
+                <div className="grid gap-1 w-full">
                     <Tabs
                         value={chartType}
                         onValueChange={(value) => setChartType(value as "dataStructures" | "algorithms")}
-                        className="w-[400px]"
+                        className="w-full"
                     >
-                        <TabsList>
-                            <TabsTrigger value="dataStructures">Data Structures</TabsTrigger>
-                            <TabsTrigger value="algorithms">Algorithms</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="dataStructures" className="text-xs sm:text-sm">Data Structures</TabsTrigger>
+                            <TabsTrigger value="algorithms" className="text-xs sm:text-sm">Algorithms</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </div>
                 {chartData.length > 0 && (
                     <Select value={activeTag} onValueChange={setActiveTag}>
                         <SelectTrigger
-                            className="ml-auto h-7 max-w-[200px] rounded-lg pl-2.5"
+                            className="ml-auto h-7 w-full max-w-[200px] rounded-lg pl-2.5"
                             aria-label="Select a tag"
                         >
                             <SelectValue placeholder="Select tag" />
                         </SelectTrigger>
-                        <SelectContent align="end" className="rounded-xl">
+                        <SelectContent align="end" className="rounded-xl max-w-[280px]">
                             {tags.map((tag) => {
                                 const index = chartData.findIndex(item => item.name === tag);
                                 return (
@@ -136,10 +136,10 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                                             <span
                                                 className="flex h-3 w-3 shrink-0 rounded-sm"
                                                 style={{
-                                                    backgroundColor: `hsl(var(--chart-${(index % 5) + 1}))`
+                                                    backgroundColor: `var(--chart-${(index % 5) + 1})`
                                                 }}
                                             />
-                                            {tag}
+                                            <span className="truncate">{tag}</span>
                                         </div>
                                     </SelectItem>
                                 )
@@ -148,11 +148,11 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                     </Select>
                 )}
             </CardHeader>
-            <CardContent className="flex flex-1 justify-center pb-0">
+            <CardContent className="flex flex-1 justify-center pb-0 px-2">
                 <ChartContainer
                     id={id}
                     config={chartConfig}
-                    className="mx-auto aspect-square w-full max-w-[300px]"
+                    className="mx-auto aspect-square w-full max-w-[280px] sm:max-w-[300px]"
                 >
                     <PieChart>
                         <ChartTooltip
@@ -165,20 +165,13 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                                 dataKey="value"
                                 nameKey="name"
                                 innerRadius={60}
-                                strokeWidth={5}
+                                strokeWidth={2}
                                 activeIndex={activeIndex}
                                 activeShape={({
                                     outerRadius = 0,
                                     ...props
                                 }: PieSectorDataItem) => (
-                                    <g>
-                                        <Sector {...props} outerRadius={outerRadius + 10} />
-                                        <Sector
-                                            {...props}
-                                            outerRadius={outerRadius + 25}
-                                            innerRadius={outerRadius + 12}
-                                        />
-                                    </g>
+                                    <Sector {...props} outerRadius={outerRadius + 10} />
                                 )}
                             >
                                 <Label
