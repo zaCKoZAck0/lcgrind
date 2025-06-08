@@ -30,7 +30,7 @@ export function NotesViewer({ problemId, problemTitle }: NotesViewerProps) {
                 className="gap-2 cursor-pointer relative h-fit bg-secondary-background text-secondary border-secondary"
                 title={`${notes.length} note${notes.length !== 1 ? 's' : ''}`}
             >
-                <StickyNote size={16} /> Notes
+                <StickyNote size={14} /> Notes
                 {notes.length > 0 && (
                     <span className="absolute -top-2 -right-2 bg-main text-main-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         {notes.length}
