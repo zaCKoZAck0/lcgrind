@@ -25,6 +25,7 @@ import { Badge } from "../ui/badge";
 import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
 import { AdBanner } from "../ads/banner";
 import { onClickAdUrl } from "~/lib/utils";
+import { NotesViewer } from "../problem-notes";
 
 interface ProblemRowProps {
   index: number;
@@ -84,7 +85,7 @@ export const ProblemRow = ({
             "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
             "_blank",
           );
-        window.focus();
+          window.focus();
         }
           , 1500);
         window.focus();
@@ -140,7 +141,7 @@ export const ProblemRow = ({
               {tags.join(", ")}
             </div>
           )}
-          <button onClick={onClickAdUrl} className="flex flex-wrap gap-4 mt-2 font-base cursor-pointer">
+          <div className="flex flex-wrap gap-4 mt-2 font-base">
             <Badge
               className={`${difficultyColor(difficulty)} text-main-foreground`}
             >
@@ -151,11 +152,11 @@ export const ProblemRow = ({
                 <ClockIcon size={18} />{" "}
                 {frequency?.toFixed(1) ? frequency.toFixed(1) + "%" : "N/A"}
               </span>
-            )}
-            <span title="Acceptance" className="flex items-center gap-1">
+            )}            <span title="Acceptance" className="flex items-center gap-1">
               <CheckCheckIcon size={18} /> {acceptance}%
             </span>
-          </button>
+            <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+          </div>
           {companies.length > 0 && (
             <button onClick={onClickAdUrl} className="mt-3 flex flex-wrap gap-2 cursor-pointer">
               <Badge
@@ -164,13 +165,13 @@ export const ProblemRow = ({
               >
                 <BriefcaseBusinessIcon size={14} /> {companies.length}
               </Badge>
-              {companies.map((company, i) => {
+              {companies.map((company) => {
                 return MAANG_COMPANIES.includes(company) ||
                   TOP_PRODUCT_MNCS.includes(company) ||
                   TOP_PRODUCT_COMPANIES_INDIA.includes(company) ? (
                   <Badge
                     variant="neutral"
-                    key={i}
+                    key={company}
                     className="px-2 py-1 bg-muted text-xs text-muted-foreground"
                   >
                     {company}
@@ -178,9 +179,8 @@ export const ProblemRow = ({
                 ) : null;
               })}
             </button>
-          )}
-        </div>
-        <div className="flex items-center mt-4 md:mt-0 md:ml-6">
+          )}        </div>
+        <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
           <button
             onClick={toggleCompletion}
             className="cursor-pointer group focus:outline-none transition-colors duration-200"
@@ -196,4 +196,4 @@ export const ProblemRow = ({
       </div>
     </>
   );
-};
+}

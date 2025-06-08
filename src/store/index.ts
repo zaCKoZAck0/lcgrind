@@ -4,15 +4,17 @@ import storage from 'redux-persist/lib/storage';
 //import thunk from 'redux-thunk';
 
 import completedProblemsReducer from './completedProblemsSlice';
+import problemNotesReducer from './problemNotesSlice';
 
 const persistConfig = {
   key: 'leetcode-tracker',
   storage,
-  whitelist: ['completedProblems'] 
+  whitelist: ['completedProblems', 'problemNotes'] 
 };
 
 const rootReducer = combineReducers({
-  completedProblems: completedProblemsReducer
+  completedProblems: completedProblemsReducer,
+  problemNotes: problemNotesReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
