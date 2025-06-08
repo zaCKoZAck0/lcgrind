@@ -52,7 +52,7 @@ export function NotesViewer({ problemId, problemTitle }: NotesViewerProps) {
                         <div className="text-center py-8 text-foreground">
                             <StickyNote size={48} className="mx-auto mb-4" />
                             <p className="text-lg font-medium">No notes yet</p>
-                            <p className="text-sm">Click "Add Note" to create your first note for this problem.</p>
+                            <p className="text-sm">Click &quot;Add Note&quot; to create your first note for this problem.</p>
                         </div>
                     ) : (
                         <div className="grid gap-4">
