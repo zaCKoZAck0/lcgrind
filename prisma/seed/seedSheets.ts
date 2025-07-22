@@ -17,15 +17,26 @@ type Problem = {
 
 async function seed(metadata: Metadata, problems: Problem[]) {
     try {
-        const sheet = await db.sheet.create({
-            data: {
+        const sheet = await db.sheet.upsert({
+            where: {
+                slug: metadata.slug,
+            },
+            update: {
                 name: metadata.title,
                 slug: metadata.slug,
                 description: metadata.description,
                 ownerName: metadata.ownerName,
-                website: metadata.website
-            }
+                website: metadata.website,
+            },
+            create: {
+                name: metadata.title,
+                slug: metadata.slug,
+                description: metadata.description,
+                ownerName: metadata.ownerName,
+                website: metadata.website,
+            },
         });
+
 
         for (const problem of problems) {
         try {
