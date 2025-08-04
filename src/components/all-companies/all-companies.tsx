@@ -9,6 +9,7 @@ import { getCompanies } from "~/server/actions/companies/getCompanies";
 import { AllCompaniesSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 const ITEMS_PER_PAGE = 24;
 
@@ -39,8 +40,7 @@ export function AllCompanies() {
             </div>
         )}
         <div
-            className="max-w-[1200px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 
-                       md:gap-6 gap-3"
+            className="max-w-[1200px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-6 gap-3"
         >
             {data.companies.map((company) => {
                 return (
@@ -50,7 +50,7 @@ export function AllCompanies() {
                         className={cn(buttonVariants({ variant: "neutral" }), "h-fit py-6 cursor-pointer w-full")}
                     >
                         <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
-                            <img src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} className="size-16 rounded-md" />
+                            <Image src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
                             <div>
                                 <p className="font-semibold text-2xl">{company.name}</p>
                                 <p className="text-muted-foreground text-lg">
