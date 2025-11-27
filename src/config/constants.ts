@@ -2,7 +2,7 @@ export const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const COMPANY_LOGO_API = 'https://www.logo.dev/api/search';
-export const LOGO_DEV_TOKEN = 'pk_eQPbG0_jSyqQCL92PlOJHw';
+export const LOGO_DEV_TOKEN = process.env.NEXT_PUBLIC_LOGO_DEV_TOKEN || '';
 export const DEFAULT_REVALIDATION = 86400; // 1 day
 
 export const SHEET_OWNER_LOGO_SRC: Record<string, string> = {
