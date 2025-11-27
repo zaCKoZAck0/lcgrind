@@ -9,8 +9,8 @@ export const Footer = () => {
     return (
         <footer className="p-2 bg-background">
             <div className="bg-main shadow-shadow border-2 border-border text-base text-main-foreground">
-                <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="container mx-auto py-12 px-3 sm:px-5 lg:px-7">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-7">
                         <div className="col-span-1 md:col-span-2">
                             <Link href="/" className="mb-2">
                                 <Image
@@ -39,7 +39,7 @@ export const Footer = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex gap-1 w-fit text-lg border-2 border-border shadow-shadow pl-2 pr-4 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={`https://img.logo.dev/logo.dev?token=${LOGO_DEV_TOKEN}`} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={`https://img.logo.dev/logo.dev?token=${LOGO_DEV_TOKEN}`} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 

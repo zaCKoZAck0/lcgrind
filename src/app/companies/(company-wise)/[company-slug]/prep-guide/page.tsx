@@ -68,7 +68,7 @@ export default async function PrepGuidePage({
             }
         })
     ]);
-
+    
     const dataStructures: Record<string, number> = {};
     const algorithms: Record<string, number> = {};
 
@@ -101,7 +101,7 @@ export default async function PrepGuidePage({
                 <h2 className="text-xl font-medium"> Most-Frequent {sheet.name} Interview Topics</h2>
                 <TagsPieChart dataStructures={dataStructures} algorithms={algorithms} totalProblemsCount={problems.length} />
             </div>
-            <div className="p-6 border-2 border-border mb-6 bg-card flex flex-col gap-6 mt-6">
+            {favoriteProblems.length > 0 && (<div className="p-6 border-2 border-border mb-6 bg-card flex flex-col gap-6 mt-6">
                 <h2 className="text-xl font-medium">{sheet.name}&apos;s Go-To Interview Problems</h2>
                 <div className="border-t-2 border-border shadow-shadow">
                     {favoriteProblems.map((problem, idx) => (
@@ -120,7 +120,7 @@ export default async function PrepGuidePage({
                         />
                     ))}
                 </div>
-            </div>
+            </div>)}
         </div>
     );
 }
