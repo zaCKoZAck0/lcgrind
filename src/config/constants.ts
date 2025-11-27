@@ -2,12 +2,13 @@ export const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const COMPANY_LOGO_API = 'https://www.logo.dev/api/search';
+export const LOGO_DEV_TOKEN = 'pk_eQPbG0_jSyqQCL92PlOJHw';
 export const DEFAULT_REVALIDATION = 86400; // 1 day
 
-export const SHEET_OWNER_LOGO_SRC = {
+export const SHEET_OWNER_LOGO_SRC: Record<string, string> = {
   "neetcode": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRzhaTNSjub5uXrLm8EJjBGM4PN7ZQpVDOsgyTe",
   "tech interview handbook": "https://z47zz7i0co.ufs.sh/f/bMhmuI0QmiRz8UZeBzKskcTQ9NJVa4z2GF1OARDSE3j7PUlM",
-  "leetcode": "https://img.logo.dev/leetcode.com?token=pk_Ovv0aVUwQNK80p_PGY_xcg"
+  "leetcode": `https://img.logo.dev/leetcode.com?token=${LOGO_DEV_TOKEN}`
 }
 
 export const SHEETS_GROUPED_BY_TOPIC = ['blind-75', 'leetcode-75', 'leetcode-top-interview-150', 'leetcode-top-100-liked'];

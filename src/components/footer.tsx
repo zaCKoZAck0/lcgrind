@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { LOGO_DEV_TOKEN } from "~/config/constants";
 import { onClickAdUrl } from "~/lib/utils";
 
 export const Footer = () => {
@@ -38,7 +39,7 @@ export const Footer = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex gap-1 w-fit text-lg border-2 border-border shadow-shadow pl-2 pr-4 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={"https://img.logo.dev/logo.dev?token=pk_Ovv0aVUwQNK80p_PGY_xcg"} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex gap-1 w-fit text-lg border-2 border-border shadow-shadow pl-2 pr-4 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={`https://img.logo.dev/logo.dev?token=${LOGO_DEV_TOKEN}`} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 

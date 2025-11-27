@@ -1,7 +1,7 @@
 "use client";
 import { ArrowLeft, ChartLineIcon } from "lucide-react";
 import Link from "next/link";
-import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION, LOGO_DEV_TOKEN } from "~/config/constants";
 import { buttonVariants } from "../ui/button";
 import { Filters } from "./filter";
 import { ProblemRow } from "./problem-row";
@@ -65,7 +65,7 @@ export function CompanyPage({ slug }: { slug: string }) {
                     {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                         <div className="flex gap-6 min-w-[360px]">
                             <img
-                                src={`https://img.logo.dev/${COMPANIES[selectedSheet?.name.trim()] ?? `${selectedSheet?.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
+                                src={`https://img.logo.dev/${COMPANIES[selectedSheet?.name.trim()] ?? `${selectedSheet?.slug}.com`}?token=${LOGO_DEV_TOKEN}`}
                                 alt={`${selectedSheet?.name} logo`}
                                 className="size-14 rounded-md"
                             />
