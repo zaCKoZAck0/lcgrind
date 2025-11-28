@@ -109,14 +109,14 @@ export function Sheet() {
     })
 
     const groupedSheetProblems = useMemo(() => {
-        if (!problems) return new Map<string, typeof problems>();
+        if (!problems) return new Map<string, SheetProblem[]>();
         
         if (settings.groupBy === 'week') {
             return groupProblemsByWeek(problems, settings.weeks, settings.hoursPerWeek);
         }
         
         // Default topic-based grouping
-        const map = new Map<string, typeof problems>();
+        const map = new Map<string, SheetProblem[]>();
         problems.forEach((problem) => {
             if (!map.has(problem.group)) {
                 map.set(problem.group, []);
@@ -172,7 +172,7 @@ export function Sheet() {
 
         <Accordion type="multiple" defaultValue={Array.from(groupedSheetProblems.keys())} className="w-full space-y-6">
             {isProblemsLoading ? <div className="w-full">Fetching problems....</div>
-                : Array.from(groupedSheetProblems.entries()).map(([group, problems]) => (
+                : Array.from(groupedSheetProblems.entries()).map(([group, groupProblems]) => (
                     <AccordionItem key={group} value={group}>
                         <AccordionTrigger className="flex justify-between items-center">
                             <h2 className="text-2xl font-semibold flex-grow">{group}</h2>
@@ -180,7 +180,7 @@ export function Sheet() {
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="min-w-full border-collapse border-t-2 border-border bg-background">
-                                {problems?.map((problem, idx) => (
+                                {groupProblems?.map((problem, idx) => (
                                     <ProblemRow
                                         key={problem.id}
                                         index={idx}
