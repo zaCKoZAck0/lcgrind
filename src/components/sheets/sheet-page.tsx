@@ -264,19 +264,19 @@ export function Sheet() {
             <div className="mt-8">
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="skipped">
-                        <AccordionTrigger className="flex justify-between items-center bg-muted/30 px-4 rounded-lg">
+                        <AccordionTrigger className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
-                                <AlertCircleIcon size={20} className="text-muted-foreground" />
-                                <h2 className="text-xl font-semibold text-muted-foreground">Skipped Problems</h2>
-                                <span className="text-sm text-muted-foreground">({skippedProblems.length})</span>
+                                <AlertCircleIcon size={20} className="text-foreground/70" />
+                                <h2 className="text-xl font-semibold text-foreground/70">Skipped Problems</h2>
+                                <span className="text-sm text-foreground/70">({skippedProblems.length})</span>
                             </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                            <p className="text-sm text-muted-foreground mb-4 px-2">
+                            <p className="text-sm text-foreground/60 mb-4 px-2">
                                 These problems didn&apos;t fit into your {settings.weeks} week × {settings.hoursPerWeek}h/week schedule. 
                                 You can review them later or adjust your schedule settings.
                             </p>
-                            <div className="min-w-full border-collapse border-t-2 border-border bg-background opacity-70">
+                            <div className="min-w-full border-collapse border-t-2 border-border bg-background/50">
                                 {skippedProblems.map((problem, idx) => (
                                     <ProblemRow
                                         key={problem.id}
