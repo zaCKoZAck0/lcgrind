@@ -22,7 +22,19 @@ export function getLogoUrl(domain: string, theme: "light" | "dark"): string {
 export function addThemeToLogoUrl(url: string, theme: "light" | "dark"): string {
   if (url.includes("img.logo.dev")) {
     const separator = url.includes("?") ? "&" : "?";
-    return `${url}${separator}format=png&theme=${theme}`;
+    const params: string[] = [];
+    
+    // Only add format if not already present
+    if (!url.includes("format=")) {
+      params.push("format=png");
+    }
+    
+    // Only add theme if not already present
+    if (!url.includes("theme=")) {
+      params.push(`theme=${theme}`);
+    }
+    
+    return params.length > 0 ? `${url}${separator}${params.join("&")}` : url;
   }
   return url;
 }

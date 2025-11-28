@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from "react";
 
+/**
+ * Gets the current theme from the document.
+ * Returns "light" as default if document is not available (SSR).
+ */
+function getInitialTheme(): "light" | "dark" {
+  if (typeof document !== "undefined") {
+    return document.documentElement.classList.contains("dark") ? "dark" : "light";
+  }
+  return "light";
+}
+
 export function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
 
   useEffect(() => {
     const updateTheme = () => {
@@ -11,7 +22,7 @@ export function useTheme() {
       setTheme(isDark ? "dark" : "light");
     };
 
-    // Initial theme detection
+    // Initial theme detection (in case SSR default was different)
     updateTheme();
 
     // Create a MutationObserver to watch for theme changes
