@@ -77,11 +77,11 @@ export function SheetFilters({ sheetSlug, availableTopics }: SheetFiltersProps) 
                 <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
                     Difficulty
                 </h3>
-                <div className="space-y-2">
+                <div className="flex flex-row gap-4">
                     {DIFFICULTIES.map(({ value, color }) => (
                         <label 
                             key={value} 
-                            className="flex items-center gap-3 cursor-pointer"
+                            className="flex items-center gap-2 cursor-pointer"
                         >
                             <Checkbox
                                 checked={isDifficultySelected(value)}
