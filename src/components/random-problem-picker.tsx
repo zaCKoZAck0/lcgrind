@@ -163,7 +163,7 @@ export function RandomProblemPicker({
                                     Acceptance: {problem.acceptance}%
                                 </Badge>
                             </div>
-                            {problem.tags && problem.tags.length > 0 && problem.tags[0] && (
+                            {problem.tags && problem.tags.length > 0 && (
                                 <div className="text-sm text-muted-foreground">
                                     <span className="font-medium">Tags:</span>{" "}
                                     {problem.tags.filter(Boolean).join(", ")}

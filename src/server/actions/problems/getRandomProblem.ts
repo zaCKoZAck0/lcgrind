@@ -22,8 +22,15 @@ export async function getRandomProblem(
     }
     const whereClause = getDbWhereClause(order, search, '', difficultiesArray);
     
-    // Convert excludedIds to integers for database query
-    const excludedIdsInt = excludedIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+    // Convert excludedIds to integers for database query and validate
+    const excludedIdsInt = excludedIds
+        .map(id => parseInt(id, 10))
+        .filter(id => !isNaN(id) && Number.isFinite(id) && id > 0);
+    
+    // Build exclusion clause with parameterized array
+    const exclusionClause = excludedIdsInt.length > 0 
+        ? `AND p.id != ALL($3::int[])` 
+        : '';
     
     const query = `
         SELECT
@@ -37,7 +44,7 @@ export async function getRandomProblem(
         LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
         LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
         ${whereClause}
-        ${excludedIdsInt.length > 0 ? `AND p.id NOT IN (${excludedIdsInt.join(',')})` : ''}
+        ${exclusionClause}
         GROUP BY p.id
         HAVING (
             ($1::text[] IS NULL OR
@@ -51,10 +58,13 @@ export async function getRandomProblem(
     `;
 
     try {
+        const params = excludedIdsInt.length > 0
+            ? [companies, tags, excludedIdsInt]
+            : [companies, tags];
+        
         const problems = await db.$queryRawUnsafe<ProblemWithStats[]>(
             query,
-            companies,
-            tags
+            ...params
         );
         if (problems.length === 0) {
             return null;
