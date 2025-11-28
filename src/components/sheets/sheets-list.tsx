@@ -25,7 +25,7 @@ type Sheet = {
 
 export function SheetsList({ sheets }: { sheets: Sheet[] }) {
     return (
-        <div className="w-full p-6 max-w-[1000px] gap-6 grid md:grid-cols-2 grind-cols-1">
+        <div className="w-full p-6 max-w-[1000px] gap-6 grid md:grid-cols-2 grid-cols-1">
             {sheets.map((sheet) => {
                 const problemIds = sheet.SheetProblem.map(sp => sp.problem.frontendQuestionId);
                 return (
