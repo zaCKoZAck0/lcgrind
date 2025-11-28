@@ -11,6 +11,15 @@ export async function getAllSheets() {
                     select: {
                         SheetProblem: true
                     }
+                },
+                SheetProblem: {
+                    select: {
+                        problem: {
+                            select: {
+                                frontendQuestionId: true
+                            }
+                        }
+                    }
                 }
             }
         });
