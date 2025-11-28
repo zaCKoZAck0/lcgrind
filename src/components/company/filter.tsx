@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon } from "lucide-react";
+import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon, SignalIcon } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
@@ -12,18 +12,19 @@ import {
     SelectValue,
 } from "~/components/ui/select"
 import { MultiSelect, MultiSelectTrigger, MultiSelectValue, MultiSelectContent, MultiSelectInput, MultiSelectList, MultiSelectGroup, MultiSelectLabel, MultiSelectItem } from "../ui/multi-combobox";
-import { ALGORITHMS, COMPANIES, DATA_STRUCTURES, MAANG_COMPANIES } from "~/config/constants";
+import { ALGORITHMS, COMPANIES, DATA_STRUCTURES, DIFFICULTIES, MAANG_COMPANIES } from "~/config/constants";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { onClickAdUrl } from "~/lib/utils";
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[] }) => {
+export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
     const [t, setT] = useState<string[]>(tags ?? []);
+    const [d, setD] = useState<string[]>(difficulties ?? []);
     const [problemQuery, setProblemQuery] = useState<string>((filters.search && filters.search.trim()) ?? '');
     const router = useRouter();
     const currentSearchParams = useSearchParams();
@@ -35,6 +36,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
         setProblemQuery('');
         setC([]);
         setT([]);
+        setD([]);
     }
 
     const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -70,15 +72,17 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
         params.set('sort', sort);
         params.delete('companies');
         params.delete('tags');
+        params.delete('difficulties');
         c.forEach(company => params.append('companies', company));
         t.forEach(tag => params.append('tags', tag));
+        d.forEach(difficulty => params.append('difficulties', difficulty));
 
         const newQueryString = params.toString();
         const targetPath = `${pathName}${newQueryString ? `?${newQueryString}` : ''}`;
 
         router.replace(targetPath);
 
-    }, [sort, order, t, c, currentSearchParams])
+    }, [sort, order, t, c, d, currentSearchParams])
 
     return <div
         className="w-full bg-card flex flex-col md:flex-row border-2 border-border relative">
@@ -201,6 +205,30 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags }: {
                     </MultiSelectList>
                 </MultiSelectContent>
             </MultiSelect>
+            {
+                isProblemFilter && <MultiSelect
+                    value={d}
+                    onValueChange={setD}
+                >
+                    <MultiSelectTrigger className="flex-shrink-0">
+                        <SignalIcon size={16} />
+                        <MultiSelectValue placeholder="Difficulty" />
+                    </MultiSelectTrigger>
+                    <MultiSelectContent>
+                        <MultiSelectList>
+                            <MultiSelectGroup>
+                                {
+                                    DIFFICULTIES.map(difficulty => (
+                                        <MultiSelectItem key={difficulty} value={difficulty}>
+                                            {difficulty}
+                                        </MultiSelectItem>
+                                    ))
+                                }
+                            </MultiSelectGroup>
+                        </MultiSelectList>
+                    </MultiSelectContent>
+                </MultiSelect>
+            }
         </div>
         <Button className="bg-secondary-background absolute top-0 right-3 -translate-y-1/2 text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
 

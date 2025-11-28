@@ -42,18 +42,22 @@ export const getDbOrderByClause = (order: string, sort: string, isSheet: boolean
   }
 }
 
-export const getDbWhereClause = (order: string, search: string, slug: string): string => {
+export const getDbWhereClause = (order: string, search: string, slug: string, difficulties: string[] | null = null): string => {
   const whereQueries = [];
   const trimmedSearch = search.trim();
   const trimmedSlug = slug.trim();
   if (trimmedSearch.length > 0) {
-    whereQueries.push(`p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%'`);
+    whereQueries.push(`(p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%')`);
   }
   if (trimmedSlug.length > 0) {
     whereQueries.push(`sh.slug = '${trimmedSlug}'`);
   }
   if (order !== 'all-problems') { 
     whereQueries.push(`s."${getOrderKey(order)}" > 0`);
+  }
+  if (difficulties && difficulties.length > 0) {
+    const escapedDifficulties = difficulties.map(d => `'${d}'`).join(', ');
+    whereQueries.push(`p.difficulty IN (${escapedDifficulties})`);
   }
   if (whereQueries.length > 0) {
     return `WHERE ${whereQueries.join(' AND ')}`;

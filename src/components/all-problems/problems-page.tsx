@@ -18,6 +18,7 @@ export function ProblemsPage() {
 
     let companies = searchParams.getAll('companies');
     let tags = searchParams.getAll('tags');
+    let difficulties = searchParams.getAll('difficulties');
     const sort = searchParams.get('sort') || 'question-id';
     const order = searchParams.get('order') || 'all-problems';
     const search = searchParams.get('search') || '';
@@ -25,18 +26,19 @@ export function ProblemsPage() {
 
     if (companies.length === 0) companies = null;
     if (tags.length === 0) tags = null;
+    if (difficulties.length === 0) difficulties = null;
 
     const { data: problems, isLoading: problemsLoading } = useQuery({
-        queryKey: ['problems', order, sort, search, tags, companies, page],
-        queryFn: () => getProblems(order, search, sort, tags, companies, page, ITEMS_PER_PAGE),
+        queryKey: ['problems', order, sort, search, tags, companies, difficulties, page],
+        queryFn: () => getProblems(order, search, sort, tags, companies, difficulties, page, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
 
     });
 
     const { data: problemIds, isLoading: problemIdsLoading } = useQuery({
-        queryKey: ['problems-ids', order, search, tags, companies],
-        queryFn: () => getProblemIds(order, search, tags, companies),
+        queryKey: ['problems-ids', order, search, tags, companies, difficulties],
+        queryFn: () => getProblemIds(order, search, tags, companies, difficulties),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
     })
@@ -53,7 +55,7 @@ export function ProblemsPage() {
 
 
         <div className="shadow-shadow">
-            <Filters filters={{ sorting: sort, order, search }} companies={companies} tags={tags} isProblemFilter />
+            <Filters filters={{ sorting: sort, order, search }} companies={companies} tags={tags} difficulties={difficulties} isProblemFilter />
 
             <div className="min-w-full border-collapse">
 
