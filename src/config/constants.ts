@@ -11,7 +11,7 @@ export const SHEET_OWNER_LOGO_SRC: Record<string, string> = {
   "leetcode": `https://img.logo.dev/leetcode.com?token=${LOGO_DEV_TOKEN}`
 }
 
-export const SHEETS_GROUPED_BY_TOPIC = ['blind-75', 'leetcode-75', 'leetcode-top-interview-150', 'leetcode-top-100-liked'];
+export const SHEETS_GROUPED_BY_TOPIC = ['blind-75', 'leetcode-75', 'leetcode-top-interview-150', 'leetcode-top-100-liked', 'neetcode-150', 'neetcode-250'];
 
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 
