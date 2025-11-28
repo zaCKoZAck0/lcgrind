@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION, LOGO_DEV_TOKEN } from "~/config/constants";
 import { GlobalPagination } from "../global-pagination";
 import { buttonVariants } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +50,7 @@ export function AllCompanies() {
                         className={cn(buttonVariants({ variant: "neutral" }), "h-fit py-6 cursor-pointer w-full")}
                     >
                         <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
-                            <Image src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
+                            <Image src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=${LOGO_DEV_TOKEN}`} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
                             <div>
                                 <p className="font-semibold text-2xl">{company.name}</p>
                                 <p className="text-muted-foreground text-lg">

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { ProblemRow } from "~/components/company/problem-row";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
+import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES, LOGO_DEV_TOKEN } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
@@ -91,7 +91,7 @@ export default async function PrepGuidePage({
         <div className="w-full max-w-[1000px] py-6">
             <div className="w-full bg-card flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <img
-                    src={`https://img.logo.dev/${COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`}?token=pk_Ovv0aVUwQNK80p_PGY_xcg`}
+                    src={`https://img.logo.dev/${COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`}?token=${LOGO_DEV_TOKEN}`}
                     alt={`${sheet.name} logo`}
                     className="size-8 rounded-md"
                 />
