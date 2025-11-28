@@ -21,6 +21,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useTheme } from "~/hooks/use-theme";
 import { addThemeToLogoUrl } from "~/utils/logo";
 import { SheetSettingsPanel } from "./sheet-settings-panel";
+import { SheetFilters } from "./sheet-filters";
 import { useAppSelector } from "~/hooks/redux";
 import { defaultSettings } from "~/store/sheetSettingsSlice";
 
@@ -216,9 +217,11 @@ export function Sheet() {
                     <p className="pt-1 hidden md:block">
                         {selectedSheet?.description}
                     </p>
+                    {/* Filters below description */}
+                    <SheetFilters sheetSlug={slug} availableTopics={availableTopics} />
                 </div>)}
                 <div className="w-full md:max-w-[320px]">
-                    <SheetSettingsPanel sheetSlug={slug} availableTopics={availableTopics} />
+                    <SheetSettingsPanel sheetSlug={slug} />
                 </div>
             </div>
             <ProgressTracker text="COMPLETED" className="border-2 border-border border-t-0 p-3" problemIds={problems?.map(p => p.frontendQuestionId) ?? []} />
