@@ -18,6 +18,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { onClickAdUrl } from "~/lib/utils";
+import { RandomProblemPicker } from "../random-problem-picker";
 
 export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[] }) => {
     const [sort, setSort] = useState(filters.sorting);
@@ -228,7 +229,16 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                 </MultiSelectContent>
             </MultiSelect>
         </div>
-        <Button className="bg-secondary-background absolute top-0 right-3 -translate-y-1/2 text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
+        <div className="absolute top-0 right-3 -translate-y-1/2 flex gap-2">
+            <RandomProblemPicker
+                order={order}
+                search={problemQuery}
+                tags={t.length > 0 ? t : null}
+                companies={c.length > 0 ? c : null}
+                difficulties={d.length > 0 ? d : null}
+            />
+            <Button className="bg-secondary-background text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
+        </div>
 
 
     </div>
