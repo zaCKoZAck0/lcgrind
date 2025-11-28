@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LOGO_DEV_TOKEN } from "~/config/constants";
 import { onClickAdUrl } from "~/lib/utils";
+import { useTheme } from "~/hooks/use-theme";
+import { getLogoUrl } from "~/utils/logo";
 
 export const Footer = () => {
+    const theme = useTheme();
     return (
         <footer className="p-2 bg-background">
             <div className="bg-main shadow-shadow border-2 border-border text-base text-main-foreground">
@@ -39,7 +41,7 @@ export const Footer = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={`https://img.logo.dev/logo.dev?token=${LOGO_DEV_TOKEN}`} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={getLogoUrl("logo.dev", theme)} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 

@@ -5,7 +5,7 @@ import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { getAllSheets } from "~/server/actions/sheets/getAllSheets";
 import { BASE_URL, SHEET_OWNER_LOGO_SRC } from "~/config/constants";
-import Image from "next/image";
+import { SheetOwnerLogo } from "~/components/sheet-owner-logo";
 import { Metadata } from "next";
 
 export const dynamic = "force-static";
@@ -68,7 +68,7 @@ export default async function SheetsPage() {
 
                         <div className="space-y-3">
                             <div className="flex gap-3 items-center">
-                                <Image alt={sheet.ownerName} src={SHEET_OWNER_LOGO_SRC[sheet.ownerName.toLowerCase()]} width={100} height={100} className="rounded-md size-16" />
+                                <SheetOwnerLogo alt={sheet.ownerName} src={SHEET_OWNER_LOGO_SRC[sheet.ownerName.toLowerCase()]} width={100} height={100} className="rounded-md size-16" />
                                 <div className="flex flex-col gap-1">
                                     <p className="font-semibold text-2xl">
                                         {sheet.name}
