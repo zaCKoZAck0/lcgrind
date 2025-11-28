@@ -184,8 +184,8 @@ export function MultiSelectInput({ placeholder = "Search..." }: { placeholder?: 
     return <CommandInput placeholder={placeholder} />
 }
 
-export function MultiSelectList({ className, children }: { className?: string, children: React.ReactNode }) {
-    return <CommandList className={className}><ScrollArea className="h-[300px]">{children}</ScrollArea></CommandList>
+export function MultiSelectList({ className, children, autoHeight = false }: { className?: string, children: React.ReactNode, autoHeight?: boolean }) {
+    return <CommandList className={className}><ScrollArea className={autoHeight ? "max-h-[300px]" : "h-[300px]"}>{children}</ScrollArea></CommandList>
 }
 
 export function MultiSelectEmpty({ children = "No results found." }: { children?: React.ReactNode }) {

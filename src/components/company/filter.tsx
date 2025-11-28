@@ -205,30 +205,28 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                     </MultiSelectList>
                 </MultiSelectContent>
             </MultiSelect>
-            {
-                isProblemFilter && <MultiSelect
-                    value={d}
-                    onValueChange={setD}
-                >
-                    <MultiSelectTrigger className="flex-shrink-0">
-                        <SignalIcon size={16} />
-                        <MultiSelectValue placeholder="Difficulty" />
-                    </MultiSelectTrigger>
-                    <MultiSelectContent>
-                        <MultiSelectList>
-                            <MultiSelectGroup>
-                                {
-                                    DIFFICULTIES.map(difficulty => (
-                                        <MultiSelectItem key={difficulty} value={difficulty}>
-                                            {difficulty}
-                                        </MultiSelectItem>
-                                    ))
-                                }
-                            </MultiSelectGroup>
-                        </MultiSelectList>
-                    </MultiSelectContent>
-                </MultiSelect>
-            }
+            <MultiSelect
+                value={d}
+                onValueChange={setD}
+            >
+                <MultiSelectTrigger className="flex-shrink-0">
+                    <SignalIcon size={16} />
+                    <MultiSelectValue placeholder="Difficulty" />
+                </MultiSelectTrigger>
+                <MultiSelectContent>
+                    <MultiSelectList autoHeight>
+                        <MultiSelectGroup>
+                            {
+                                DIFFICULTIES.map(difficulty => (
+                                    <MultiSelectItem key={difficulty} value={difficulty}>
+                                        {difficulty}
+                                    </MultiSelectItem>
+                                ))
+                            }
+                        </MultiSelectGroup>
+                    </MultiSelectList>
+                </MultiSelectContent>
+            </MultiSelect>
         </div>
         <Button className="bg-secondary-background absolute top-0 right-3 -translate-y-1/2 text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
 
