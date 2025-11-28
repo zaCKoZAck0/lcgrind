@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import { ProblemRow } from "~/components/company/problem-row";
+import { CompanyLogo } from "~/components/company-logo";
 import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
-import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES, LOGO_DEV_TOKEN } from "~/config/constants";
+import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
@@ -87,13 +88,17 @@ export default async function PrepGuidePage({
     const favoriteProblems = problems.filter(problem => (problem.sheetOrder.toNumber() > 0 && problem.sixMonthsOrder.toNumber() > 0 && problem.yearlyOrder.toNumber() > 0 && problem.threeMonthsOrder.toNumber() > 0 && problem.thirtyDaysOrder.toNumber() > 0)).sort((a, b) => b.sheetOrder.toNumber() - a.sheetOrder.toNumber());
 
 
+    const logoDomain = COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`;
+
     return (
         <div className="w-full max-w-[1000px] py-6">
             <div className="w-full bg-card flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
-                <img
-                    src={`https://img.logo.dev/${COMPANIES[sheet.name.trim()] ?? `${sheet.slug}.com`}?token=${LOGO_DEV_TOKEN}`}
+                <CompanyLogo
+                    domain={logoDomain}
                     alt={`${sheet.name} logo`}
                     className="size-8 rounded-md"
+                    width={32}
+                    height={32}
                 />
                 <h1 className="text-2xl font-medium text-center">{sheet.name} Interview Prep Guide</h1>
             </div>

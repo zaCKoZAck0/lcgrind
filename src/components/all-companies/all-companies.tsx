@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { COMPANIES, DEFAULT_REVALIDATION, LOGO_DEV_TOKEN } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { GlobalPagination } from "../global-pagination";
 import { buttonVariants } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ import { AllCompaniesSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useTheme } from "~/hooks/use-theme";
+import { getLogoUrl } from "~/utils/logo";
 
 const ITEMS_PER_PAGE = 24;
 
@@ -19,6 +21,7 @@ export function AllCompanies() {
     const currentPage = Number(searchParams.get('page')) || 1;
     const query = (searchParams.get('search') || '').trim().toLowerCase();
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+    const theme = useTheme();
 
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
@@ -43,6 +46,7 @@ export function AllCompanies() {
             className="max-w-[1200px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-6 gap-3"
         >
             {data.companies.map((company) => {
+                const domain = COMPANIES[company.name.trim()] ?? `${company.slug}.com`;
                 return (
                     <Link
                         key={company.slug}
@@ -50,7 +54,7 @@ export function AllCompanies() {
                         className={cn(buttonVariants({ variant: "neutral" }), "h-fit py-6 cursor-pointer w-full")}
                     >
                         <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
-                            <Image src={`https://img.logo.dev/${COMPANIES[company.name.trim()] ?? `${company.slug}.com`}?token=${LOGO_DEV_TOKEN}`} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
+                            <Image src={getLogoUrl(domain, theme)} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
                             <div>
                                 <p className="font-semibold text-2xl">{company.name}</p>
                                 <p className="text-muted-foreground text-lg">

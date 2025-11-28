@@ -1,7 +1,7 @@
 "use client";
 import { ArrowLeft, ChartLineIcon } from "lucide-react";
 import Link from "next/link";
-import { COMPANIES, DEFAULT_REVALIDATION, LOGO_DEV_TOKEN } from "~/config/constants";
+import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { buttonVariants } from "../ui/button";
 import { Filters } from "./filter";
 import { ProblemRow } from "./problem-row";
@@ -13,9 +13,12 @@ import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { ProblemRowSkeleton } from "../all-problems/problem-row-skeleton";
 import { useSearchParams } from "next/navigation";
 import { AdBanner } from "../ads/banner";
+import { useTheme } from "~/hooks/use-theme";
+import { getLogoUrl } from "~/utils/logo";
 
 export function CompanyPage({ slug }: { slug: string }) {
     const searchParams = useSearchParams();
+    const theme = useTheme();
 
     const tagsParam = searchParams.getAll('tags');
     const tags = tagsParam.length > 0 ? tagsParam : [];
@@ -39,6 +42,7 @@ export function CompanyPage({ slug }: { slug: string }) {
     })
 
     const selectedSheet = sheet?.[0];
+    const logoDomain = COMPANIES[selectedSheet?.name.trim()] ?? `${selectedSheet?.slug}.com`;
 
     return <div className="w-full max-w-[1000px] py-6">
         <div className="mb-12 shadow-shadow">
@@ -65,7 +69,7 @@ export function CompanyPage({ slug }: { slug: string }) {
                     {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                         <div className="flex gap-6 min-w-[360px]">
                             <img
-                                src={`https://img.logo.dev/${COMPANIES[selectedSheet?.name.trim()] ?? `${selectedSheet?.slug}.com`}?token=${LOGO_DEV_TOKEN}`}
+                                src={getLogoUrl(logoDomain, theme)}
                                 alt={`${selectedSheet?.name} logo`}
                                 className="size-14 rounded-md"
                             />

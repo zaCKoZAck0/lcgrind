@@ -18,11 +18,14 @@ import { usePathname } from "next/navigation";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { useTheme } from "~/hooks/use-theme";
+import { addThemeToLogoUrl } from "~/utils/logo";
 
 
 export function Sheet() {
 
     const slug = usePathname().split('/')[2];
+    const theme = useTheme();
 
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`sheet/${slug}/problems`],
@@ -63,7 +66,7 @@ export function Sheet() {
                 {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                     <div className="flex gap-6 min-w-[360px]">
                         <img
-                            src={SHEET_OWNER_LOGO_SRC[selectedSheet?.ownerName.toLowerCase()]}
+                            src={addThemeToLogoUrl(SHEET_OWNER_LOGO_SRC[selectedSheet?.ownerName.toLowerCase()], theme)}
                             alt={`${selectedSheet?.name} logo`}
                             className="size-14 rounded-md"
                         />
