@@ -22,14 +22,17 @@ export function CompanyPage({ slug }: { slug: string }) {
 
     const tagsParam = searchParams.getAll('tags');
     const tags = tagsParam.length > 0 ? tagsParam : [];
+    let difficulties = searchParams.getAll('difficulties');
     const sort = searchParams.get('sort') || 'frequency';
     const order = searchParams.get('order') || 'all';
     const search = searchParams.get('search') || '';
     const tagsKey = Array.isArray(tags) ? tags.join(",") : tags;
 
+    if (difficulties.length === 0) difficulties = null;
+
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
-        queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey],
-        queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags),
+        queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey, difficulties],
+        queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags, difficulties),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
     });
@@ -87,7 +90,7 @@ export function CompanyPage({ slug }: { slug: string }) {
         </div>
 
         <div className='shadow-shadow'>
-            <Filters filters={{ sorting: sort, order, search }} />
+            <Filters filters={{ sorting: sort, order, search }} difficulties={difficulties} />
 
             {
                 isProblemsLoading

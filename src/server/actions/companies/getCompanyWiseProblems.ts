@@ -3,12 +3,16 @@ import { db } from "~/lib/db";
 import { ProblemWithStats } from "~/types/problem";
 import { getOrderKey, getDbOrderByClause, getDbWhereClause } from "~/utils/sorting";
 
-export async function getCompanyWiseProblems(order: string, search: string, slug: string, sort: string, tags: string | string[] | null) {
+export async function getCompanyWiseProblems(order: string, search: string, slug: string, sort: string, tags: string | string[] | null, difficulties: string | string[] | null) {
     if (!Array.isArray(tags)) tags = [tags];
     if (tags.length === 0) tags = null;
+    let difficultiesArray: string[] | null = null;
+    if (difficulties != null) {
+        difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
+    }
     const orderKey = getOrderKey(order);
     const orderClause = getDbOrderByClause(order, sort, true);
-    const whereClause = getDbWhereClause(order, search, slug);
+    const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
     const query = `
             SELECT
                 p.*,

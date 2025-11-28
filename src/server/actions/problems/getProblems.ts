@@ -5,13 +5,17 @@ import { sanitizeProblems } from "~/lib/utils";
 import { ProblemWithStats } from "~/types/problem";
 import { getDbOrderByClause, getDbWhereClause, getOrderKey } from "~/utils/sorting";
 
-export async function getProblems(order: string, search: string, sort: string, tags: string | string[] | null, companies: string | string[] | null, page: number, perPage: number) {
+export async function getProblems(order: string, search: string, sort: string, tags: string | string[] | null, companies: string | string[] | null, difficulties: string | string[] | null, page: number, perPage: number) {
     const orderKey = getOrderKey(order);
         if (!Array.isArray(companies) && companies != null) companies = [companies];
         if (!Array.isArray(tags) && tags != null) tags = [tags];
+        let difficultiesArray: string[] | null = null;
+        if (difficulties != null) {
+            difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
+        }
         const offset = (page - 1) * perPage;
         const orderClause = getDbOrderByClause(order, sort);
-        const whereClause = getDbWhereClause(order, search, '');
+        const whereClause = getDbWhereClause(order, search, '', difficultiesArray);
         const query = `
             SELECT
                 p.*,

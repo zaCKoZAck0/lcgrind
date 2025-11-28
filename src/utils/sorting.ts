@@ -42,18 +42,31 @@ export const getDbOrderByClause = (order: string, sort: string, isSheet: boolean
   }
 }
 
-export const getDbWhereClause = (order: string, search: string, slug: string): string => {
+// Valid difficulty values - used for validation to prevent SQL injection
+const VALID_DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
+
+export const getDbWhereClause = (order: string, search: string, slug: string, difficulties: string[] | null = null): string => {
   const whereQueries = [];
   const trimmedSearch = search.trim();
   const trimmedSlug = slug.trim();
   if (trimmedSearch.length > 0) {
-    whereQueries.push(`p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%'`);
+    whereQueries.push(`(p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%')`);
   }
   if (trimmedSlug.length > 0) {
     whereQueries.push(`sh.slug = '${trimmedSlug}'`);
   }
   if (order !== 'all-problems') { 
     whereQueries.push(`s."${getOrderKey(order)}" > 0`);
+  }
+  if (difficulties && difficulties.length > 0) {
+    // Filter to only valid difficulty values to prevent SQL injection
+    const validatedDifficulties = difficulties.filter(d => 
+      VALID_DIFFICULTIES.includes(d as typeof VALID_DIFFICULTIES[number])
+    );
+    if (validatedDifficulties.length > 0) {
+      const escapedDifficulties = validatedDifficulties.map(d => `'${d}'`).join(', ');
+      whereQueries.push(`p.difficulty IN (${escapedDifficulties})`);
+    }
   }
   if (whereQueries.length > 0) {
     return `WHERE ${whereQueries.join(' AND ')}`;

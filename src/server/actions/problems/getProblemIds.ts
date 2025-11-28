@@ -3,10 +3,14 @@
 import { db } from "~/lib/db";
 import { getDbWhereClause } from "~/utils/sorting";
 
-export async function getProblemIds(order: string, search: string, tags: string | string[] | null, companies: string | string[] | null) {
+export async function getProblemIds(order: string, search: string, tags: string | string[] | null, companies: string | string[] | null, difficulties: string | string[] | null) {
         if (!Array.isArray(companies) && companies != null) companies = [companies];
         if (!Array.isArray(tags) && tags != null) tags = [tags];
-        const whereClause = getDbWhereClause(order, search, '');
+        let difficultiesArray: string[] | null = null;
+        if (difficulties != null) {
+            difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
+        }
+        const whereClause = getDbWhereClause(order, search, '', difficultiesArray);
     
         const query = `
             SELECT
