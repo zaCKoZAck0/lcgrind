@@ -1,12 +1,14 @@
 "use client";
 
-import { CalendarDaysIcon, ClockIcon, LayoutGridIcon } from "lucide-react";
+import { CalendarDaysIcon, ClockIcon, FilterIcon, LayoutGridIcon, SignalIcon, TagIcon } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "~/hooks/redux";
 import { Slider } from "~/components/ui/slider";
 import {
     setWeeks,
     setHoursPerWeek,
     setGroupBy,
+    setSelectedTopics,
+    setSelectedDifficulties,
     defaultSettings,
     GroupingType
 } from "~/store/sheetSettingsSlice";
@@ -17,12 +19,24 @@ import {
     SelectTrigger,
     SelectValue,
 } from "~/components/ui/select";
+import {
+    MultiSelect,
+    MultiSelectContent,
+    MultiSelectItem,
+    MultiSelectList,
+    MultiSelectTrigger,
+    MultiSelectValue,
+    MultiSelectGroup,
+} from "~/components/ui/multi-combobox";
 
 interface SheetSettingsPanelProps {
     sheetSlug: string;
+    availableTopics: string[];
 }
 
-export function SheetSettingsPanel({ sheetSlug }: SheetSettingsPanelProps) {
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+
+export function SheetSettingsPanel({ sheetSlug, availableTopics }: SheetSettingsPanelProps) {
     const dispatch = useAppDispatch();
     const settings = useAppSelector(
         state => state.sheetSettings.sheets[sheetSlug] ?? defaultSettings
@@ -38,6 +52,14 @@ export function SheetSettingsPanel({ sheetSlug }: SheetSettingsPanelProps) {
 
     const handleGroupByChange = (value: GroupingType) => {
         dispatch(setGroupBy({ sheetSlug, groupBy: value }));
+    };
+
+    const handleTopicsChange = (topics: string[]) => {
+        dispatch(setSelectedTopics({ sheetSlug, topics }));
+    };
+
+    const handleDifficultiesChange = (difficulties: string[]) => {
+        dispatch(setSelectedDifficulties({ sheetSlug, difficulties }));
     };
 
     return (
@@ -75,6 +97,65 @@ export function SheetSettingsPanel({ sheetSlug }: SheetSettingsPanelProps) {
                             step={1}
                         />
                     </div>
+                </div>
+            </div>
+
+            <div className="border-t border-border pt-4 space-y-3">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <FilterIcon size={18} />
+                    Filters
+                </h3>
+                <div className="space-y-3">
+                    <div className="space-y-1">
+                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <SignalIcon size={14} />
+                            Difficulty
+                        </span>
+                        <MultiSelect value={settings.selectedDifficulties} onValueChange={handleDifficultiesChange}>
+                            <MultiSelectTrigger className="w-full">
+                                <MultiSelectValue placeholder="All difficulties" />
+                            </MultiSelectTrigger>
+                            <MultiSelectContent>
+                                <MultiSelectList autoHeight>
+                                    <MultiSelectGroup>
+                                        {DIFFICULTIES.map(difficulty => (
+                                            <MultiSelectItem key={difficulty} value={difficulty}>
+                                                <span className={
+                                                    difficulty === 'Easy' ? 'text-green-500' :
+                                                    difficulty === 'Medium' ? 'text-yellow-500' :
+                                                    'text-red-500'
+                                                }>{difficulty}</span>
+                                            </MultiSelectItem>
+                                        ))}
+                                    </MultiSelectGroup>
+                                </MultiSelectList>
+                            </MultiSelectContent>
+                        </MultiSelect>
+                    </div>
+                    {availableTopics.length > 0 && (
+                        <div className="space-y-1">
+                            <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                <TagIcon size={14} />
+                                Topics
+                            </span>
+                            <MultiSelect value={settings.selectedTopics} onValueChange={handleTopicsChange}>
+                                <MultiSelectTrigger className="w-full">
+                                    <MultiSelectValue placeholder="All topics" />
+                                </MultiSelectTrigger>
+                                <MultiSelectContent>
+                                    <MultiSelectList>
+                                        <MultiSelectGroup>
+                                            {availableTopics.map(topic => (
+                                                <MultiSelectItem key={topic} value={topic}>
+                                                    {topic}
+                                                </MultiSelectItem>
+                                            ))}
+                                        </MultiSelectGroup>
+                                    </MultiSelectList>
+                                </MultiSelectContent>
+                            </MultiSelect>
+                        </div>
+                    )}
                 </div>
             </div>
             

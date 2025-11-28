@@ -6,6 +6,8 @@ interface SheetSettings {
   weeks: number;
   hoursPerWeek: number;
   groupBy: GroupingType;
+  selectedTopics: string[];
+  selectedDifficulties: string[];
 }
 
 interface SheetSettingsState {
@@ -19,7 +21,9 @@ const initialState: SheetSettingsState = {
 const defaultSettings: SheetSettings = {
   weeks: 4,
   hoursPerWeek: 5,
-  groupBy: 'topic'
+  groupBy: 'topic',
+  selectedTopics: [],
+  selectedDifficulties: []
 };
 
 // Helper to ensure sheet settings exist
@@ -48,6 +52,16 @@ export const sheetSettingsSlice = createSlice({
       ensureSheetSettings(state, sheetSlug);
       state.sheets[sheetSlug].groupBy = groupBy;
     },
+    setSelectedTopics: (state, action: PayloadAction<{ sheetSlug: string; topics: string[] }>) => {
+      const { sheetSlug, topics } = action.payload;
+      ensureSheetSettings(state, sheetSlug);
+      state.sheets[sheetSlug].selectedTopics = topics;
+    },
+    setSelectedDifficulties: (state, action: PayloadAction<{ sheetSlug: string; difficulties: string[] }>) => {
+      const { sheetSlug, difficulties } = action.payload;
+      ensureSheetSettings(state, sheetSlug);
+      state.sheets[sheetSlug].selectedDifficulties = difficulties;
+    },
     initSheetSettings: (state, action: PayloadAction<{ sheetSlug: string }>) => {
       const { sheetSlug } = action.payload;
       ensureSheetSettings(state, sheetSlug);
@@ -55,6 +69,6 @@ export const sheetSettingsSlice = createSlice({
   }
 });
 
-export const { setWeeks, setHoursPerWeek, setGroupBy, initSheetSettings } = sheetSettingsSlice.actions;
+export const { setWeeks, setHoursPerWeek, setGroupBy, setSelectedTopics, setSelectedDifficulties, initSheetSettings } = sheetSettingsSlice.actions;
 export default sheetSettingsSlice.reducer;
 export { defaultSettings };
