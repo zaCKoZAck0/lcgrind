@@ -97,6 +97,7 @@ export function RandomProblemPicker({
                 variant="noShadow"
                 size="sm"
                 onClick={handleOpenDialog}
+                disabled={isLoading}
                 title="Pick Random Problem"
             >
                 <Dice5Icon /> Random
@@ -174,7 +175,7 @@ export function RandomProblemPicker({
 
                     {!isLoading && allSolved && (
                         <div className="flex items-center justify-center py-4">
-                            <Button onClick={handlePickFromSolved}>
+                            <Button onClick={handlePickFromSolved} disabled={isLoading}>
                                 Pick from Solved Problems
                             </Button>
                         </div>
@@ -186,6 +187,7 @@ export function RandomProblemPicker({
                                 <Button
                                     variant="neutral"
                                     onClick={handlePickAnother}
+                                    disabled={isLoading}
                                     className="flex-1"
                                 >
                                     <Dice5Icon /> Pick Another
