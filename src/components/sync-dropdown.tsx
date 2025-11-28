@@ -107,27 +107,52 @@ export function SyncDropdown() {
           return
         }
 
-        // Import completed problems
+        // Import completed problems (only if not already completed or if imported timestamp is newer)
         let importedProblemsCount = 0
         const problems = importedData.completedProblems.problems
         for (const problemId in problems) {
-          dispatch(markCompleted(problemId))
-          importedProblemsCount++
+          const existingProblem = completedProblems.problems[problemId]
+          const importedProblem = problems[problemId]
+          
+          // Only import if the problem is not already completed or if the imported timestamp is newer
+          if (!existingProblem || 
+              (importedProblem.completedAt && importedProblem.completedAt > existingProblem.completedAt)) {
+            dispatch(markCompleted(problemId))
+            importedProblemsCount++
+          }
         }
 
-        // Import notes
+        // Import notes (skip duplicates based on problemId, title, and content)
         let importedNotesCount = 0
         const notes = importedData.problemNotes.notes
+        const existingNotesValues = Object.values(problemNotes.notes)
+        
         for (const noteId in notes) {
           const note = notes[noteId]
-          if (note && note.problemId && note.title && note.content) {
-            dispatch(addNote({
-              problemId: note.problemId,
-              title: note.title,
-              content: note.content,
-              color: note.color,
-            }))
-            importedNotesCount++
+          
+          // Validate note structure with proper type checks
+          if (note && 
+              typeof note.problemId === "string" && 
+              typeof note.title === "string" && 
+              typeof note.content === "string") {
+            
+            // Check for duplicate notes (same problemId, title, and content)
+            const isDuplicate = existingNotesValues.some(
+              (existingNote) => 
+                existingNote.problemId === note.problemId &&
+                existingNote.title === note.title &&
+                existingNote.content === note.content
+            )
+            
+            if (!isDuplicate) {
+              dispatch(addNote({
+                problemId: note.problemId,
+                title: note.title,
+                content: note.content,
+                color: typeof note.color === "string" ? note.color : undefined,
+              }))
+              importedNotesCount++
+            }
           }
         }
 
