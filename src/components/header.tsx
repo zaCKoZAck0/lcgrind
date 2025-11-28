@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ThemeToggle } from "~/components/theme-toggle"
+import { SyncDropdown } from "~/components/sync-dropdown"
 import { buttonVariants } from "./ui/button"
 import { Twitter } from "./home/tweet"
 import { HeartIcon } from "lucide-react"; 
@@ -91,6 +92,7 @@ export async function Header() {
           >
             <Twitter className="size-5" />
           </a>
+          <SyncDropdown />
           <ThemeToggle />
         </div>
       </div>
