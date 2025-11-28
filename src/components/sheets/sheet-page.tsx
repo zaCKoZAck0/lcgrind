@@ -20,12 +20,79 @@ import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { useTheme } from "~/hooks/use-theme";
 import { addThemeToLogoUrl } from "~/utils/logo";
+import { SheetSettingsPanel } from "./sheet-settings-panel";
+import { useAppSelector } from "~/hooks/redux";
+import { defaultSettings } from "~/store/sheetSettingsSlice";
+
+// Time estimates in minutes per problem difficulty
+const DIFFICULTY_TIME_MINUTES: Record<string, number> = {
+    'Easy': 15,
+    'Medium': 30,
+    'Hard': 60
+};
+
+type SheetProblem = {
+    order: number;
+    group: string;
+    id: number;
+    url: string;
+    difficulty: string;
+    title: string;
+    isPaid: boolean;
+    acceptance: number;
+    difficultyOrder: number;
+    frontendQuestionId: string;
+    platform: string;
+};
+
+function groupProblemsByWeek(
+    problems: SheetProblem[],
+    weeks: number,
+    hoursPerWeek: number
+): Map<string, SheetProblem[]> {
+    const minutesPerWeek = hoursPerWeek * 60;
+    const result = new Map<string, SheetProblem[]>();
+    
+    // Initialize all weeks
+    for (let i = 1; i <= weeks; i++) {
+        result.set(`Week ${i}`, []);
+    }
+    
+    let currentWeek = 1;
+    let currentWeekTime = 0;
+    
+    for (const problem of problems) {
+        const problemTime = DIFFICULTY_TIME_MINUTES[problem.difficulty] ?? 30;
+        
+        // If adding this problem exceeds the week's time and there are more weeks
+        if (currentWeekTime + problemTime > minutesPerWeek && currentWeek < weeks) {
+            currentWeek++;
+            currentWeekTime = 0;
+        }
+        
+        result.get(`Week ${currentWeek}`)?.push(problem);
+        currentWeekTime += problemTime;
+    }
+    
+    // Remove empty weeks (if problems ran out before all weeks were filled)
+    for (let i = weeks; i >= 1; i--) {
+        const weekKey = `Week ${i}`;
+        if (result.get(weekKey)?.length === 0) {
+            result.delete(weekKey);
+        }
+    }
+    
+    return result;
+}
 
 
 export function Sheet() {
 
     const slug = usePathname().split('/')[2];
     const theme = useTheme();
+    const settings = useAppSelector(
+        state => state.sheetSettings.sheets[slug] ?? defaultSettings
+    );
 
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`sheet/${slug}/problems`],
@@ -42,15 +109,22 @@ export function Sheet() {
     })
 
     const groupedSheetProblems = useMemo(() => {
+        if (!problems) return new Map<string, typeof problems>();
+        
+        if (settings.groupBy === 'week') {
+            return groupProblemsByWeek(problems, settings.weeks, settings.hoursPerWeek);
+        }
+        
+        // Default topic-based grouping
         const map = new Map<string, typeof problems>();
-        problems?.forEach((problem) => {
+        problems.forEach((problem) => {
             if (!map.has(problem.group)) {
                 map.set(problem.group, []);
             }
             map.get(problem.group)?.push(problem);
         });
         return map;
-    }, [problems]);
+    }, [problems, settings.groupBy, settings.weeks, settings.hoursPerWeek]);
 
     const selectedSheet = sheet?.[0];
 
@@ -62,7 +136,7 @@ export function Sheet() {
                     All Sheets
                 </Link>
             </div>
-            <div className='p-6 border-2 border-t-0 border-border bg-card flex justify-between items-center bg-secondary-background'>
+            <div className='p-6 border-2 border-t-0 border-border bg-card flex flex-col md:flex-row justify-between gap-6 bg-secondary-background'>
                 {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                     <div className="flex gap-6 min-w-[360px]">
                         <img
@@ -89,6 +163,9 @@ export function Sheet() {
                         {selectedSheet?.description}
                     </p>
                 </div>)}
+                <div className="w-full md:max-w-[320px]">
+                    <SheetSettingsPanel sheetSlug={slug} />
+                </div>
             </div>
             <ProgressTracker text="COMPLETED" className="border-2 border-border border-t-0 p-3" problemIds={problems?.map(p => p.frontendQuestionId) ?? []} />
         </div>
@@ -99,11 +176,11 @@ export function Sheet() {
                     <AccordionItem key={group} value={group}>
                         <AccordionTrigger className="flex justify-between items-center">
                             <h2 className="text-2xl font-semibold flex-grow">{group}</h2>
-                            <ProgressTracker className="md:max-w-[50%] hidden md:flex pr-3" problemIds={groupedSheetProblems.get(group).map(p => p.frontendQuestionId) ?? []} />
+                            <ProgressTracker className="md:max-w-[50%] hidden md:flex pr-3" problemIds={groupedSheetProblems.get(group)?.map(p => p.frontendQuestionId) ?? []} />
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="min-w-full border-collapse border-t-2 border-border bg-background">
-                                {problems.map((problem, idx) => (
+                                {problems?.map((problem, idx) => (
                                     <ProblemRow
                                         key={problem.id}
                                         index={idx}
