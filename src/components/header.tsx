@@ -92,7 +92,9 @@ export async function Header() {
           >
             <Twitter className="size-5" />
           </a>
-          <SyncDropdown />
+          <div className="hidden md:block">
+            <SyncDropdown />
+          </div>
           <ThemeToggle />
         </div>
       </div>
