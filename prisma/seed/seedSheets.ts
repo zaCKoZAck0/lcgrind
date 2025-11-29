@@ -13,6 +13,7 @@ type Problem = {
     order: number;
     url: string;
     group: string;
+    solutionVideoLink?: string;
 }
 
 async function seed(metadata: Metadata, problems: Problem[]) {
@@ -55,12 +56,24 @@ async function seed(metadata: Metadata, problems: Problem[]) {
                     return;
                 }
 
-                await db.sheetProblem.create({
-                    data: {
+                await db.sheetProblem.upsert({
+                    where: {
+                        problemId_sheetId: {
+                            problemId: dbProblem.id,
+                            sheetId: sheet.id
+                        }
+                    },
+                    update: {
+                        sheetOrder: problem.order,
+                        group: problem.group,
+                        solutionVideoLink: problem.solutionVideoLink
+                    },
+                    create: {
                         problemId: dbProblem.id,
                         sheetId: sheet.id,
                         sheetOrder: problem.order,
-                        group: problem.group
+                        group: problem.group,
+                        solutionVideoLink: problem.solutionVideoLink
                     }
                 });
             } catch (error) {
@@ -86,6 +99,9 @@ async function init() {
     await seed(s.LEETCODE_MOST_LIKED.METADATA, s.LEETCODE_MOST_LIKED.PROBLEMS);
     await seed(s.NEETCODE_150.METADATA, s.NEETCODE_150.PROBLEMS);
     await seed(s.NEETCODE_250.METADATA, s.NEETCODE_250.PROBLEMS);
+    await seed(s.STRIVER_SDE.METADATA, s.STRIVER_SDE.PROBLEMS);
+    await seed(s.STRIVER_ATOZ.METADATA, s.STRIVER_ATOZ.PROBLEMS);
+    await seed(s.STRIVER_79.METADATA, s.STRIVER_79.PROBLEMS);
 }
 
 init()
