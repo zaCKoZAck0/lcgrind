@@ -15,6 +15,8 @@ const ALL_SHEETS: Array<{ name: string; slug: string }> = [
   { name: "Top 100 Liked", slug: "leetcode-top-100-liked" },
   { name: "LeetCode 75", slug: "leetcode-75" },
   { name: "Top Interview 150", slug: "leetcode-top-interview-150" },
+  { name: "NeetCode 150", slug: "neetcode-150" },
+  { name: "NeetCode 250", slug: "neetcode-250" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
