@@ -96,13 +96,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <WebsiteJsonLd />
-        <OrganizationJsonLd />
-      </head>
       <body
         className={`${dmSans.className} antialiased`}
       >
+        <WebsiteJsonLd />
+        <OrganizationJsonLd />
         <Providers>
           <div className="flex min-h-screen flex-col bg-background text-foreground text-base px-2">
             <Header />
