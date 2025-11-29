@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { db } from '~/lib/db';
 import * as s from './sheets';
 
@@ -88,7 +89,7 @@ async function seed(metadata: Metadata, problems: Problem[]) {
         return;
     }
 
-    
+
 }
 
 async function init() {
@@ -99,9 +100,6 @@ async function init() {
     await seed(s.LEETCODE_MOST_LIKED.METADATA, s.LEETCODE_MOST_LIKED.PROBLEMS);
     await seed(s.NEETCODE_150.METADATA, s.NEETCODE_150.PROBLEMS);
     await seed(s.NEETCODE_250.METADATA, s.NEETCODE_250.PROBLEMS);
-    await seed(s.STRIVER_SDE.METADATA, s.STRIVER_SDE.PROBLEMS);
-    await seed(s.STRIVER_ATOZ.METADATA, s.STRIVER_ATOZ.PROBLEMS);
-    await seed(s.STRIVER_79.METADATA, s.STRIVER_79.PROBLEMS);
 }
 
 init()
