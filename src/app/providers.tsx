@@ -4,6 +4,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { store, persistor } from "~/store";
 import { Toaster } from "~/components/ui/sonner";
 import { useEffect, useState } from "react";
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
       <Analytics />
+      <SpeedInsights />
       <QueryClientProvider client={queryClient}>
         <PersistGate loading={null} persistor={persistor}>
           {children}
