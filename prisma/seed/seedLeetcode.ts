@@ -36,9 +36,9 @@ const graphqlQuery = `
 `;
 
 const queryVariables = {
-    categorySlug: 'all-code-essentials', 
+    categorySlug: 'all-code-essentials',
     skip: 0,
-    limit: 3600, 
+    limit: 3600,
     filters: {},
 };
 
@@ -122,7 +122,7 @@ async function fetchAndStoreQuestions() {
             const { title, titleSlug, difficulty, paidOnly, topicTags, acRate, frontendQuestionId } = question;
             const url = `https://leetcode.com/problems/${titleSlug}/`;
 
-            
+
 
             try {
                 await prisma.$transaction(async (tx) => {

@@ -89,7 +89,7 @@ async function seed(metadata: Metadata, problems: Problem[]) {
         return;
     }
 
-    
+
 }
 
 async function init() {

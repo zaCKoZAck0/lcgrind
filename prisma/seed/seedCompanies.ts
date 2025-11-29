@@ -16,7 +16,7 @@ async function init() {
       if (company === '.git') continue; // Skip the .git directory
       if (company === 'Readme.md') continue; // Skip the README file
       if (company === '.gitignore') continue; // Skip the .gitignore file
-      
+
       // 1. Capitalize the company name
       const capitalizedName = company
         .split(' ')
@@ -32,7 +32,7 @@ async function init() {
         .replace(/--+/g, '-') // Remove consecutive hyphens
         .replace(/^-+/, '') // Remove leading hyphens
         .replace(/-+$/, ''); // Remove trailing hyphens
-      
+
       // Check if the slug already exists in the database
       const existingSheet = await db.sheet.findFirst({
         where: { slug },
