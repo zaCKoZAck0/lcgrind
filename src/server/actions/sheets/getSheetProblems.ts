@@ -6,6 +6,7 @@ import { db } from "~/lib/db";
 type RSheetProblem = {
     order: Decimal;
     group: string;
+    solutionVideoLink: string | null;
     id: number;
     url: string;
     difficulty: string;
@@ -22,7 +23,8 @@ export async function getSheetProblems(sheetSlug: string) {
     const query = `
     SELECT 
         sp."sheetOrder" as order, 
-        sp.group, 
+        sp.group,
+        sp."solutionVideoLink",
         p.*  
     FROM "SheetProblem" sp
         LEFT JOIN "Problem" p

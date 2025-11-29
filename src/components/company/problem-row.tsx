@@ -8,6 +8,7 @@ import {
   ClockIcon,
   Loader2Icon,
   LockIcon,
+  VideoIcon,
 } from "lucide-react";
 import { difficultyColor } from "~/utils/sorting";
 import {
@@ -39,6 +40,7 @@ interface ProblemRowProps {
   acceptance: number;
   tags: string[];
   companies?: string[];
+  solutionVideoLink?: string | null;
 }
 
 export const ProblemRow = ({
@@ -52,6 +54,7 @@ export const ProblemRow = ({
   isPaid,
   tags,
   companies = [],
+  solutionVideoLink,
 }: ProblemRowProps) => {
   const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
   const dispatch = useAppDispatch();
@@ -156,6 +159,18 @@ export const ProblemRow = ({
               <CheckCheckIcon size={18} /> {acceptance}%
             </span>
             <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+            {solutionVideoLink && (
+              <a
+                href={solutionVideoLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Watch Video Solution"
+                className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              >
+                <VideoIcon size={18} />
+                <span className="hidden md:inline">Video</span>
+              </a>
+            )}
           </div>
           {companies.length > 0 && (
             <button onClick={onClickAdUrl} className="mt-3 flex flex-wrap gap-2 cursor-pointer">

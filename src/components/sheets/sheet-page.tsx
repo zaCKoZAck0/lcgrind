@@ -35,6 +35,7 @@ const DIFFICULTY_TIME_MINUTES: Record<string, number> = {
 type SheetProblem = {
     order: number;
     group: string;
+    solutionVideoLink: string | null;
     id: number;
     url: string;
     difficulty: string;
@@ -250,6 +251,7 @@ export function Sheet() {
                                         isPaid={problem.isPaid}
                                         tags={[]}
                                         companies={[]}
+                                        solutionVideoLink={problem.solutionVideoLink}
                                     />
                                 ))}
                             </div>
@@ -290,6 +292,7 @@ export function Sheet() {
                                         isPaid={problem.isPaid}
                                         tags={[]}
                                         companies={[]}
+                                        solutionVideoLink={problem.solutionVideoLink}
                                     />
                                 ))}
                             </div>
