@@ -1,4 +1,5 @@
 // @ts-ignore
+import 'dotenv/config';
 import { db as prisma } from '~/lib/db'
 
 const LEETCODE_API_ENDPOINT = 'https://leetcode.com/graphql/';

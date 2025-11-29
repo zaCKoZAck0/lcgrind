@@ -1,4 +1,5 @@
 // @ts-ignore
+import 'dotenv/config';
 
 import fs from 'node:fs/promises'
 import path from 'node:path';
