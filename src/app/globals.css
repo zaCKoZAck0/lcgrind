@@ -13,6 +13,12 @@
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
   --shadow: 4px 4px 0px 0px var(--border);
+  --muted: oklch(85% 0.02 282.36);
+  --muted-foreground: oklch(40% 0 0);
+  --accent: oklch(66.34% 0.1806 277.2);
+  --accent-foreground: oklch(0% 0 0);
+  --destructive: oklch(55% 0.2 27);
+  --input: oklch(0% 0 0);
   --chart-1: #7A83FF;
   --chart-2: #FACC00;
   --chart-3: #FF4D50;
@@ -31,6 +37,12 @@
   --border: oklch(0% 0 0);
   --ring: oklch(100% 0 0);
   --shadow: 4px 4px 0px 0px var(--border);
+  --muted: oklch(30% 0.05 283.96);
+  --muted-foreground: oklch(70% 0 0);
+  --accent: oklch(66.34% 0.1806 277.2);
+  --accent-foreground: oklch(0% 0 0);
+  --destructive: oklch(60% 0.2 27);
+  --input: oklch(100% 0 0);
   --chart-1: #7A83FF;
   --chart-2: #E0B700;
   --chart-3: #FF6669;
@@ -49,6 +61,12 @@
   --color-border: var(--border);
   --color-overlay: var(--overlay);
   --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
