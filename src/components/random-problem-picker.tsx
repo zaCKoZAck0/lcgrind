@@ -141,13 +141,13 @@ export function RandomProblemPicker({
                                     href={problem.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-700 dark:text-main hover:underline underline-offset-2 text-lg font-bold flex-1"
+                                    className="text-main hover:underline underline-offset-2 text-lg font-bold flex-1"
                                 >
                                     {problem.id}. {problem.title}
                                     {problem.isPaid && (
                                         <LockIcon
                                             size={14}
-                                            className="inline ml-1 text-orange-700 dark:text-orange-300"
+                                            className="inline ml-1 text-warning"
                                         />
                                     )}
                                 </a>

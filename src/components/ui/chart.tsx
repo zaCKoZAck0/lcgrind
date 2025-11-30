@@ -168,7 +168,7 @@ export function ChartTooltipContent({
       className={cn(
         // neo‑brutalism
         "border-2 border-border shadow-shadow",
-        "bg-background grid min-w-[8rem] gap-1.5 rounded-lg px-2.5 py-1.5 text-xs",
+        "bg-background text-foreground grid min-w-[8rem] gap-1.5 rounded-lg px-2.5 py-1.5 text-xs",
         className
       )}
     >
