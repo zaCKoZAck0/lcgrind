@@ -18,6 +18,7 @@ import {
 } from "~/components/ui/multi-combobox";
 import { HashIcon, SignalIcon } from "lucide-react";
 import { DIFFICULTIES } from "~/config/constants";
+import { RandomSheetProblemPicker } from "./random-sheet-problem-picker";
 
 interface SheetFiltersProps {
     sheetSlug: string;
@@ -86,6 +87,9 @@ export function SheetFilters({ sheetSlug, availableTopics }: SheetFiltersProps) 
                     </MultiSelectList>
                 </MultiSelectContent>
             </MultiSelect>
+
+            {/* Random Problem Button */}
+            <RandomSheetProblemPicker sheetSlug={sheetSlug} />
         </div>
     );
 }
