@@ -40,7 +40,7 @@ export function SheetFilters({ sheetSlug, availableTopics }: SheetFiltersProps) 
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-3 py-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 py-4">
             {/* Topics Filter */}
             {availableTopics.length > 0 && (
                 <MultiSelect
