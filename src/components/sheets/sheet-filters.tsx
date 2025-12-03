@@ -18,6 +18,7 @@ import {
 } from "~/components/ui/multi-combobox";
 import { HashIcon, SignalIcon } from "lucide-react";
 import { DIFFICULTIES } from "~/config/constants";
+import { RandomSheetProblemPicker } from "./random-sheet-problem-picker";
 
 interface SheetFiltersProps {
     sheetSlug: string;
@@ -39,7 +40,7 @@ export function SheetFilters({ sheetSlug, availableTopics }: SheetFiltersProps) 
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-3 py-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 py-4">
             {/* Topics Filter */}
             {availableTopics.length > 0 && (
                 <MultiSelect
@@ -86,6 +87,9 @@ export function SheetFilters({ sheetSlug, availableTopics }: SheetFiltersProps) 
                     </MultiSelectList>
                 </MultiSelectContent>
             </MultiSelect>
+
+            {/* Random Problem Button */}
+            <RandomSheetProblemPicker sheetSlug={sheetSlug} />
         </div>
     );
 }
