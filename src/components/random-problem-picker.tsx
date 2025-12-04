@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Dice5Icon, ExternalLinkIcon, Loader2Icon, LockIcon } from "lucide-react";
+import {
+    BriefcaseBusinessIcon,
+    CheckCheckIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
+    CircleCheck,
+    Dice5Icon,
+    ExternalLinkIcon,
+    Loader2Icon,
+    LockIcon,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
     Dialog,
@@ -12,10 +22,24 @@ import {
     DialogFooter,
 } from "~/components/ui/dialog";
 import { Badge } from "~/components/ui/badge";
-import { useAppSelector } from "~/hooks/redux";
+import { useAppDispatch, useAppSelector, isProblemCompleted } from "~/hooks/redux";
+import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { getRandomProblem } from "~/server/actions/problems/getRandomProblem";
 import { difficultyColor } from "~/utils/sorting";
-import { SanitizedProblem } from "~/lib/utils";
+import { cn, SanitizedProblem } from "~/lib/utils";
+import { NotesViewer } from "~/components/problem-notes";
+import {
+    MAANG_COMPANIES,
+    TOP_PRODUCT_COMPANIES_INDIA,
+    TOP_PRODUCT_MNCS,
+} from "~/config/constants";
+
+// Create a Set for O(1) lookup of top companies
+const TOP_COMPANIES = new Set([
+    ...MAANG_COMPANIES,
+    ...TOP_PRODUCT_MNCS,
+    ...TOP_PRODUCT_COMPANIES_INDIA,
+]);
 
 interface RandomProblemPickerProps {
     order: string;
@@ -37,12 +61,30 @@ export function RandomProblemPicker({
     const [problem, setProblem] = useState<SanitizedProblem | null>(null);
     const [allSolved, setAllSolved] = useState(false);
     const [includeCompleted, setIncludeCompleted] = useState(false);
+    const [showTags, setShowTags] = useState(false);
+    const [showCompanies, setShowCompanies] = useState(false);
 
+    const dispatch = useAppDispatch();
     const completedProblems = useAppSelector(
         (state) => state.completedProblems.problems
     );
 
     const completedProblemIds = Object.keys(completedProblems);
+
+    // Get completion status for the current problem
+    const isCompleted = useAppSelector((state) =>
+        problem ? isProblemCompleted(state, problem.id.toString()) : false
+    );
+
+    const toggleCompletion = () => {
+        if (!problem) return;
+        const problemId = problem.id.toString();
+        if (isCompleted) {
+            dispatch(markIncomplete(problemId));
+        } else {
+            dispatch(markCompleted(problemId));
+        }
+    };
 
     const fetchRandomProblem = async (excludeCompleted: boolean = true) => {
         setIsLoading(true);
@@ -135,24 +177,38 @@ export function RandomProblemPicker({
                     )}
 
                     {!isLoading && problem && (
-                        <div className="space-y-4 py-4">
-                            <div className="flex items-start gap-2">
+                        <div className={cn(
+                            "space-y-4 py-4 -mx-6 px-6",
+                            isCompleted && "bg-secondary-background"
+                        )}>
+                            <div className="flex items-start justify-between gap-2">
                                 <a
                                     href={problem.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-main hover:underline underline-offset-2 text-lg font-bold flex-1"
+                                    className="text-blue-700 dark:text-main hover:underline underline-offset-2 text-xl md:text-2xl font-bold flex-1"
                                 >
                                     {problem.id}. {problem.title}
                                     {problem.isPaid && (
                                         <LockIcon
                                             size={14}
-                                            className="inline ml-1 text-warning"
+                                            className="inline ml-1 text-orange-700 dark:text-orange-300"
                                         />
                                     )}
                                 </a>
+                                <button
+                                    onClick={toggleCompletion}
+                                    className="cursor-pointer group focus:outline-none transition-colors duration-200"
+                                    aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+                                >
+                                    {isCompleted ? (
+                                        <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
+                                    ) : (
+                                        <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
+                                    )}
+                                </button>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-4 items-center font-base">
                                 <Badge
                                     className={`${difficultyColor(
                                         problem.difficulty
@@ -160,14 +216,56 @@ export function RandomProblemPicker({
                                 >
                                     {problem.difficulty}
                                 </Badge>
-                                <Badge variant="neutral">
-                                    Acceptance: {problem.acceptance}%
-                                </Badge>
+                                <span title="Acceptance" className="flex items-center gap-1">
+                                    <CheckCheckIcon size={18} /> {problem.acceptance}%
+                                </span>
+                                <NotesViewer 
+                                    problemId={problem.id.toString()} 
+                                    problemTitle={problem.title} 
+                                />
                             </div>
-                            {problem.tags && problem.tags.length > 0 && (
-                                <div className="text-sm text-muted-foreground">
-                                    <span className="font-medium">Tags:</span>{" "}
-                                    {problem.tags.filter(Boolean).join(", ")}
+
+                            {/* Tags toggle */}
+                            {problem.tags && problem.tags.filter(Boolean).length > 0 && (
+                                <div>
+                                    <button
+                                        onClick={() => setShowTags(!showTags)}
+                                        className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                    >
+                                        {showTags ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
+                                        Tags ({problem.tags.filter(Boolean).length})
+                                    </button>
+                                    {showTags && (
+                                        <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                                            {problem.tags.filter(Boolean).join(", ")}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Companies toggle */}
+                            {problem.companies && problem.companies.filter(Boolean).length > 0 && (
+                                <div>
+                                    <button
+                                        onClick={() => setShowCompanies(!showCompanies)}
+                                        className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                    >
+                                        {showCompanies ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
+                                        <BriefcaseBusinessIcon size={14} /> Companies ({problem.companies.filter(Boolean).length})
+                                    </button>
+                                    {showCompanies && (
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {problem.companies.filter(Boolean).map((company) => (
+                                                <Badge
+                                                    key={company}
+                                                    variant={TOP_COMPANIES.has(company) ? "neutral" : "default"}
+                                                    className="px-2 py-1 bg-muted text-xs text-muted-foreground"
+                                                >
+                                                    {company}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
