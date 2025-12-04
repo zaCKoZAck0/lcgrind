@@ -26,13 +26,20 @@ import { useAppDispatch, useAppSelector, isProblemCompleted } from "~/hooks/redu
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { getRandomProblem } from "~/server/actions/problems/getRandomProblem";
 import { difficultyColor } from "~/utils/sorting";
-import { SanitizedProblem } from "~/lib/utils";
+import { cn, SanitizedProblem } from "~/lib/utils";
 import { NotesViewer } from "~/components/problem-notes";
 import {
     MAANG_COMPANIES,
     TOP_PRODUCT_COMPANIES_INDIA,
     TOP_PRODUCT_MNCS,
 } from "~/config/constants";
+
+// Create a Set for O(1) lookup of top companies
+const TOP_COMPANIES = new Set([
+    ...MAANG_COMPANIES,
+    ...TOP_PRODUCT_MNCS,
+    ...TOP_PRODUCT_COMPANIES_INDIA,
+]);
 
 interface RandomProblemPickerProps {
     order: string;
@@ -170,7 +177,10 @@ export function RandomProblemPicker({
                     )}
 
                     {!isLoading && problem && (
-                        <div className={`space-y-4 py-4 ${isCompleted ? "bg-secondary-background" : ""} -mx-6 px-6`}>
+                        <div className={cn(
+                            "space-y-4 py-4 -mx-6 px-6",
+                            isCompleted && "bg-secondary-background"
+                        )}>
                             <div className="flex items-start justify-between gap-2">
                                 <a
                                     href={problem.url}
@@ -245,20 +255,15 @@ export function RandomProblemPicker({
                                     </button>
                                     {showCompanies && (
                                         <div className="mt-2 flex flex-wrap gap-2">
-                                            {problem.companies.filter(Boolean).map((company) => {
-                                                const isTopCompany = MAANG_COMPANIES.includes(company) ||
-                                                    TOP_PRODUCT_MNCS.includes(company) ||
-                                                    TOP_PRODUCT_COMPANIES_INDIA.includes(company);
-                                                return (
-                                                    <Badge
-                                                        key={company}
-                                                        variant={isTopCompany ? "neutral" : "default"}
-                                                        className="px-2 py-1 bg-muted text-xs text-muted-foreground"
-                                                    >
-                                                        {company}
-                                                    </Badge>
-                                                );
-                                            })}
+                                            {problem.companies.filter(Boolean).map((company) => (
+                                                <Badge
+                                                    key={company}
+                                                    variant={TOP_COMPANIES.has(company) ? "neutral" : "default"}
+                                                    className="px-2 py-1 bg-muted text-xs text-muted-foreground"
+                                                >
+                                                    {company}
+                                                </Badge>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
