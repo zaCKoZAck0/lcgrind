@@ -99,6 +99,7 @@ export default async function PrepGuidePage({
                     className="size-8 rounded-md"
                     width={32}
                     height={32}
+                    priority={true}
                 />
                 <h1 className="text-2xl font-medium text-center">{sheet.name} Interview Prep Guide</h1>
             </div>

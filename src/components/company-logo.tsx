@@ -10,9 +10,10 @@ interface CompanyLogoProps {
   className?: string;
   width?: number;
   height?: number;
+  priority?: boolean;
 }
 
-export function CompanyLogo({ domain, alt, className, width = 32, height = 32 }: CompanyLogoProps) {
+export function CompanyLogo({ domain, alt, className, width = 32, height = 32, priority = false }: CompanyLogoProps) {
   const theme = useTheme();
   
   return (
@@ -22,6 +23,7 @@ export function CompanyLogo({ domain, alt, className, width = 32, height = 32 }:
       className={className}
       width={width}
       height={height}
+      priority={priority}
     />
   );
 }
