@@ -14,23 +14,27 @@ interface RepoData {
 }
 
 async function getRepoData(): Promise<RepoData> {
-  const res = await fetch(
-    "https://api.github.com/repos/zaCKoZAck0/lcgrind",
-    {
-      // todo: add it back later
-      // cache: "force-cache",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-        Authorization: `Bearer ${process.env.GH_API_KEY}`,
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/zaCKoZAck0/lcgrind",
+      {
+        // todo: add it back later
+        // cache: "force-cache",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+          Authorization: `Bearer ${process.env.GH_API_KEY}`,
+        },
       },
-    },
-  )
+    )
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch data")
+    if (!res.ok) {
+      return { stargazers_count: 0 };
+    }
+
+    return (res.json()) as unknown as RepoData;
+  } catch (error) {
+    return { stargazers_count: 0 };
   }
-
-  return (res.json()) as unknown as RepoData;
 }
 
 export async function Header() {
