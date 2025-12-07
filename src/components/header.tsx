@@ -28,11 +28,13 @@ async function getRepoData(): Promise<RepoData> {
     )
 
     if (!res.ok) {
+      console.warn("Failed to fetch GitHub repo data:", res.status);
       return { stargazers_count: 0 };
     }
 
     return (res.json()) as unknown as RepoData;
   } catch (error) {
+    console.warn("Error fetching GitHub repo data:", error);
     return { stargazers_count: 0 };
   }
 }
