@@ -601,7 +601,7 @@ export const COMPANIES = {
     "Radius": "radius.com",
     "Rakuten": "rakuten.com",
     "Rally Health": "rallyhealth.com",
-    "Ramp 2": "ramp.com",
+    "Ramp": "ramp.com",
     "Razorpay": "razorpay.com",
     "Rbc": "rbc.com",
     "Redbus": "redbus.in",
