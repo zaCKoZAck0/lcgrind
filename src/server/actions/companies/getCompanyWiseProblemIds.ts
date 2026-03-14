@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "~/lib/db";
-import { getOrderKey, getDbWhereClause } from "~/utils/sorting";
+import { getDbWhereClause } from "~/utils/sorting";
 
 export async function getCompanyWiseProblemIds(order: string, search: string, slug: string, tags: string | string[] | null, difficulties: string | string[] | null) {
     if (!Array.isArray(tags)) tags = [tags];
