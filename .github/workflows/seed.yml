@@ -16,7 +16,7 @@ on:
 jobs:
   seed:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 3000
     steps:
       - uses: actions/checkout@v4
 
