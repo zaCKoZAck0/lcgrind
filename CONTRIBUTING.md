@@ -21,13 +21,13 @@ We welcome contributions from everyone. Please take a moment to review this guid
 1. **Clone the Repository**  
    Clone the following repository into your project root:
    ```
-   https://github.com/liquidslr/leetcode-company-wise-problems
+   https://github.com/snehasishroy/leetcode-companywise-interview-questions
    ```
 
 2. **Rename the Data Folder**  
-   Rename the `leetcode-company-wise-problems` folder to `.data`:
+   Rename the `leetcode-companywise-interview-questions` folder to `.data`:
    ```bash
-   mv leetcode-company-wise-problems .data
+   mv leetcode-companywise-interview-questions .data
    ```
 
 3. **Start the Database**  

@@ -7,23 +7,23 @@ import { db } from '~/lib/db';
 import { Prisma } from '@prisma/client';
 
 type CSVProblem = {
-  Difficulty: string;
+  ID: string;
+  URL: string;
   Title: string;
-  Frequency: number;
-  'Acceptance Rate': number;
-  Link: string;
-  Topics: string[];
+  Difficulty: string;
+  'Acceptance %': string;
+  'Frequency %': string;
 };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const csvNames = [
-  '1. Thirty Days.csv',
-  '2. Three Months.csv',
-  '3. Six Months.csv',
-  '4. More Than Six Months.csv',
-  '5. All.csv'
+  'thirty-days.csv',
+  'three-months.csv',
+  'six-months.csv',
+  'more-than-six-months.csv',
+  'all.csv'
 ] as const;
 
 // Updated mapping: removed prevOrder fields since they don't exist in our schema
@@ -31,20 +31,20 @@ const csvNameToOrderFieldMap: Record<
   typeof csvNames[number],
   { order: keyof Prisma.SheetProblemUpdateInput }
 > = {
-  '1. Thirty Days.csv': { order: 'thirtyDaysOrder' },
-  '2. Three Months.csv': { order: 'threeMonthsOrder' },
-  '3. Six Months.csv': { order: 'sixMonthsOrder' },
-  '4. More Than Six Months.csv': { order: 'yearlyOrder' },
-  '5. All.csv': { order: 'sheetOrder' }
+  'thirty-days.csv': { order: 'thirtyDaysOrder' },
+  'three-months.csv': { order: 'threeMonthsOrder' },
+  'six-months.csv': { order: 'sixMonthsOrder' },
+  'more-than-six-months.csv': { order: 'yearlyOrder' },
+  'all.csv': { order: 'sheetOrder' }
 };
 
 const csvHeaders = [
-  'Difficulty',
+  'ID',
+  'URL',
   'Title',
-  'Frequency',
-  'Acceptance Rate',
-  'Link',
-  'Topics'
+  'Difficulty',
+  'Acceptance %',
+  'Frequency %'
 ];
 
 // Helper function to parse CSV content using a Promise
@@ -57,9 +57,7 @@ async function parseCsv(rawCsv: string): Promise<CSVProblem[]> {
         columns: csvHeaders,
         // Skip header line
         from_line: 2,
-        trim: true,
-        // Automatically cast numbers (for Frequency and Acceptance Rate)
-        cast: true
+        trim: true
       },
       (error, records: CSVProblem[]) => {
         if (error) {
@@ -82,17 +80,14 @@ async function init() {
 
     for (const company of companies) {
       // Skip non-company directories/files
-      if (
-        company === '.git' ||
-        company === 'Readme.md' ||
-        company === '.gitignore'
-      ) {
+      const skipList = ['.git', '.gitignore', 'README.md', 'src', 'pom.xml'];
+      if (skipList.includes(company)) {
         continue;
       }
 
-      // Capitalize the company name (assumes folder name is the company name)
+      // Capitalize the company name (folder names are lowercase-hyphenated)
       const capitalizedName = company
-        .split(' ')
+        .split('-')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
@@ -121,9 +116,9 @@ async function init() {
 
         for (const csvProblem of csvProblems) {
           // Normalize URL: add trailing slash if missing
-          const normalizedLink = csvProblem.Link.endsWith('/')
-            ? csvProblem.Link
-            : `${csvProblem.Link}/`;
+          const normalizedLink = csvProblem.URL.endsWith('/')
+            ? csvProblem.URL
+            : `${csvProblem.URL}/`;
 
           // Find the corresponding Problem record by URL
           const problem = await db.problem.findFirst({
@@ -155,6 +150,9 @@ async function init() {
             continue;
           }
 
+          // Parse frequency value (strip % suffix)
+          const frequency = parseFloat(csvProblem['Frequency %']);
+
           // Upsert the SheetProblem record with the new Frequency value
           await db.sheetProblem.upsert({
             where: {
@@ -166,10 +164,10 @@ async function init() {
             create: {
               problemId: problem.id,
               sheetId: sheet.id,
-              [orderFields.order]: csvProblem.Frequency
+              [orderFields.order]: frequency
             },
             update: {
-              [orderFields.order]: csvProblem.Frequency
+              [orderFields.order]: frequency
             }
           });
         }

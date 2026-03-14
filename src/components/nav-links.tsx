@@ -21,24 +21,24 @@ export function NavLinks() {
                 <NavigationMenuItem>
                     <NavigationMenuTrigger className="text-base">Practice</NavigationMenuTrigger>
                     <NavigationMenuContent className="min-w-[200px]">
-                        <Link href="/all-problems" legacyBehavior passHref>
-                            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
+                        <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
+                            <Link href="/all-problems">
                                 <ListTodoIcon className="size-5" /> Problems
-                            </NavigationMenuLink>
-                        </Link>
-                        <Link href="/sheets" legacyBehavior passHref>
-                            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
+                            </Link>
+                        </NavigationMenuLink>
+                        <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
+                            <Link href="/sheets">
                                 <TargetIcon className="size-5" /> DSA Sheets
-                            </NavigationMenuLink>
-                        </Link>
+                            </Link>
+                        </NavigationMenuLink>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link href="/companies" legacyBehavior passHref>
-                        <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-base")}>
+                    <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "text-base")}>
+                        <Link href="/companies">
                             Companies
-                        </NavigationMenuLink>
-                    </Link>
+                        </Link>
+                    </NavigationMenuLink>
                 </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>

@@ -13,25 +13,18 @@ async function init() {
     const dir = path.join(__dirname, '../../.data');
     const compnanies = await fs.readdir(dir);
     for (const company of compnanies) {
-      if (company === '.git') continue; // Skip the .git directory
-      if (company === 'Readme.md') continue; // Skip the README file
-      if (company === '.gitignore') continue; // Skip the .gitignore file
+      // Skip non-company directories/files
+      const skipList = ['.git', '.gitignore', 'README.md', 'src', 'pom.xml'];
+      if (skipList.includes(company)) continue;
 
-      // 1. Capitalize the company name
+      // 1. Capitalize the company name (folder names are lowercase-hyphenated)
       const capitalizedName = company
-        .split(' ')
+        .split('-')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
-      // 2. Generate the URL-friendly slug
-      const slug = company
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/[^\w-]+/g, '') // Remove non-alphanumeric characters (except hyphens)
-        .replace(/--+/g, '-') // Remove consecutive hyphens
-        .replace(/^-+/, '') // Remove leading hyphens
-        .replace(/-+$/, ''); // Remove trailing hyphens
+      // 2. The folder name is already a valid slug (lowercase-hyphenated)
+      const slug = company;
 
       // Check if the slug already exists in the database
       const existingSheet = await db.sheet.findFirst({
