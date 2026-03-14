@@ -43,3 +43,15 @@ jobs:
             all)      pnpm run seed:all ;;
             leetcode) pnpm run seed:leetcode ;;
           esac
+
+      - name: Update last-updated timestamp
+        run: |
+          echo "export const LAST_UPDATED = \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\";" > src/config/last-updated.ts
+
+      - name: Commit and push timestamp
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
+          git add src/config/last-updated.ts
+          git diff --cached --quiet || (git commit -m "chore: update last-updated timestamp" && git push origin main)
