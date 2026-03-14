@@ -8,7 +8,7 @@
 <p align="center">Company-wise LeetCode problems | Topic-wise LeetCode preparation | DSA Sheets | Interview prep guide</p>
 
 > Note:
-> Currently, this platform relies on [liquidslr/leetcode-company-wise-problems](https://github.com/liquidslr/leetcode-company-wise-problems.git) for company-wise question data.
+> Currently, this platform relies on [snehasishroy/leetcode-companywise-interview-questions](https://github.com/snehasishroy/leetcode-companywise-interview-questions) for company-wise question data.
 
 ## Features
 

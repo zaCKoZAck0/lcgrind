@@ -15,19 +15,20 @@ export function Sponsors() {
 
     useEffect(() => {
 
-        if (!sponsors || sponsors.data.user.sponsors.nodes.length === 0) return;
+        const nodes = sponsors?.data?.user?.sponsors?.nodes;
+        if (!nodes || nodes.length === 0) return;
 
         let idx = 0;
 
         const interval = setInterval(() => {
-            const sponsor = sponsors.data.user.sponsors.nodes[idx];
+            const sponsor = nodes[idx];
             const { login, name } = sponsor;
 
             toast(`Thank you ${name || login}`, {
                 description: `for the sponsor! ❤️`,
             });
 
-            idx = (idx + 1) % sponsors.data.user.sponsors.nodes.length;
+            idx = (idx + 1) % nodes.length;
         }, 10000);
 
         return () => clearInterval(interval);
