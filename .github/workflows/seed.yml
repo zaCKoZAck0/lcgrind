@@ -73,6 +73,8 @@ jobs:
 
       - name: Update last-updated timestamp
         run: |
+          git checkout main
+          git pull origin main
           UPDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
           printf 'export const LAST_UPDATED = "%s";\nexport const IS_SYNCING = false;\nexport const SYNC_STARTED_AT = "%s";\n' "$UPDATED_AT" "$UPDATED_AT" > src/config/last-updated.ts
           git add src/config/last-updated.ts
