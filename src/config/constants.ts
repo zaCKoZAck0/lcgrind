@@ -280,7 +280,7 @@ export const COMPANIES = {
     "Cyware": "cyware.com",
     "Dailyhunt": "dailyhunt.in",
     "Darwinbox": "darwinbox.com",
-    "Dassault Sysetmes": "dassault-systemes.com",
+    "Dassault Systemes": "dassault-systemes.com",
     "Dataart": "dataart.com",
     "Databricks": "databricks.com",
     "Datadog": "datadoghq.com",
