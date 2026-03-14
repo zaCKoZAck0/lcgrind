@@ -510,7 +510,7 @@ export const COMPANIES = {
     "Nagarro": "nagarro.com",
     "Nasdaq": "nasdaq.com",
     "National Instruments": "ni.com",
-    "National Payments Coorperation India": "npci.org.in",
+    "National Payments Corporation India": "npci.org.in",
     "Natwest": "natwest.com",
     "Navan": "navan.com",
     "Naver": "naver.com",
