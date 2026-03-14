@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-  BriefcaseBusinessIcon,
   CheckCheckIcon,
   CircleCheck,
   ClockIcon,
@@ -17,12 +16,8 @@ import {
   isProblemCompleted,
 } from "~/hooks/redux";
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
-import {
-  MAANG_COMPANIES,
-  TOP_PRODUCT_COMPANIES_INDIA,
-  TOP_PRODUCT_MNCS,
-} from "~/config/constants";
 import { Badge } from "../ui/badge";
+import { CompanyAvatarGroup } from "../company-avatar-group";
 import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
 import { AdBanner } from "../ads/banner";
 import { onClickAdUrl } from "~/lib/utils";
@@ -173,27 +168,7 @@ export const ProblemRow = ({
             )}
           </div>
           {companies.length > 0 && (
-            <button onClick={onClickAdUrl} className="mt-3 flex flex-wrap gap-2 cursor-pointer">
-              <Badge
-                title={`Asked at ${companies.join(", ")}`}
-                className="px-2 py-1 bg-muted text-xs flex items-center gap-1 text-muted-foreground"
-              >
-                <BriefcaseBusinessIcon size={14} /> {companies.length}
-              </Badge>
-              {companies.map((company) => {
-                return MAANG_COMPANIES.includes(company) ||
-                  TOP_PRODUCT_MNCS.includes(company) ||
-                  TOP_PRODUCT_COMPANIES_INDIA.includes(company) ? (
-                  <Badge
-                    variant="neutral"
-                    key={company}
-                    className="px-2 py-1 bg-muted text-xs text-muted-foreground"
-                  >
-                    {company}
-                  </Badge>
-                ) : null;
-              })}
-            </button>
+            <CompanyAvatarGroup companies={companies} />
           )}        </div>
         <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
           <button
