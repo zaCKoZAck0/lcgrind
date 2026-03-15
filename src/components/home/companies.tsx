@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Building2 } from "lucide-react";
 
 const companies = [
@@ -21,17 +23,19 @@ export const CompaniesSection = () => {
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
                     {companies.map((company) => (
-                        <a
+                        <Link
                             key={company.name}
                             href={company.link}
                             className="p-6 bg-white border-2 border-border hover:rotate-2 transition-all duration-200 shadow-none hover:shadow-shadow"
                         >
-                            <img
+                            <Image
                                 src={company.logo}
                                 alt={`${company.name} logo`}
                                 className="w-full h-12 object-contain"
+                                width={200}
+                                height={48}
                             />
-                        </a>
+                        </Link>
                     ))}
                 </div>
             </div>

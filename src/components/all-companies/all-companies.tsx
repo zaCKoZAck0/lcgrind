@@ -12,10 +12,18 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTheme } from "~/hooks/use-theme";
 import { getLogoUrl } from "~/utils/logo";
+import type { CompanyDetails, TotalCountResult } from "~/types/company";
 
 const ITEMS_PER_PAGE = 24;
 
-export function AllCompanies() {
+interface AllCompaniesProps {
+    initialData?: {
+        totalCountResult: TotalCountResult[];
+        companies: CompanyDetails[];
+    };
+}
+
+export function AllCompanies({ initialData }: AllCompaniesProps) {
 
     const searchParams = useSearchParams();
     const currentPage = Number(searchParams.get('page')) || 1;
@@ -23,11 +31,15 @@ export function AllCompanies() {
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
     const theme = useTheme();
 
+    // Only use initialData for the default query (first page, no search)
+    const isDefaultQuery = query === '' && currentPage === 1;
+
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
         queryFn: () => getCompanies(query, offset, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: isDefaultQuery ? initialData : undefined,
     });
 
     if (isLoading) {

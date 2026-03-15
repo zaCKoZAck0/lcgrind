@@ -1,26 +1,31 @@
 import type { MetadataRoute } from "next";
 import {
   BASE_URL,
-  MAANG_COMPANIES, 
-  TOP_PRODUCT_COMPANIES_INDIA, 
-  TOP_PRODUCT_MNCS
+  COMPANIES,
+  MAANG_COMPANIES,
+  TOP_PRODUCT_COMPANIES_INDIA,
+  TOP_PRODUCT_MNCS,
 } from "~/config/constants";
+import { db } from "~/lib/db";
 
 import {
   generateSlug
 } from "~/utils/slug";
 
-const ALL_SHEETS: Array<{ name: string; slug: string }> = [
-  { name: "Blind 75", slug: "blind-75" },
-  { name: "Top 100 Liked", slug: "leetcode-top-100-liked" },
-  { name: "LeetCode 75", slug: "leetcode-75" },
-  { name: "Top Interview 150", slug: "leetcode-top-interview-150" },
-  { name: "NeetCode 150", slug: "neetcode-150" },
-  { name: "NeetCode 250", slug: "neetcode-250" },
-];
+const HIGH_PRIORITY_COMPANIES = new Set([
+  ...MAANG_COMPANIES,
+  ...TOP_PRODUCT_COMPANIES_INDIA,
+  ...TOP_PRODUCT_MNCS,
+]);
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+
+  // Fetch all sheets from DB to include dynamically
+  const sheets = await db.sheet.findMany({
+    where: { isCompany: false },
+    select: { slug: true },
+  });
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -49,30 +54,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const companyPages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
+  // Include ALL companies in sitemap, not just top 26
+  const allCompanyNames = Object.keys(COMPANIES);
+  const companyPages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
+    const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
     return {
       url: `${BASE_URL}/companies/${slug}`,
       lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: "weekly" as const,
+      priority: isHighPriority ? 0.8 : 0.6,
     };
   });
 
-  const prepGuidePages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
+  const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
+    const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
       lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
+      changeFrequency: "monthly" as const,
+      priority: isHighPriority ? 0.7 : 0.5,
     };
   });
 
-  const sheetPages: MetadataRoute.Sitemap = ALL_SHEETS.map((sheet) => ({
+  const sheetPages: MetadataRoute.Sitemap = sheets.map((sheet) => ({
     url: `${BASE_URL}/sheets/${sheet.slug}`,
     lastModified: now,
-    changeFrequency: "weekly",
+    changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 

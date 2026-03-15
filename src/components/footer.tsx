@@ -99,7 +99,7 @@ export const Footer = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={getLogoUrl("logo.dev", theme)} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={getLogoUrl("logo.dev", theme)} className="rounded-md" alt="Logo.dev logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 

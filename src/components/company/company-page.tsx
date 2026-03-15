@@ -1,5 +1,6 @@
 "use client";
 import { ArrowLeft, ChartLineIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { COMPANIES, DEFAULT_REVALIDATION } from "~/config/constants";
 import { buttonVariants } from "../ui/button";
@@ -20,7 +21,14 @@ import { GlobalPagination } from "../global-pagination";
 
 const ITEMS_PER_PAGE = 100;
 
-export function CompanyPage({ slug }: { slug: string }) {
+interface CompanyPageProps {
+    slug: string;
+    initialProblems?: Awaited<ReturnType<typeof getCompanyWiseProblems>>;
+    initialProblemIds?: Awaited<ReturnType<typeof getCompanyWiseProblemIds>>;
+    initialSheet?: Awaited<ReturnType<typeof getSheetMetadata>>;
+}
+
+export function CompanyPage({ slug, initialProblems, initialProblemIds, initialSheet }: CompanyPageProps) {
     const searchParams = useSearchParams();
     const theme = useTheme();
 
@@ -35,11 +43,15 @@ export function CompanyPage({ slug }: { slug: string }) {
 
     if (difficulties.length === 0) difficulties = null;
 
+    // Only use initialData when params match the defaults (first page, no filters)
+    const isDefaultQuery = order === 'all' && search === '' && sort === 'frequency' && tagsKey === '' && difficulties === null && page === 1;
+
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
         queryKey: [`companies/${slug}/problems`, order, search, sort, tagsKey, difficulties, page],
         queryFn: () => getCompanyWiseProblems(order, search, slug, sort, tags, difficulties, page, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: isDefaultQuery ? initialProblems : undefined,
     });
 
     const { data: problemIds, isLoading: isIdsLoading } = useQuery({
@@ -47,6 +59,7 @@ export function CompanyPage({ slug }: { slug: string }) {
         queryFn: () => getCompanyWiseProblemIds(order, search, slug, tags, difficulties),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: isDefaultQuery ? initialProblemIds : undefined,
     });
 
     const { data: sheet, isLoading: isSheetLoading } = useQuery({
@@ -54,6 +67,7 @@ export function CompanyPage({ slug }: { slug: string }) {
         queryFn: () => getSheetMetadata(slug),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: initialSheet,
     })
 
     const selectedSheet = sheet?.[0];
@@ -84,10 +98,12 @@ export function CompanyPage({ slug }: { slug: string }) {
                 <div className='p-6 border-2 border-t-0 border-border bg-card flex justify-between items-center'>
                     {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                         <div className="flex gap-6 min-w-[360px]">
-                            <img
+                            <Image
                                 src={getLogoUrl(logoDomain, theme)}
                                 alt={`${selectedSheet?.name} logo`}
                                 className="size-14 rounded-md"
+                                width={56}
+                                height={56}
                             />
                             <div className="flex flex-col justify-between">
                                 <h1 className="font-semibold text-2xl">{selectedSheet?.name}</h1>

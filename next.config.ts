@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
       {
         hostname: "z47zz7i0co.ufs.sh",
       },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+        pathname: "/wikipedia/commons/**",
+      },
     ],
   }
 };
