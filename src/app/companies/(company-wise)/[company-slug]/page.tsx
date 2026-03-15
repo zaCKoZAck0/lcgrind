@@ -17,6 +17,7 @@ type Props = {
 const ITEMS_PER_PAGE = 100;
 
 export const revalidate = 86400;
+export const dynamicParams = true;
 
 // Pre-render top company pages at build time for faster initial loads
 const TOP_COMPANIES = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS];
