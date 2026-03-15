@@ -12,6 +12,7 @@ on:
           - sync
           - all
           - leetcode
+          - sheets
 
 jobs:
   seed:
@@ -30,20 +31,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
-
-      - name: Mark sync in progress
-        run: |
-          STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
-          PREV_UPDATED=$(grep -oP '(?<=LAST_UPDATED = ")[^"]+' src/config/last-updated.ts || echo '1970-01-01T00:00:00.000Z')
-          printf 'export const LAST_UPDATED = "%s";\nexport const IS_SYNCING = true;\nexport const SYNC_STARTED_AT = "%s";\n' "$PREV_UPDATED" "$STARTED_AT" > src/config/last-updated.ts
-          git add src/config/last-updated.ts
-          git diff --cached --quiet || (git commit -m "chore: mark sync in progress" && git push origin main)
-
       - name: Clone data repo
         run: git clone https://github.com/snehasishroy/leetcode-companywise-interview-questions.git .data
 
@@ -58,11 +45,5 @@ jobs:
             sync)     pnpm run seed:sync ;;
             all)      pnpm run seed:all ;;
             leetcode) pnpm run seed:leetcode ;;
+            sheets)   pnpm run seed:sheets ;;
           esac
-
-      - name: Update last-updated timestamp
-        run: |
-          UPDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
-          printf 'export const LAST_UPDATED = "%s";\nexport const IS_SYNCING = false;\nexport const SYNC_STARTED_AT = "%s";\n' "$UPDATED_AT" "$UPDATED_AT" > src/config/last-updated.ts
-          git add src/config/last-updated.ts
-          git diff --cached --quiet || (git commit -m "chore: update last-updated timestamp" && git push origin main)

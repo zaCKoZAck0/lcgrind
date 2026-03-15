@@ -12,7 +12,7 @@
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
     "seed:sheets": "tsx prisma/seed/seedSheets.ts",
     "seed:problems": "tsx prisma/seed/seedProblems.ts",
-    "seed:sync": "cd .data && git pull && cd .. && tsx prisma/seed/seedProblems.ts"
+    "seed:sync": "cd .data && git pull && cd .. && tsx prisma/seed/seedProblems.ts && tsx prisma/seed/seedSheets.ts"
   },
   "dependencies": {
     "@prisma/client": "6.5.0",
