@@ -1,8 +1,7 @@
 import { type CompanyParams } from "~/types/company";
 import { CompanyPage } from "~/components/company/company-page";
 import type { Metadata } from "next";
-import { BASE_URL, MAANG_COMPANIES, TOP_PRODUCT_COMPANIES_INDIA, TOP_PRODUCT_MNCS } from "~/config/constants";
-import { generateSlug } from "~/utils/slug";
+import { BASE_URL } from "~/config/constants";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 import { getCompanyWiseProblems } from "~/server/actions/companies/getCompanyWiseProblems";
@@ -19,12 +18,15 @@ const ITEMS_PER_PAGE = 100;
 export const revalidate = 86400;
 export const dynamicParams = true;
 
-// Pre-render top company pages at build time for faster initial loads
-const TOP_COMPANIES = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS];
-
+// Pre-render all company pages at build time
 export async function generateStaticParams() {
-    return TOP_COMPANIES.map((company) => ({
-        'company-slug': generateSlug(company),
+    const companies = await db.sheet.findMany({
+        where: { isCompany: true },
+        select: { slug: true },
+    });
+
+    return companies.map((company) => ({
+        'company-slug': company.slug,
     }));
 }
 
