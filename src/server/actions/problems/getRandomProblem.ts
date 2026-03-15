@@ -11,7 +11,8 @@ export async function getRandomProblem(
     tags: string | string[] | null,
     companies: string | string[] | null,
     difficulties: string | string[] | null,
-    excludedIds: string[]
+    excludedIds: string[],
+    slug: string = ''
 ) {
     const orderKey = getOrderKey(order);
     if (!Array.isArray(companies) && companies != null) companies = [companies];
@@ -20,7 +21,7 @@ export async function getRandomProblem(
     if (difficulties != null) {
         difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
     }
-    const whereClause = getDbWhereClause(order, search, '', difficultiesArray);
+    const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
     
     // Convert excludedIds to integers for database query and validate
     const excludedIdsInt = excludedIds

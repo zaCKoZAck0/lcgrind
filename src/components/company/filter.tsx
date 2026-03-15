@@ -20,7 +20,7 @@ import { Input } from "../ui/input";
 import { onClickAdUrl } from "~/lib/utils";
 import { RandomProblemPicker } from "../random-problem-picker";
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[] }) => {
+export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties, slug }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[], slug?: string }) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
@@ -236,6 +236,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                 tags={t.length > 0 ? t : null}
                 companies={c.length > 0 ? c : null}
                 difficulties={d.length > 0 ? d : null}
+                slug={slug}
             />
             <Button className="bg-secondary-background text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
         </div>

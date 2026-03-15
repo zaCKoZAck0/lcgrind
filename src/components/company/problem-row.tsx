@@ -5,6 +5,7 @@ import {
   CheckCheckIcon,
   CircleCheck,
   ClockIcon,
+  HashIcon,
   Loader2Icon,
   LockIcon,
   VideoIcon,
@@ -18,6 +19,11 @@ import {
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { Badge } from "../ui/badge";
 import { CompanyAvatarGroup } from "../company-avatar-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
 import { AdBanner } from "../ads/banner";
 import { onClickAdUrl } from "~/lib/utils";
@@ -131,15 +137,17 @@ export const ProblemRow = ({
               </Badge>
             )}
           </div>
-          {tags.length > 0 && (
-            <div
-              title="Tags"
-              className="flex flex-wrap gap-2 mt-1 text-sm md:text-base font-base"
-            >
-              {tags.join(", ")}
-            </div>
-          )}
           <div className="flex flex-wrap gap-4 mt-2 font-base">
+            {tags.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-default flex items-center">
+                    <HashIcon size={18} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{tags.join(", ")}</TooltipContent>
+              </Tooltip>
+            )}
             <Badge
               className={`${difficultyColor(difficulty)} text-main-foreground`}
             >
