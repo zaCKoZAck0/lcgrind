@@ -9,7 +9,7 @@ import { LOGO_DEV_TOKEN } from "~/config/constants";
  * @returns The full logo URL with token, theme, and format parameters
  */
 export function getLogoUrl(domain: string, theme: "light" | "dark"): string {
-  return `https://img.logo.dev/${domain}?token=${LOGO_DEV_TOKEN}&theme=${theme}`;
+  return `https://img.logo.dev/${domain}?token=${LOGO_DEV_TOKEN}&format=webp&theme=${theme}`;
 }
 
 /**
@@ -26,7 +26,7 @@ export function addThemeToLogoUrl(url: string, theme: "light" | "dark"): string 
     
     // Only add format if not already present
     if (!url.includes("format=")) {
-      params.push("format=png");
+      params.push("format=webp");
     }
     
     // Only add theme if not already present

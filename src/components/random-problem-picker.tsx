@@ -47,6 +47,7 @@ interface RandomProblemPickerProps {
     tags: string[] | null;
     companies: string[] | null;
     difficulties: string[] | null;
+    slug?: string;
 }
 
 export function RandomProblemPicker({
@@ -55,6 +56,7 @@ export function RandomProblemPicker({
     tags,
     companies,
     difficulties,
+    slug = '',
 }: RandomProblemPickerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +101,8 @@ export function RandomProblemPicker({
                 tags,
                 companies,
                 difficulties,
-                excludedIds
+                excludedIds,
+                slug
             );
 
             if (result) {

@@ -103,7 +103,7 @@ export function CompanyPage({ slug }: { slug: string }) {
         </div>
 
         <div className='shadow-shadow'>
-            <Filters filters={{ sorting: sort, order, search }} difficulties={difficulties} />
+            <Filters filters={{ sorting: sort, order, search }} tags={tags} difficulties={difficulties} slug={slug} />
 
             {
                 isProblemsLoading

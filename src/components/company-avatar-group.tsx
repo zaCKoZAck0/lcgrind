@@ -9,11 +9,7 @@ import {
 import { getLogoUrl } from "~/utils/logo";
 import { useTheme } from "~/hooks/use-theme";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "./ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "~/lib/utils";
 
 interface CompanyAvatarGroupProps {
@@ -32,14 +28,6 @@ function sortCompanies(companies: string[]): string[] {
   return [...preferred, ...rest];
 }
 
-function getVisibilityClass(index: number): string {
-  if (index < 5) return "";
-  if (index < 10) return "hidden md:flex";
-  if (index < 15) return "hidden lg:flex";
-  if (index < 20) return "hidden xl:flex";
-  return "hidden";
-}
-
 function getCompanyDomain(company: string): string {
   const trimmed = company.trim();
   return (
@@ -52,7 +40,7 @@ export function CompanyAvatarGroup({ companies }: CompanyAvatarGroupProps) {
   const theme = useTheme();
   const sorted = sortCompanies(companies);
   const total = sorted.length;
-  const maxVisible = 20;
+  const maxVisible = 7;
   const visibleCompanies = sorted.slice(0, maxVisible);
 
   return (
@@ -62,18 +50,12 @@ export function CompanyAvatarGroup({ companies }: CompanyAvatarGroupProps) {
         return (
           <Tooltip key={company}>
             <TooltipTrigger asChild>
-              <div
-                className={cn(
-                  "relative",
-                  i > 0 && "-ml-2",
-                  getVisibilityClass(i),
-                )}
-              >
-                <Avatar className="size-9 ring-2 ring-background outline-none bg-background">
+              <div className={cn("relative", i > 0 && "-ml-1")}>
+                <Avatar className="size-9 outline-none ring-2 ring-border shadow bg-secondary-background">
                   <AvatarImage
                     src={getLogoUrl(domain, theme)}
                     alt={company}
-                    className="p-1"
+                    className="object-contain bg-transparent"
                   />
                   <AvatarFallback className="text-xs">
                     {company.charAt(0).toUpperCase()}
@@ -87,32 +69,10 @@ export function CompanyAvatarGroup({ companies }: CompanyAvatarGroupProps) {
       })}
 
       {/* Responsive overflow indicators */}
-      {total > 5 && (
+      {total > 7 && (
         <OverflowIndicator
-          count={total - 5}
-          hiddenCompanies={sorted.slice(5)}
-          className="md:hidden"
-        />
-      )}
-      {total > 10 && (
-        <OverflowIndicator
-          count={total - 10}
-          hiddenCompanies={sorted.slice(10)}
-          className="hidden md:inline lg:hidden"
-        />
-      )}
-      {total > 15 && (
-        <OverflowIndicator
-          count={total - 15}
-          hiddenCompanies={sorted.slice(15)}
-          className="hidden lg:inline xl:hidden"
-        />
-      )}
-      {total > 20 && (
-        <OverflowIndicator
-          count={total - 20}
-          hiddenCompanies={sorted.slice(20)}
-          className="hidden xl:inline"
+          count={total - 7}
+          hiddenCompanies={sorted.slice(7)}
         />
       )}
     </div>
@@ -133,7 +93,7 @@ function OverflowIndicator({
       <TooltipTrigger asChild>
         <span
           className={cn(
-            "ml-1.5 text-sm font-bold text-muted-foreground cursor-default",
+            "ml-2 text-base font-semibold text-muted-foreground cursor-default",
             className,
           )}
         >
