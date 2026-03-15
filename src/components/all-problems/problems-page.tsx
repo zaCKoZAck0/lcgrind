@@ -12,7 +12,12 @@ import { useSearchParams } from 'next/navigation';
 
 const ITEMS_PER_PAGE = 100;
 
-export function ProblemsPage() {
+interface ProblemsPageProps {
+    initialProblems?: Awaited<ReturnType<typeof getProblems>>;
+    initialProblemIds?: Awaited<ReturnType<typeof getProblemIds>>;
+}
+
+export function ProblemsPage({ initialProblems, initialProblemIds }: ProblemsPageProps) {
 
     const searchParams = useSearchParams();
 
@@ -28,12 +33,15 @@ export function ProblemsPage() {
     if (tags.length === 0) tags = null;
     if (difficulties.length === 0) difficulties = null;
 
+    // Only use initialData when params match the defaults (first page, no filters)
+    const isDefaultQuery = order === 'all-problems' && sort === 'question-id' && search === '' && companies === null && tags === null && difficulties === null && page === 1;
+
     const { data: problems, isLoading: problemsLoading } = useQuery({
         queryKey: ['problems', order, sort, search, tags, companies, difficulties, page],
         queryFn: () => getProblems(order, search, sort, tags, companies, difficulties, page, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
-
+        initialData: isDefaultQuery ? initialProblems : undefined,
     });
 
     const { data: problemIds, isLoading: problemIdsLoading } = useQuery({
@@ -41,6 +49,7 @@ export function ProblemsPage() {
         queryFn: () => getProblemIds(order, search, tags, companies, difficulties),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: isDefaultQuery ? initialProblemIds : undefined,
     })
 
     const totalPages = Math.ceil(problemIds?.length / ITEMS_PER_PAGE);

@@ -6,6 +6,8 @@ import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/const
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
 import { getCompanyNameFromSlug } from "~/utils/slug";
+import { notFound } from "next/navigation";
+import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 
 export const revalidate = 86400;
 
@@ -45,7 +47,12 @@ export async function generateMetadata(
             title: pageTitle,
             description: pageDescription,
             url: pageUrl,
-            type: 'article', // Good type for a guide
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: pageTitle,
+            description: pageDescription,
         },
     };
 }
@@ -69,6 +76,12 @@ export default async function PrepGuidePage({
             }
         })
     ]);
+
+    if (!sheet) {
+        notFound();
+    }
+    
+    const companyName = getCompanyNameFromSlug(slug);
     
     const dataStructures: Record<string, number> = {};
     const algorithms: Record<string, number> = {};
@@ -92,6 +105,14 @@ export default async function PrepGuidePage({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
+            {companyName && (
+                <BreadcrumbJsonLd items={[
+                    { name: "Home", url: BASE_URL },
+                    { name: "Companies", url: `${BASE_URL}/companies` },
+                    { name: companyName, url: `${BASE_URL}/companies/${slug}` },
+                    { name: "Prep Guide", url: `${BASE_URL}/companies/${slug}/prep-guide` },
+                ]} />
+            )}
             <div className="w-full bg-card flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <CompanyLogo
                     domain={logoDomain}

@@ -1,8 +1,12 @@
 import { ProblemsPage } from "~/components/all-problems/problems-page";
 import { Metadata } from "next";
 import { BASE_URL } from "~/config/constants";
+import { getProblems } from "~/server/actions/problems/getProblems";
+import { getProblemIds } from "~/server/actions/problems/getProblemIds";
 
-export const dynamic = "force-static";
+const ITEMS_PER_PAGE = 100;
+
+export const revalidate = 86400; // Revalidate every 24 hours
 
 export const metadata: Metadata = {
     title: "All LeetCode Problems | Free Practice Questions",
@@ -39,5 +43,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AllProblemsPage() {
-    return <ProblemsPage />
+    // Server-fetch initial data for SSR (default params: all problems, sorted by question-id, page 1)
+    const [initialProblems, initialProblemIds] = await Promise.all([
+        getProblems("all-problems", "", "question-id", null, null, null, 1, ITEMS_PER_PAGE),
+        getProblemIds("all-problems", "", null, null, null),
+    ]);
+
+    return <ProblemsPage initialProblems={initialProblems} initialProblemIds={initialProblemIds} />
 }

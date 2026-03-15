@@ -11,10 +11,10 @@ import {
 } from "~/components/ui/accordion"
 import { buttonVariants } from "~/components/ui/button";
 import { ChevronLeft, ExternalLinkIcon, TargetIcon, AlertCircleIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { DEFAULT_REVALIDATION, SHEET_OWNER_LOGO_SRC } from "~/config/constants";
-import { usePathname } from "next/navigation";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
@@ -114,9 +114,14 @@ function groupProblemsByTopic(problems: SheetProblem[]): GroupingResult {
 }
 
 
-export function Sheet() {
+interface SheetProps {
+    slug: string;
+    initialProblems?: Awaited<ReturnType<typeof getSheetProblems>>;
+    initialSheet?: Awaited<ReturnType<typeof getSheetMetadata>>;
+}
 
-    const slug = usePathname().split('/')[2];
+export function Sheet({ slug, initialProblems, initialSheet }: SheetProps) {
+
     const theme = useTheme();
     const settings = useAppSelector(
         state => state.sheetSettings.sheets[slug] ?? defaultSettings
@@ -127,6 +132,7 @@ export function Sheet() {
         queryFn: () => getSheetProblems(slug),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: initialProblems,
     });
 
     const { data: sheet, isLoading: isSheetLoading } = useQuery({
@@ -134,6 +140,7 @@ export function Sheet() {
         queryFn: () => getSheetMetadata(slug),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: initialSheet,
     })
 
     // Get available topics from problems
@@ -195,10 +202,12 @@ export function Sheet() {
             <div className='p-6 border-2 border-t-0 border-border bg-card flex flex-col md:flex-row justify-between gap-6 bg-secondary-background'>
                 {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                     <div className="flex gap-6 min-w-[360px]">
-                        <img
+                        <Image
                             src={addThemeToLogoUrl(SHEET_OWNER_LOGO_SRC[selectedSheet?.ownerName.toLowerCase()], theme)}
                             alt={`${selectedSheet?.name} logo`}
                             className="size-14 rounded-md"
+                            width={56}
+                            height={56}
                         />
                         <div className="flex flex-col justify-between">
                             <h1 className="font-semibold text-2xl flex items-baseline gap-2">
