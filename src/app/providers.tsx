@@ -7,7 +7,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { store, persistor } from "~/store";
 import { Toaster } from "~/components/ui/sonner";
-import { SyncToast } from "~/components/sync-toast";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { useEffect, useState } from "react";
 
@@ -36,7 +35,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <PersistGate loading={null} persistor={persistor}>
             {children}
             <Toaster />
-            <SyncToast />
           </PersistGate>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
