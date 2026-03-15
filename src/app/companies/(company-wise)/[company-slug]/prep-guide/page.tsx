@@ -5,7 +5,6 @@ import { TagsPieChart } from "~/components/prep-guide/tags-pie-chart";
 import { ALGORITHMS, BASE_URL, COMPANIES, DATA_STRUCTURES } from "~/config/constants";
 import { db } from "~/lib/db";
 import { CompanyParams } from "~/types/company";
-import { getCompanyNameFromSlug } from "~/utils/slug";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 
@@ -19,11 +18,16 @@ export async function generateMetadata(
     { params }: Props,
 ): Promise<Metadata> {
     const { 'company-slug': companySlug } = await params;
-    const companyName = getCompanyNameFromSlug(companySlug);
+    const company = await db.sheet.findFirst({
+        where: { slug: companySlug, isCompany: true },
+        select: { name: true },
+    });
 
-    if (!companyName) {
+    if (!company) {
         return { title: 'Prep Guide Not Found' };
     }
+
+    const companyName = company.name;
 
     const pageTitle = `${companyName} Interview Prep Guide | LC Grind`;
     const pageDescription = `Comprehensive guide to prepare for ${companyName} coding interviews. Tips, resources, strategies, and key LeetCode problems.`;
@@ -81,7 +85,7 @@ export default async function PrepGuidePage({
         notFound();
     }
     
-    const companyName = getCompanyNameFromSlug(slug);
+    const companyName = sheet.name;
     
     const dataStructures: Record<string, number> = {};
     const algorithms: Record<string, number> = {};
@@ -105,14 +109,12 @@ export default async function PrepGuidePage({
 
     return (
         <div className="w-full max-w-[1000px] py-6">
-            {companyName && (
-                <BreadcrumbJsonLd items={[
-                    { name: "Home", url: BASE_URL },
-                    { name: "Companies", url: `${BASE_URL}/companies` },
-                    { name: companyName, url: `${BASE_URL}/companies/${slug}` },
-                    { name: "Prep Guide", url: `${BASE_URL}/companies/${slug}/prep-guide` },
-                ]} />
-            )}
+            <BreadcrumbJsonLd items={[
+                { name: "Home", url: BASE_URL },
+                { name: "Companies", url: `${BASE_URL}/companies` },
+                { name: companyName, url: `${BASE_URL}/companies/${slug}` },
+                { name: "Prep Guide", url: `${BASE_URL}/companies/${slug}/prep-guide` },
+            ]} />
             <div className="w-full bg-card flex items-center gap-2 justify-center p-3 border-2 border-border bg-card">
                 <CompanyLogo
                     domain={logoDomain}

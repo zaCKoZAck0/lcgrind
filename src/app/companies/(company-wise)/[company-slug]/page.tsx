@@ -2,12 +2,13 @@ import { type CompanyParams } from "~/types/company";
 import { CompanyPage } from "~/components/company/company-page";
 import type { Metadata } from "next";
 import { BASE_URL, MAANG_COMPANIES, TOP_PRODUCT_COMPANIES_INDIA, TOP_PRODUCT_MNCS } from "~/config/constants";
-import { getCompanyNameFromSlug, generateSlug } from "~/utils/slug";
+import { generateSlug } from "~/utils/slug";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 import { getCompanyWiseProblems } from "~/server/actions/companies/getCompanyWiseProblems";
 import { getCompanyWiseProblemIds } from "~/server/actions/companies/getCompanyWiseProblemIds";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
+import { db } from "~/lib/db";
 
 type Props = {
     params: Promise<CompanyParams>;
@@ -26,18 +27,26 @@ export async function generateStaticParams() {
     }));
 }
 
+async function getCompanyBySlug(slug: string) {
+    return db.sheet.findFirst({
+        where: { slug, isCompany: true },
+        select: { name: true },
+    });
+}
+
 export async function generateMetadata(
     { params }: Props,
 ): Promise<Metadata> {
     const { 'company-slug': companySlug } = await params;
-    const companyName = getCompanyNameFromSlug(companySlug);
+    const company = await getCompanyBySlug(companySlug);
 
-    if (!companyName) {
+    if (!company) {
         return {
             title: "Company Not Found",
         };
     }
 
+    const companyName = company.name;
     const currentYear = new Date().getFullYear();
     const pageTitle = `${companyName} LeetCode Questions | ${companyName} Interview Questions [${currentYear}]`;
     const pageDescription = `Practice ${companyName} company-wise LeetCode problems for free. Get the latest ${companyName} interview questions, DSA sheets for free. Prepare for your ${companyName} coding interview.`;
@@ -84,11 +93,13 @@ export default async function CompanyWiseQuestion({
     params: Promise<CompanyParams>;
 }) {
     const { 'company-slug': slug } = await params;
-    const companyName = getCompanyNameFromSlug(slug);
+    const company = await getCompanyBySlug(slug);
 
-    if (!companyName) {
+    if (!company) {
         notFound();
     }
+
+    const companyName = company.name;
 
     // Server-fetch initial data for SSR (default params: all time, no search, sorted by frequency, page 1)
     // Note: pass [] (not null) for tags — the server action converts [] → null, but null → [null] which breaks the SQL HAVING clause
