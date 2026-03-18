@@ -213,7 +213,7 @@ export function Sheet({ slug, initialProblems, initialSheet }: SheetProps) {
                             <h1 className="font-semibold text-2xl flex items-baseline gap-2">
                                 {selectedSheet?.name}
                                 <span className="text-lg hidden md:block font-normal">by</span>
-                                <a href={selectedSheet?.website} className="font-normal hidden underline underline-offset-2 text-xl md:flex items-center gap-2">
+                                <a href={selectedSheet?.website} target="_blank" rel="noopener noreferrer nofollow" className="font-normal hidden underline underline-offset-2 text-xl md:flex items-center gap-2">
                                     {selectedSheet?.ownerName}
                                     <ExternalLinkIcon size={18} />
                                 </a>

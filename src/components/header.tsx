@@ -58,8 +58,10 @@ export async function Header() {
         <div className="ml-auto flex items-center gap-4">
           <a
             target="_blank"
+            rel="noopener noreferrer"
             href="https://github.com/zaCKoZAck0/lcgrind"
             className={buttonVariants({ variant: "neutral" })}
+            aria-label={`Star LC Grind on GitHub (${starsCount} stars)`}
           >
             <p className="font-semibold">{starsCount}</p>
 
@@ -67,6 +69,7 @@ export async function Header() {
               className="size-5"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 496 512"
+              aria-hidden="true"
             >
               <path
                 className="fill-foreground"
@@ -76,23 +79,29 @@ export async function Header() {
           </a>
           <a
             target="_blank"
+            rel="noopener noreferrer sponsored"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
             className={cn(buttonVariants({ variant: "neutral"}), "hidden md:flex")}
+            aria-label="Sponsor LC Grind on GitHub"
           >
             <HeartIcon className="size-5" />
             Support
           </a>
           <a
             target="_blank"
+            rel="noopener noreferrer sponsored"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
             className={cn(buttonVariants({ variant: "neutral", size: "icon" }), "flex md:hidden")}
+            aria-label="Sponsor LC Grind on GitHub"
           >
             <HeartIcon className="size-5" />
           </a>
           <a
             target="_blank"
+            rel="noopener noreferrer"
             href="https://x.com/zaCKoZAck0/status/1913558597688009006"
             className={buttonVariants({ variant: "neutral", size: "icon" })}
+            aria-label="Follow LC Grind on X (Twitter)"
           >
             <Twitter className="size-5" />
           </a>

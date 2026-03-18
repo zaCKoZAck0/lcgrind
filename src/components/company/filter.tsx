@@ -17,7 +17,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { onClickAdUrl } from "~/lib/utils";
+
 import { RandomProblemPicker } from "../random-problem-picker";
 
 export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties, slug }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[], slug?: string }) => {
@@ -121,7 +121,8 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                     </SelectContent>
                 </Select>
             </div>
-            <Input placeholder="Search Problem.." value={problemQuery} onChange={handleSearchInputChange} />
+            <label htmlFor="problem-search" className="sr-only">Search problem</label>
+            <Input id="problem-search" placeholder="Search Problem.." value={problemQuery} onChange={handleSearchInputChange} />
         </div>
         <div className="flex flex-col-reverse md:flex-row py-6 px-3 flex-1 gap-3 flex-shrink-0">
             {
@@ -160,7 +161,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                             </MultiSelectList>
                         </MultiSelectContent>
                     </MultiSelect>
-                    <div onClick={onClickAdUrl} className="flex items-center gap-3 px-1">
+                    <div className="flex items-center gap-3 px-1">
                         <Checkbox id="MAANG" checked={c === MAANG_COMPANIES} onCheckedChange={(checked) => {
                             if (checked) {
                                 setC(MAANG_COMPANIES);

@@ -45,7 +45,7 @@ export const TestimonialsSection = () => {
                     <CarouselNext className="border-2 border-border hidden sm:flex" />
                 </Carousel>
                 <div className="flex justify-center mt-8">
-                    <a href="https://x.com/zaCKoZAck0/status/1913558597688009006" target="_blank">
+                    <a href="https://x.com/zaCKoZAck0/status/1913558597688009006" target="_blank" rel="noopener noreferrer">
                         <Button className="cursor-pointer" variant="neutral">Add Your Own</Button>
                     </a>
                 </div>
