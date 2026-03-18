@@ -43,3 +43,6 @@ next-env.d.ts
 #project specific
 .data
 package-lock.json
+
+
+.opencode/
