@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | LC Grind",
   },
   description:
-    "Practice company-wise LeetCode problems for free. Access interview questions, DSA sheets, and premium problems for top tech companies like Google, Meta, Amazon, Microsoft, and more. Prepare for FAANG interviews with curated coding challenges.",
+    "Practice company-wise LeetCode problems for free. Access FAANG interview questions, DSA sheets like Blind 75 & NeetCode 150, and premium problems.",
   keywords: [
     "leetcode",
     "company wise leetcode problems",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LC Grind - Company Wise LeetCode Problems | Free Interview Prep",
     description:
-      "Free company-wise LeetCode problems and interview preparation. Practice coding questions from Google, Meta, Amazon, Microsoft, Apple, and more top tech companies.",
+      "Free company-wise LeetCode problems for FAANG interview prep. Practice coding questions from Google, Meta, Amazon, and 700+ companies.",
     url: BASE_URL,
     siteName: "LC Grind",
     locale: "en_US",

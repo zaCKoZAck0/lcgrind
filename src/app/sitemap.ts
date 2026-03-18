@@ -21,9 +21,23 @@ const HIGH_PRIORITY_COMPANIES = new Set([
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // Fetch all sheets from DB to include dynamically
+  // Fetch all sheets from DB with updatedAt for meaningful lastModified dates
   const sheets = await db.sheet.findMany({
     where: { isCompany: false },
+    select: { slug: true, updatedAt: true },
+  });
+
+  // Fetch company updatedAt dates for meaningful lastModified
+  const companySheets = await db.sheet.findMany({
+    where: { isCompany: true },
+    select: { slug: true, updatedAt: true },
+  });
+  const companyUpdatedMap = new Map(
+    companySheets.map((c) => [c.slug, c.updatedAt])
+  );
+
+  // Fetch all topic tag slugs for topic pages
+  const topicTags = await db.topicTag.findMany({
     select: { slug: true },
   });
 
@@ -47,6 +61,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/topics`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
       url: `${BASE_URL}/all-problems`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -59,9 +79,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const companyPages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
     const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
+    const updatedAt = companyUpdatedMap.get(slug);
     return {
       url: `${BASE_URL}/companies/${slug}`,
-      lastModified: now,
+      lastModified: updatedAt ?? now,
       changeFrequency: "weekly" as const,
       priority: isHighPriority ? 0.8 : 0.6,
     };
@@ -70,9 +91,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
     const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
+    const updatedAt = companyUpdatedMap.get(slug);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
-      lastModified: now,
+      lastModified: updatedAt ?? now,
       changeFrequency: "monthly" as const,
       priority: isHighPriority ? 0.7 : 0.5,
     };
@@ -80,9 +102,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const sheetPages: MetadataRoute.Sitemap = sheets.map((sheet) => ({
     url: `${BASE_URL}/sheets/${sheet.slug}`,
-    lastModified: now,
+    lastModified: sheet.updatedAt ?? now,
     changeFrequency: "weekly" as const,
     priority: 0.8,
+  }));
+
+  const topicPages: MetadataRoute.Sitemap = topicTags.map((topic) => ({
+    url: `${BASE_URL}/topics/${topic.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
   }));
 
   return [
@@ -90,5 +119,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...companyPages,
     ...prepGuidePages,
     ...sheetPages,
+    ...topicPages,
   ];
 }

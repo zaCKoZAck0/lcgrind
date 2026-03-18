@@ -11,7 +11,7 @@ export const revalidate = 86400; // Revalidate every 24 hours
 export const metadata: Metadata = {
     title: "All LeetCode Problems | Free Practice Questions",
     description:
-        "Browse and practice all LeetCode problems for free. Filter by difficulty, topic, and company. Includes premium problems with detailed solutions for coding interview preparation.",
+        "Browse and practice all LeetCode problems for free. Filter by difficulty, topic, and company. Includes premium problems for coding interview prep.",
     keywords: [
         "leetcode problems",
         "all leetcode questions",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
         type: "website",
     },
     twitter: {
-        card: "summary",
+        card: "summary_large_image",
         title: "All LeetCode Problems | Free Practice Questions | LC Grind",
         description:
             "Browse and practice all LeetCode problems for free. Filter by difficulty, topic, and company.",

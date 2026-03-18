@@ -51,8 +51,12 @@ export async function generateMetadata(
 
     const companyName = company.name;
     const currentYear = new Date().getFullYear();
-    const pageTitle = `${companyName} LeetCode Questions | ${companyName} Interview Questions [${currentYear}]`;
-    const pageDescription = `Practice ${companyName} company-wise LeetCode problems for free. Get the latest ${companyName} interview questions, DSA sheets for free. Prepare for your ${companyName} coding interview.`;
+    // Cap title to ~60 chars to prevent SERP truncation
+    const shortTitle = `${companyName} LeetCode Interview Questions [${currentYear}]`;
+    const pageTitle = shortTitle.length > 60
+        ? `${companyName} Interview Questions [${currentYear}]`
+        : shortTitle;
+    const pageDescription = `Practice ${companyName} LeetCode problems for free. Get the latest ${companyName} interview questions and prepare for your coding interview.`;
     const pageUrl = `${BASE_URL}/companies/${companySlug}`;
 
     const keywords = [

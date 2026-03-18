@@ -32,7 +32,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <SpeedInsights />
       <TooltipProvider>
         <QueryClientProvider client={queryClient}>
-          <PersistGate loading={null} persistor={persistor}>
+          <PersistGate
+            loading={
+              <div className="flex min-h-screen flex-col bg-background text-foreground" aria-busy="true">
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="animate-pulse text-muted-foreground">Loading...</div>
+                </div>
+              </div>
+            }
+            persistor={persistor}
+          >
             {children}
             <Toaster />
           </PersistGate>

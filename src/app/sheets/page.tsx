@@ -7,9 +7,9 @@ import { SheetsList } from "~/components/sheets/sheets-list";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-    title: "DSA Sheets for Interview Preparation",
+    title: "Top DSA Sheets for Coding Interview Preparation",
     description:
-        "Explore popular DSA sheets like Blind 75, Leetcode 75 and NeetCode 150. Structure your LeetCode practice for coding interviews.",
+        "Explore curated DSA sheets like Blind 75, NeetCode 150, Grind 75, and Striver SDE Sheet. Structure your LeetCode practice for FAANG coding interviews.",
     keywords: [
         "dsa sheets",
         "leetcode sheets",
@@ -27,17 +27,17 @@ export const metadata: Metadata = {
         canonical: `${BASE_URL}/sheets`,
     },
     openGraph: {
-        title: "DSA Sheets for Interview Preparation | LC Grind",
+        title: "Top DSA Sheets for Coding Interview Preparation | LC Grind",
         description:
-            "Find structured LeetCode problem lists (DSA Sheets) to boost your interview prep.",
+            "Curated DSA sheets including Blind 75, NeetCode 150, Grind 75, and Striver SDE Sheet. Structured coding interview prep.",
         url: `${BASE_URL}/sheets`,
         type: "website",
     },
     twitter: {
-        card: "summary",
-        title: "DSA Sheets for Interview Preparation | LC Grind",
+        card: "summary_large_image",
+        title: "Top DSA Sheets for Coding Interview Preparation | LC Grind",
         description:
-            "Find structured LeetCode problem lists (DSA Sheets) to boost your interview prep.",
+            "Curated DSA sheets including Blind 75, NeetCode 150, Grind 75, and Striver SDE Sheet. Structured coding interview prep.",
     },
 };
 
