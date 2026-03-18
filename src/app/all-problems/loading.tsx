@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton"
 
 export default function AllProblemsPageLoading() {
     return (
-        <div className="w-full py-6">
+        <div className="w-full max-w-[1000px] py-6">
             {/* Page header skeleton */}
             <div className="text-center mb-4">
                 <Skeleton className="h-10 w-[250px] mx-auto" />

@@ -4,6 +4,7 @@ import { BASE_URL, ALGORITHMS, DATA_STRUCTURES } from "~/config/constants";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 import { getAllTopics, TopicWithCount } from "~/server/actions/topics/getAllTopics";
 import { Badge } from "~/components/ui/badge";
+import { db } from "~/lib/db";
 
 export const revalidate = 86400;
 
@@ -103,9 +104,11 @@ function TopicSection({
 }
 
 export default async function TopicsPage() {
-    const allTopics = await getAllTopics();
+    const [allTopics, uniqueCount] = await Promise.all([
+        getAllTopics(),
+        db.problem.count(),
+    ]);
     const { dataStructures, algorithms, other } = groupTopics(allTopics);
-    const totalProblems = allTopics.reduce((sum, t) => sum + t.problemCount, 0);
 
     // Build ItemList JSON-LD for structured data
     const itemListJsonLd = {
@@ -144,8 +147,7 @@ export default async function TopicsPage() {
                             LeetCode Problems by Topic
                         </h1>
                         <p className="text-main-foreground/70 mt-1">
-                            {allTopics.length} topics covering {totalProblems.toLocaleString()} problem-topic
-                            mappings
+                            {allTopics.length} topics across {uniqueCount.toLocaleString()} problems
                         </p>
                     </div>
                 </div>

@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton"
 
 export default function CompaniesPageLoading() {
     return (
-        <div className="w-full py-6">
+        <div className="py-6">
             {/* Page header skeleton */}
             <div className="text-center mb-6">
                 <Skeleton className="h-10 w-[300px] mx-auto mb-4" />
@@ -14,7 +14,7 @@ export default function CompaniesPageLoading() {
             </div>
 
             {/* Company grid skeleton */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+            <div className="max-w-[1200px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-6 gap-3 p-4">
                 {[...Array(12)].map((_, i) => (
                     <div key={i} className="border-2 border-border p-4 flex items-center gap-3">
                         <Skeleton className="size-10 rounded-md flex-shrink-0" />

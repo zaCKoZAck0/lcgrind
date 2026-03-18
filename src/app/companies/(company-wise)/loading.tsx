@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton"
 
 export default function CompanyPageLoading() {
     return (
-        <div className="w-full py-6">
+        <div className="w-full max-w-[1000px] py-6">
             {/* Company header skeleton */}
             <div className="flex items-center gap-3 mb-4 p-3">
                 <Skeleton className="size-12 rounded-md" />

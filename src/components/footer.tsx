@@ -94,6 +94,7 @@ export const Footer = () => {
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/topics">Topics</Link></li>
                                 <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
                             </ul>
                         </div>
