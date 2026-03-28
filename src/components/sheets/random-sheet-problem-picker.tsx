@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Dice5Icon, ExternalLinkIcon, Loader2Icon, LockIcon } from "lucide-react";
+import { Dice5Icon, CircleCheck, CircleDashed, Loader2Icon, LockIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import {
     Dialog,
     DialogContent,
@@ -12,7 +13,8 @@ import {
     DialogFooter,
 } from "~/components/ui/dialog";
 import { Badge } from "~/components/ui/badge";
-import { useAppSelector } from "~/hooks/redux";
+import { useAppDispatch, useAppSelector, isProblemCompleted } from "~/hooks/redux";
+import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { getRandomSheetProblem } from "~/server/actions/sheets/getRandomSheetProblem";
 import { difficultyColor } from "~/utils/sorting";
 import { defaultSettings } from "~/store/sheetSettingsSlice";
@@ -45,9 +47,24 @@ export function RandomSheetProblemPicker({
     const [allSolved, setAllSolved] = useState(false);
     const [includeCompleted, setIncludeCompleted] = useState(false);
 
+    const dispatch = useAppDispatch();
     const completedProblems = useAppSelector(
         (state) => state.completedProblems.problems
     );
+
+    const isCompleted = useAppSelector((state) =>
+        problem ? isProblemCompleted(state, problem.id.toString()) : false
+    );
+
+    const toggleCompletion = () => {
+        if (!problem) return;
+        const problemId = problem.id.toString();
+        if (isCompleted) {
+            dispatch(markIncomplete(problemId));
+        } else {
+            dispatch(markCompleted(problemId));
+        }
+    };
 
     const settings = useAppSelector(
         state => state.sheetSettings.sheets[sheetSlug] ?? defaultSettings
@@ -144,7 +161,7 @@ export function RandomSheetProblemPicker({
                     )}
 
                     {!isLoading && problem && (
-                        <div className="space-y-4 py-4">
+                        <div className={cn("space-y-4 py-4 -mx-6 px-6", isCompleted && "bg-secondary-background")}>
                             <div className="flex items-start gap-2">
                                 <a
                                     href={problem.url}
@@ -202,16 +219,19 @@ export function RandomSheetProblemPicker({
                                     <Dice5Icon /> Pick Another
                                 </Button>
                                 <Button
-                                    asChild
+                                    onClick={toggleCompletion}
                                     className="flex-1"
+                                    variant={isCompleted ? "neutral" : "default"}
                                 >
-                                    <a
-                                        href={problem.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <ExternalLinkIcon /> Open Problem
-                                    </a>
+                                    {isCompleted ? (
+                                        <>
+                                            <CircleCheck /> Mark Incomplete
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CircleDashed /> Mark Complete
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         )}

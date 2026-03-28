@@ -7,8 +7,8 @@ import {
     ChevronDownIcon,
     ChevronUpIcon,
     CircleCheck,
+    CircleDashed,
     Dice5Icon,
-    ExternalLinkIcon,
     Loader2Icon,
     LockIcon,
 } from "lucide-react";
@@ -184,7 +184,7 @@ export function RandomProblemPicker({
                             "space-y-4 py-4 -mx-6 px-6",
                             isCompleted && "bg-secondary-background"
                         )}>
-                            <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start gap-2">
                                 <a
                                     href={problem.url}
                                     target="_blank"
@@ -199,17 +199,6 @@ export function RandomProblemPicker({
                                         />
                                     )}
                                 </a>
-                                <button
-                                    onClick={toggleCompletion}
-                                    className="cursor-pointer group focus:outline-none transition-colors duration-200"
-                                    aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
-                                >
-                                    {isCompleted ? (
-                                        <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
-                                    ) : (
-                                        <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
-                                    )}
-                                </button>
                             </div>
                             <div className="flex flex-wrap gap-4 items-center font-base">
                                 <Badge
@@ -294,16 +283,19 @@ export function RandomProblemPicker({
                                     <Dice5Icon /> Pick Another
                                 </Button>
                                 <Button
-                                    asChild
+                                    onClick={toggleCompletion}
                                     className="flex-1"
+                                    variant={isCompleted ? "neutral" : "default"}
                                 >
-                                    <a
-                                        href={problem.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <ExternalLinkIcon /> Open Problem
-                                    </a>
+                                    {isCompleted ? (
+                                        <>
+                                            <CircleCheck /> Mark Incomplete
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CircleDashed /> Mark Complete
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         )}
