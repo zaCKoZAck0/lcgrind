@@ -44,7 +44,7 @@ export async function getCompanyWiseProblems(order: string, search: string, slug
         return sanitizeProblems(problems);
     } catch (e) {
         console.error("Error fetching company-wise data:", e);
-        return null;
+        return [];
     }
 }
 

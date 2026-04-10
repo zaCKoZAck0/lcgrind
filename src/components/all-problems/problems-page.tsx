@@ -52,7 +52,7 @@ export function ProblemsPage({ initialProblems, initialProblemIds }: ProblemsPag
         initialData: isDefaultQuery ? initialProblemIds : undefined,
     })
 
-    const totalPages = Math.ceil(problemIds?.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil((problemIds?.length ?? 0) / ITEMS_PER_PAGE);
 
     return (<div className="w-full max-w-[1000px] py-6">
         <div className="mb-12 shadow-shadow">
