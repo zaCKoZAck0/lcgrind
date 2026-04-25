@@ -11,6 +11,8 @@ export const sanitizeProblems = (problems: ProblemWithStats[]) => {
     return problems.map(problem => ({
         ...problem,
         order: problem.order?.toNumber(),
+        companies: (problem.companies ?? []).filter(Boolean),
+        tags: (problem.tags ?? []).filter(Boolean),
     }));
 }
 
