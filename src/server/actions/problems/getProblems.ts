@@ -48,7 +48,7 @@ export async function getProblems(order: string, search: string, sort: string, t
         );
         return sanitizeProblems(problems);
     } catch(e) {
-        console.error("Error fetching company-wise data:", e);
-        return null;
+        console.error("Error fetching problems data:", e);
+        return [];
     }
 }
