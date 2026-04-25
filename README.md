@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://github.com/user-attachments/assets/5e531813-6f04-4877-be40-12f800ef46b4" alt="LC Grind" width="120" />
 </p>
-<h2 align="center"><a href="https://www.lcgrind.xyz/">lcgrind.xyz</a></h2>
+<h2 align="center"><a href="https://www.lcgrind.zackozack.xyz/">lcgrind.zackozack.xyz</a></h2>
 <h1 align="center">LC Grind - Company wise Leetcode Problems</h1>
 <p align="center">Focused Interview Preperation</p>
 
