@@ -16,7 +16,7 @@ export async function getTopicProblemIds(
 
     // Build WHERE conditions
     const whereConditions = [`t.slug = $1`];
-    const trimmedSearch = search.trim();
+    const trimmedSearch = (search ?? '').trim();
     if (trimmedSearch.length > 0) {
         whereConditions.push(
             `(p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%')`,

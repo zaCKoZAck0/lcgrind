@@ -47,8 +47,8 @@ const VALID_DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
 
 export const getDbWhereClause = (order: string, search: string, slug: string, difficulties: string[] | null = null): string => {
   const whereQueries = [];
-  const trimmedSearch = search.trim();
-  const trimmedSlug = slug.trim();
+  const trimmedSearch = (search ?? '').trim();
+  const trimmedSlug = (slug ?? '').trim();
   if (trimmedSearch.length > 0) {
     whereQueries.push(`(p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%')`);
   }
