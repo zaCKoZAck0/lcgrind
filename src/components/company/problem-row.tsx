@@ -99,7 +99,20 @@ export const ProblemRow = ({
         </div>
       )}
       <div
+        role={pickerMode && !pickerMode.disabled ? "button" : undefined}
+        tabIndex={pickerMode && !pickerMode.disabled ? 0 : undefined}
+        aria-pressed={pickerMode ? pickerMode.selected : undefined}
         onClick={pickerMode && !pickerMode.disabled ? pickerMode.onToggle : undefined}
+        onKeyDown={
+          pickerMode && !pickerMode.disabled
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  pickerMode.onToggle();
+                }
+              }
+            : undefined
+        }
         className={`relative flex p-3 border-2
       border-border border-t-0
       ${isCompleted && !pickerMode ? "bg-secondary-background" : ""}

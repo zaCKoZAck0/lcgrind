@@ -1,5 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
+import { createSlice, PayloadAction, nanoid } from '@reduxjs/toolkit';
 
 export interface ProblemList {
   id: string;
@@ -29,7 +28,7 @@ export const problemListsSlice = createSlice({
       action: PayloadAction<{ id?: string; name: string; description?: string; problemIds?: number[] }>
     ) => {
       const { name, description, problemIds = [] } = action.payload;
-      const id = action.payload.id ?? nanoid(10);
+      const id = action.payload.id ?? nanoid();
       const now = Date.now();
       state.lists[id] = { id, name, description, problemIds, createdAt: now, updatedAt: now };
       state.order.push(id);

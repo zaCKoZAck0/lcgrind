@@ -24,21 +24,19 @@ export async function getRandomProblem(
     }
     const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
 
-    // Inject topic-slug scoping via a safe inline literal (slug chars only)
-    const safeTopicSlug = topicSlug && /^[\w-]+$/.test(topicSlug) ? topicSlug : null;
-    const topicJoin = safeTopicSlug
+    const topicJoin = topicSlug
         ? `INNER JOIN "ProblemsOnTopicTags" topic_pt ON p.id = topic_pt."problemId"
-           INNER JOIN "TopicTag" topic_t ON topic_pt."topicTagId" = topic_t.id AND topic_t.slug = '${safeTopicSlug}'`
+           INNER JOIN "TopicTag" topic_t ON topic_pt."topicTagId" = topic_t.id AND topic_t.slug = $3`
         : '';
-    
+
     // Convert excludedIds to integers for database query and validate
     const excludedIdsInt = excludedIds
         .map(id => parseInt(id, 10))
         .filter(id => !isNaN(id) && Number.isFinite(id) && id > 0);
-    
-    // Build exclusion clause with parameterized array
-    const exclusionClause = excludedIdsInt.length > 0 
-        ? `AND p.id != ALL($3::int[])` 
+
+    const exclusionParamIdx = topicSlug ? 4 : 3;
+    const exclusionClause = excludedIdsInt.length > 0
+        ? `AND p.id != ALL($${exclusionParamIdx}::int[])`
         : '';
     
     const query = `
@@ -68,9 +66,9 @@ export async function getRandomProblem(
     `;
 
     try {
-        const params = excludedIdsInt.length > 0
-            ? [companies, tags, excludedIdsInt]
-            : [companies, tags];
+        const params: unknown[] = [companies, tags];
+        if (topicSlug) params.push(topicSlug);
+        if (excludedIdsInt.length > 0) params.push(excludedIdsInt);
         
         const problems = await db.$queryRawUnsafe<ProblemWithStats[]>(
             query,

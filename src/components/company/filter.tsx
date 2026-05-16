@@ -83,11 +83,6 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     }, [problemQuery, currentSearchParams, controlled, order, sort, c, t, d]);
 
     useEffect(() => {
-        if (controlled) {
-            controlled.onChange({ order, sort, search: problemQuery, companies: c, tags: t, difficulties: d });
-            return;
-        }
-
         const params = new URLSearchParams(currentSearchParams.toString());
 
         params.set('order', order);

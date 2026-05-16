@@ -14,7 +14,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useAppDispatch } from "~/hooks/redux";
 import { createList } from "~/store/problemListsSlice";
-import { nanoid } from "nanoid";
+import { nanoid } from "@reduxjs/toolkit";
 import { Plus } from "lucide-react";
 
 export function CreateListDialog() {
@@ -27,7 +27,7 @@ export function CreateListDialog() {
     e.preventDefault();
     if (!name.trim()) return;
 
-    const newId = nanoid(10);
+    const newId = nanoid();
     dispatch(createList({ id: newId, name: name.trim() }));
     setName("");
     setOpen(false);

@@ -27,24 +27,29 @@ function writeVarint(buf: number[], value: number): void {
   } while (value !== 0);
 }
 
+const MAX_VARINT_BYTES = 5;
+
 function readVarint(
   bytes: Uint8Array,
   offset: number
 ): { value: number; nextOffset: number } {
   let value = 0;
   let shift = 0;
+  let bytesRead = 0;
   while (true) {
     if (offset >= bytes.length) throw new Error('Unexpected end of input');
+    if (bytesRead >= MAX_VARINT_BYTES) throw new Error('Varint too large');
     const byte = bytes[offset++];
     value |= (byte & 0x7f) << shift;
     shift += 7;
+    bytesRead++;
     if ((byte & 0x80) === 0) break;
   }
   return { value, nextOffset: offset };
 }
 
 const VERSION = 1;
-const LIST_ID_LEN = 10;
+const LIST_ID_LEN = 21;
 
 export function encodeSharePayload({ id, name, problemIds }: SharePayload): string {
   const nameBytes = new TextEncoder().encode(name);

@@ -151,8 +151,12 @@ export function ListEditorPage({ id }: ListEditorPageProps) {
       problemIds: list.problemIds,
     });
     const url = `${BASE_URL}/lists/share/${token}`;
-    await navigator.clipboard.writeText(url);
-    toast.success("Share link copied!", { description: url.slice(0, 60) + "…" });
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied!", { description: url.slice(0, 60) + "…" });
+    } catch {
+      toast.error("Couldn't copy to clipboard", { description: "Copy the URL manually: " + url });
+    }
   };
 
   const handleDelete = () => {
