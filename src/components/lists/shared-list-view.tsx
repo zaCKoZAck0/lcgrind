@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector, useAppDispatch } from "~/hooks/redux";
 import { upsertSharedList } from "~/store/problemListsSlice";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ProblemRow } from "~/components/company/problem-row";
 import { toast } from "sonner";
