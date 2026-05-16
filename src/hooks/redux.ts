@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
 import type { RootState, AppDispatch } from '~/store';
+import type { ProblemList } from '~/store/problemListsSlice';
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -21,4 +22,14 @@ export const getProblemNoteCount = (state: RootState, problemId: string): number
 
 export const getNote = (state: RootState, noteId: string) => {
   return state.problemNotes.notes[noteId];
+};
+
+export const getProblemList = (state: RootState, id: string): ProblemList | undefined => {
+  return state.problemLists.lists[id];
+};
+
+export const getAllListsOrdered = (state: RootState): ProblemList[] => {
+  return state.problemLists.order
+    .map((id) => state.problemLists.lists[id])
+    .filter(Boolean);
 };

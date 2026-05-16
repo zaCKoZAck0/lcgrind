@@ -20,7 +20,16 @@ import { Input } from "../ui/input";
 
 import { RandomProblemPicker } from "../random-problem-picker";
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties, slug }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[], slug?: string }) => {
+export type FilterValues = {
+    order: string;
+    sort: string;
+    search: string;
+    companies: string[];
+    tags: string[];
+    difficulties: string[];
+};
+
+export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties, slug, topicSlug, defaultSort, controlled }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[], slug?: string, topicSlug?: string, defaultSort?: string, controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean } }) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
@@ -32,7 +41,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     const pathName = usePathname();
 
     function reset() {
-        setSort(isProblemFilter ? 'question-id' : 'frequency');
+        setSort(defaultSort ?? (isProblemFilter ? 'question-id' : 'frequency'));
         setOrder(isProblemFilter ? 'all-problems' : 'all');
         setProblemQuery('');
         setC([]);
@@ -45,6 +54,13 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     };
 
     useEffect(() => {
+        if (controlled) {
+            const timeoutId = setTimeout(() => {
+                controlled.onChange({ order, sort, search: problemQuery, companies: c, tags: t, difficulties: d });
+            }, 300);
+            return () => clearTimeout(timeoutId);
+        }
+
         const timeoutId = setTimeout(() => {
             const params = new URLSearchParams(currentSearchParams.toString());
 
@@ -64,9 +80,14 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
 
         return () => clearTimeout(timeoutId);
 
-    }, [problemQuery, currentSearchParams]);
+    }, [problemQuery, currentSearchParams, controlled, order, sort, c, t, d]);
 
     useEffect(() => {
+        if (controlled) {
+            controlled.onChange({ order, sort, search: problemQuery, companies: c, tags: t, difficulties: d });
+            return;
+        }
+
         const params = new URLSearchParams(currentSearchParams.toString());
 
         params.set('order', order);
@@ -230,15 +251,18 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                 </MultiSelectContent>
             </MultiSelect>
         </div>
-        <div className="absolute top-0 right-3 -translate-y-1/2 flex gap-2">
-            <RandomProblemPicker
-                order={order}
-                search={problemQuery}
-                tags={t.length > 0 ? t : null}
-                companies={c.length > 0 ? c : null}
-                difficulties={d.length > 0 ? d : null}
-                slug={slug}
-            />
+        <div className={controlled ? "absolute top-0 right-12 -translate-y-1/2 flex gap-2" : "absolute top-0 right-3 -translate-y-1/2 flex gap-2"}>
+            {!controlled?.hideRandomPicker && (
+                <RandomProblemPicker
+                    order={order}
+                    search={problemQuery}
+                    tags={t.length > 0 ? t : null}
+                    companies={c.length > 0 ? c : null}
+                    difficulties={d.length > 0 ? d : null}
+                    slug={slug}
+                    topicSlug={topicSlug}
+                />
+            )}
             <Button className="bg-secondary-background text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
         </div>
 

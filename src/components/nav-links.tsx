@@ -10,7 +10,7 @@ import {
     navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 import Link from "next/link"
-import { HashIcon, ListTodoIcon, TargetIcon } from "lucide-react";
+import { BookMarkedIcon, HashIcon, ListTodoIcon, TargetIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 
@@ -34,6 +34,11 @@ export function NavLinks() {
                         <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
                             <Link href="/topics">
                                 <HashIcon className="size-5" /> Topics
+                            </Link>
+                        </NavigationMenuLink>
+                        <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
+                            <Link href="/lists">
+                                <BookMarkedIcon className="size-5" /> Solvelists
                             </Link>
                         </NavigationMenuLink>
                     </NavigationMenuContent>

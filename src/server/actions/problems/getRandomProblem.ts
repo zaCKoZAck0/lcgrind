@@ -12,7 +12,8 @@ export async function getRandomProblem(
     companies: string | string[] | null,
     difficulties: string | string[] | null,
     excludedIds: string[],
-    slug: string = ''
+    slug: string = '',
+    topicSlug?: string,
 ) {
     const orderKey = getOrderKey(order);
     if (!Array.isArray(companies) && companies != null) companies = [companies];
@@ -22,6 +23,13 @@ export async function getRandomProblem(
         difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
     }
     const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
+
+    // Inject topic-slug scoping via a safe inline literal (slug chars only)
+    const safeTopicSlug = topicSlug && /^[\w-]+$/.test(topicSlug) ? topicSlug : null;
+    const topicJoin = safeTopicSlug
+        ? `INNER JOIN "ProblemsOnTopicTags" topic_pt ON p.id = topic_pt."problemId"
+           INNER JOIN "TopicTag" topic_t ON topic_pt."topicTagId" = topic_t.id AND topic_t.slug = '${safeTopicSlug}'`
+        : '';
     
     // Convert excludedIds to integers for database query and validate
     const excludedIdsInt = excludedIds
@@ -44,6 +52,7 @@ export async function getRandomProblem(
         LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
         LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
         LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
+        ${topicJoin}
         ${whereClause}
         ${exclusionClause}
         GROUP BY p.id

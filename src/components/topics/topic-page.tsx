@@ -13,7 +13,7 @@ import { AdBanner } from "~/components/ads/banner";
 import { GlobalPagination } from "~/components/global-pagination";
 import { getTopicProblems } from "~/server/actions/topics/getTopicProblems";
 import { getTopicProblemIds } from "~/server/actions/topics/getTopicProblemIds";
-import { TopicFilters } from "./topic-filters";
+import { Filters } from "~/components/company/filter";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -34,32 +34,39 @@ export function TopicPage({
 }: TopicPageProps) {
     const searchParams = useSearchParams();
 
+    let companies = searchParams.getAll("companies");
+    let tags = searchParams.getAll("tags");
     let difficulties = searchParams.getAll("difficulties");
-    const sort = searchParams.get("sort") || "question-id";
+    const sort = searchParams.get("sort") || "frequency";
+    const order = searchParams.get("order") || "all-problems";
     const search = searchParams.get("search") || "";
     const page = Number(searchParams.get("page") || 1);
 
+    if (companies.length === 0) companies = null;
+    if (tags.length === 0) tags = null;
     if (difficulties.length === 0) difficulties = null;
 
-    // Only use initialData when params match the SSR defaults
     const isDefaultQuery =
-        sort === "question-id" &&
+        order === "all-problems" &&
+        sort === "frequency" &&
         search === "" &&
+        companies === null &&
+        tags === null &&
         difficulties === null &&
         page === 1;
 
     const { data: problems, isLoading: isProblemsLoading } = useQuery({
-        queryKey: [`topics/${topicSlug}/problems`, search, sort, difficulties, page],
+        queryKey: [`topics/${topicSlug}/problems`, order, search, sort, tags, companies, difficulties, page],
         queryFn: () =>
-            getTopicProblems(topicSlug, search, sort, difficulties, page, ITEMS_PER_PAGE),
+            getTopicProblems(topicSlug, order, search, sort, tags, companies, difficulties, page, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
         initialData: isDefaultQuery ? initialProblems : undefined,
     });
 
     const { data: problemIds, isLoading: isIdsLoading } = useQuery({
-        queryKey: [`topics/${topicSlug}/problem-ids`, search, difficulties],
-        queryFn: () => getTopicProblemIds(topicSlug, search, difficulties),
+        queryKey: [`topics/${topicSlug}/problem-ids`, order, search, tags, companies, difficulties],
+        queryFn: () => getTopicProblemIds(topicSlug, order, search, tags, companies, difficulties),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
         initialData: isDefaultQuery ? initialProblemIds : undefined,
@@ -103,9 +110,14 @@ export function TopicPage({
             </div>
 
             <div className="shadow-shadow">
-                <TopicFilters
-                    filters={{ sorting: sort, search }}
+                <Filters
+                    filters={{ sorting: sort, order, search }}
+                    companies={companies}
+                    tags={tags}
                     difficulties={difficulties}
+                    topicSlug={topicSlug}
+                    defaultSort="frequency"
+                    isProblemFilter
                 />
 
                 {isProblemsLoading
@@ -116,14 +128,16 @@ export function TopicPage({
                           <ProblemRow
                               key={problem.id}
                               index={idx}
-                              order="all-problems"
+                              order={order}
                               problemUrl={problem.url}
                               problemTitle={problem.title}
                               problemId={problem.id.toString()}
+                              frequency={problem.order}
                               difficulty={problem.difficulty}
                               acceptance={problem.acceptance}
                               isPaid={problem.isPaid}
                               tags={problem.tags}
+                              companies={problem.companies}
                           />
                       ))}
             </div>

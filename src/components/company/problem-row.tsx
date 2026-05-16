@@ -28,6 +28,14 @@ import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlt
 import { AdBanner } from "../ads/banner";
 
 import { NotesViewer } from "../problem-notes";
+import { Checkbox } from "../ui/checkbox";
+
+interface PickerMode {
+  selected: boolean;
+  disabled?: boolean;
+  disabledLabel?: string;
+  onToggle: () => void;
+}
 
 interface ProblemRowProps {
   index: number;
@@ -42,6 +50,7 @@ interface ProblemRowProps {
   tags: string[];
   companies?: string[];
   solutionVideoLink?: string | null;
+  pickerMode?: PickerMode;
 }
 
 export const ProblemRow = ({
@@ -56,6 +65,7 @@ export const ProblemRow = ({
   tags,
   companies = [],
   solutionVideoLink,
+  pickerMode,
 }: ProblemRowProps) => {
   const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
   const dispatch = useAppDispatch();
@@ -83,15 +93,18 @@ export const ProblemRow = ({
 
   return (
     <>
-      {(index + 1) % 10 === 0 && (
+      {!pickerMode && (index + 1) % 10 === 0 && (
         <div className="border-2 border-border border-t-0">
           <AdBanner />
         </div>
       )}
       <div
-        className={`relative flex p-3 border-2 
-      border-border border-t-0 
-      ${isCompleted ? "bg-secondary-background" : ""}`}
+        onClick={pickerMode && !pickerMode.disabled ? pickerMode.onToggle : undefined}
+        className={`relative flex p-3 border-2
+      border-border border-t-0
+      ${isCompleted && !pickerMode ? "bg-secondary-background" : ""}
+      ${pickerMode && !pickerMode.disabled ? "cursor-pointer hover:bg-secondary-background/50" : ""}
+      ${pickerMode?.disabled ? "opacity-60" : ""}`}
       >
         <div className="flex-grow">
           <div className="flex items-center">
@@ -99,13 +112,14 @@ export const ProblemRow = ({
               href={problemUrl}
               target="_blank"
               rel="noopener noreferrer nofollow"
+              onClick={(e) => e.stopPropagation()}
               className="text-blue-700 dark:text-main hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
             >
               {problemId}. {problemTitle}
             </a>
             {isPaid && (
               <Badge
-                onClick={() => onLintCodeRedirect(problemTitle)}
+                onClick={(e) => { e.stopPropagation(); onLintCodeRedirect(problemTitle); }}
                 variant="neutral"
                 className="ml-2 cursor-pointer"
               >
@@ -145,12 +159,15 @@ export const ProblemRow = ({
             )}            <span title="Acceptance" className="flex items-center gap-1">
               <CheckCheckIcon size={18} /> {acceptance}%
             </span>
-            <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+            <span onClick={(e) => e.stopPropagation()}>
+              <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+            </span>
             {solutionVideoLink && (
               <a
                 href={solutionVideoLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 title="Watch Video Solution"
                 className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
@@ -162,18 +179,32 @@ export const ProblemRow = ({
           {companies.length > 0 && (
             <CompanyAvatarGroup companies={companies} />
           )}        </div>
-        <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
-          <button
-            onClick={toggleCompletion}
-            className="cursor-pointer group focus:outline-none transition-colors duration-200"
-            aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
-          >
-            {isCompleted ? (
-              <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
-            ) : (
-              <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
-            )}
-          </button>
+        <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6" onClick={(e) => e.stopPropagation()}>
+          {pickerMode ? (
+            <div className="flex items-center gap-2">
+              {pickerMode.disabled && pickerMode.disabledLabel && (
+                <span className="text-xs text-foreground/40">{pickerMode.disabledLabel}</span>
+              )}
+              <Checkbox
+                checked={pickerMode.selected}
+                disabled={pickerMode.disabled}
+                onCheckedChange={() => !pickerMode.disabled && pickerMode.onToggle()}
+                aria-label="Select problem"
+              />
+            </div>
+          ) : (
+            <button
+              onClick={toggleCompletion}
+              className="cursor-pointer group focus:outline-none transition-colors duration-200"
+              aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+            >
+              {isCompleted ? (
+                <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
+              ) : (
+                <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </>
