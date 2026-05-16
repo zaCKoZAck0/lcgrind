@@ -100,10 +100,10 @@ export default async function TopicProblemsPage({ params }: Props) {
     const topicName = topic.name;
     const problemCount = topic._count.problems;
 
-    // Server-fetch initial data (default: no search, sorted by question-id, page 1)
+    // Server-fetch initial data (default: no filters, sorted by question-id, page 1)
     const [initialProblems, initialProblemIds] = await Promise.all([
-        getTopicProblems(topicSlug, "", "question-id", null, 1, ITEMS_PER_PAGE),
-        getTopicProblemIds(topicSlug, "", null),
+        getTopicProblems(topicSlug, "all-problems", "", "frequency", null, null, null, 1, ITEMS_PER_PAGE),
+        getTopicProblemIds(topicSlug, "all-problems", "", null, null, null),
     ]);
 
     return (

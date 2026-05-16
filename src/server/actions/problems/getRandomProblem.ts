@@ -12,7 +12,8 @@ export async function getRandomProblem(
     companies: string | string[] | null,
     difficulties: string | string[] | null,
     excludedIds: string[],
-    slug: string = ''
+    slug: string = '',
+    topicSlug?: string,
 ) {
     const orderKey = getOrderKey(order);
     if (!Array.isArray(companies) && companies != null) companies = [companies];
@@ -22,15 +23,20 @@ export async function getRandomProblem(
         difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
     }
     const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
-    
+
+    const topicJoin = topicSlug
+        ? `INNER JOIN "ProblemsOnTopicTags" topic_pt ON p.id = topic_pt."problemId"
+           INNER JOIN "TopicTag" topic_t ON topic_pt."topicTagId" = topic_t.id AND topic_t.slug = $3`
+        : '';
+
     // Convert excludedIds to integers for database query and validate
     const excludedIdsInt = excludedIds
         .map(id => parseInt(id, 10))
         .filter(id => !isNaN(id) && Number.isFinite(id) && id > 0);
-    
-    // Build exclusion clause with parameterized array
-    const exclusionClause = excludedIdsInt.length > 0 
-        ? `AND p.id != ALL($3::int[])` 
+
+    const exclusionParamIdx = topicSlug ? 4 : 3;
+    const exclusionClause = excludedIdsInt.length > 0
+        ? `AND p.id != ALL($${exclusionParamIdx}::int[])`
         : '';
     
     const query = `
@@ -44,6 +50,7 @@ export async function getRandomProblem(
         LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
         LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
         LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
+        ${topicJoin}
         ${whereClause}
         ${exclusionClause}
         GROUP BY p.id
@@ -59,9 +66,9 @@ export async function getRandomProblem(
     `;
 
     try {
-        const params = excludedIdsInt.length > 0
-            ? [companies, tags, excludedIdsInt]
-            : [companies, tags];
+        const params: unknown[] = [companies, tags];
+        if (topicSlug) params.push(topicSlug);
+        if (excludedIdsInt.length > 0) params.push(excludedIdsInt);
         
         const problems = await db.$queryRawUnsafe<ProblemWithStats[]>(
             query,
