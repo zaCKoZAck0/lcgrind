@@ -34,6 +34,7 @@ export const CompaniesSection = () => {
                                 className="w-full h-12 object-contain"
                                 width={200}
                                 height={48}
+                                unoptimized
                             />
                         </Link>
                     ))}
