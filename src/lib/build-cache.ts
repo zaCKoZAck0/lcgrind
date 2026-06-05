@@ -53,7 +53,8 @@ type CompanyPageData = {
     name: string;
     initialProblems: Awaited<ReturnType<typeof getCompanyWiseProblems>>;
     initialProblemIds: Awaited<ReturnType<typeof getCompanyWiseProblemIds>>;
-    initialSheet: unknown; // Array<{ numOfProblems: number } & Sheet>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initialSheet: any; // Array<{ numOfProblems: number } & Sheet>
 };
 
 export const getCompanyPageData = cache(
@@ -84,8 +85,10 @@ export const getCompanyPageData = cache(
 // ---------------------------------------------------------------------------
 
 type PrepGuideData = {
-    sheet: unknown; // Sheet (with dates serialised as strings from JSON)
-    problems: unknown[]; // SheetProblem[] with Decimal fields converted to number
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sheet: any; // Sheet (with dates serialised as strings from JSON)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    problems: any[]; // SheetProblem[] with Decimal fields converted to number
 };
 
 export const getPrepGuideData = cache(
