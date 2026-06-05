@@ -6,6 +6,7 @@ import { TopicPage } from "~/components/topics/topic-page";
 import { getTopicProblems } from "~/server/actions/topics/getTopicProblems";
 import { getTopicProblemIds } from "~/server/actions/topics/getTopicProblemIds";
 import { db } from "~/lib/db";
+import { cache } from "react";
 
 type Props = {
     params: Promise<{ "topic-slug": string }>;
@@ -26,7 +27,9 @@ export async function generateStaticParams() {
     }));
 }
 
-async function getTopicBySlug(slug: string) {
+// Wrapped in cache() so generateMetadata and the page component share one
+// DB round-trip per render (prevents the same slug being queried twice).
+const getTopicBySlug = cache(async (slug: string) => {
     return db.topicTag.findUnique({
         where: { slug },
         select: {
@@ -35,7 +38,7 @@ async function getTopicBySlug(slug: string) {
             _count: { select: { problems: true } },
         },
     });
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { "topic-slug": topicSlug } = await params;

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 import { getSheetProblems } from "~/server/actions/sheets/getSheetProblems";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
+import { cache } from "react";
 
 export const revalidate = 86400;
 
@@ -29,13 +30,19 @@ type Props = {
     params: Promise<SheetParams>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { "sheet-slug": sheetSlug } = await params;
-    
-    const sheet = await db.sheet.findFirst({
-        where: { slug: sheetSlug },
+// Wrapped in cache() so generateMetadata and the page component share one
+// DB round-trip per render (prevents the same slug being queried twice).
+const getSheetBySlug = cache(async (slug: string) => {
+    return db.sheet.findFirst({
+        where: { slug },
         select: { name: true, description: true, ownerName: true },
     });
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { "sheet-slug": sheetSlug } = await params;
+
+    const sheet = await getSheetBySlug(sheetSlug);
 
     if (!sheet) {
         return {
@@ -80,10 +87,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SheetsPage({ params }: Props) {
     const { "sheet-slug": sheetSlug } = await params;
 
-    const sheetExists = await db.sheet.findFirst({
-        where: { slug: sheetSlug },
-        select: { name: true },
-    });
+    // Reuses the memoised result from generateMetadata — no extra DB round-trip.
+    const sheetExists = await getSheetBySlug(sheetSlug);
 
     if (!sheetExists) {
         notFound();

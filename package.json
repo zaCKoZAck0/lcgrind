@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "tsx scripts/prefetch-build-cache.ts && next build && rm -rf .build-cache",
     "start": "next start",
     "lint": "next lint",
     "seed:companies": "tsx prisma/seed/seedCompanies.ts",
