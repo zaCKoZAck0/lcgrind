@@ -29,6 +29,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Exclude the build-time data cache from output file tracing.
+  // .build-cache/ is written by scripts/prefetch-build-cache.ts before
+  // `next build` and deleted afterward. Without this exclusion, Next.js
+  // records every readFileSync call into its trace and Vercel's post-build
+  // bundler tries to lstat those paths — which are already deleted → ENOENT.
+  outputFileTracingExcludes: {
+    "**/*": [".build-cache/**"],
+  },
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
