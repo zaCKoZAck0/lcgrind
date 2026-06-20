@@ -10,7 +10,10 @@ import {
   LockIcon,
   VideoIcon,
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { difficultyColor } from "~/utils/sorting";
+import type { CompanyChip } from "~/types/problem";
 import {
   useAppDispatch,
   useAppSelector,
@@ -48,9 +51,14 @@ interface ProblemRowProps {
   isPaid: boolean;
   acceptance: number;
   tags: string[];
+  /** Legacy sheet-derived company names (non-clickable avatars). */
   companies?: string[];
+  /** interview0 company chips ({slug,name}); clicking filters /all-problems. */
+  companyChips?: CompanyChip[];
   solutionVideoLink?: string | null;
   pickerMode?: PickerMode;
+  /** Extra inline badges (e.g. company recency chips) shown in the meta row. */
+  chips?: React.ReactNode;
 }
 
 export const ProblemRow = ({
@@ -64,14 +72,32 @@ export const ProblemRow = ({
   isPaid,
   tags,
   companies = [],
+  companyChips,
   solutionVideoLink,
   pickerMode,
+  chips,
 }: ProblemRowProps) => {
   const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isCompleted = useAppSelector((state) =>
     isProblemCompleted(state, problemId.toString()),
   );
+
+  const onCompanyChipClick = (slug: string, name: string) => {
+    if (!slug) return;
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.getAll("companies").includes(slug)) {
+      toast(`${name} already in filter`);
+      return;
+    }
+    params.append("companies", slug);
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+    toast(`${name} added to filter`);
+  };
 
   const toggleCompletion = () => {
     if (isCompleted) {
@@ -164,6 +190,7 @@ export const ProblemRow = ({
             >
               {difficulty}
             </Badge>
+            {chips}
             {frequency && (
               <span title="Frequency" className="flex items-center gap-1">
                 <ClockIcon size={18} />{" "}
@@ -189,9 +216,16 @@ export const ProblemRow = ({
               </a>
             )}
           </div>
-          {companies.length > 0 && (
+          {companyChips && companyChips.length > 0 ? (
+            <CompanyAvatarGroup
+              companies={companyChips}
+              onCompanyClick={onCompanyChipClick}
+              maxVisible={5}
+            />
+          ) : companies.length > 0 ? (
             <CompanyAvatarGroup companies={companies} />
-          )}        </div>
+          ) : null}
+        </div>
         <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6" onClick={(e) => e.stopPropagation()}>
           {pickerMode ? (
             <div className="flex items-center gap-2">

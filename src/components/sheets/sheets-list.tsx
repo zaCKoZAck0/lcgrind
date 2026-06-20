@@ -36,7 +36,7 @@ export function SheetsList({ sheets }: { sheets: Sheet[] }) {
                     >
                         <div className="space-y-3">
                             <div className="flex gap-3 items-center">
-                                <SheetOwnerLogo alt={sheet.ownerName} src={SHEET_OWNER_LOGO_SRC[sheet.ownerName.toLowerCase()]} width={100} height={100} className="rounded-md size-16" />
+                                <SheetOwnerLogo alt={sheet.ownerName} src={SHEET_OWNER_LOGO_SRC[sheet.ownerName.toLowerCase()]} width={100} height={100} className="rounded-base size-16" />
                                 <div className="flex flex-col gap-1">
                                     <p className="font-semibold text-2xl">
                                         {sheet.name}

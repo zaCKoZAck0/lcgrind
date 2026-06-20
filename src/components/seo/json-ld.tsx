@@ -1,4 +1,8 @@
 import { BASE_URL } from "~/config/constants";
+import {
+  buildDiscussionForumPostingJsonLd,
+  type DiscussionForumPostingInput,
+} from "~/utils/discuss-seo";
 
 interface WebsiteJsonLdProps {
   name?: string;
@@ -118,6 +122,20 @@ export function FAQJsonLd({ items }: FAQJsonLdProps) {
     })),
   };
 
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// Discuss post structured data for EXPERIENCE/DISCUSSION pages. Built by the
+// pure helper so dates stay month-coarsened and no provenance leaks.
+export function DiscussionForumPostingJsonLd(
+  props: DiscussionForumPostingInput,
+) {
+  const jsonLd = buildDiscussionForumPostingJsonLd(props);
   return (
     <script
       type="application/ld+json"

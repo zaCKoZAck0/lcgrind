@@ -1,9 +1,12 @@
 "use server";
 
 import { db } from "~/lib/db";
-import { sanitizeProblems } from "~/lib/utils";
-import { ProblemWithStats } from "~/types/problem";
-import { getDbWhereClause, getOrderKey } from "~/utils/sorting";
+import { sanitizeAggregatedProblems } from "~/lib/utils";
+import type { AggregatedProblem, SanitizedAggregatedProblem } from "~/types/problem";
+import {
+    getAggregatedWhereClause,
+    getStatWindowColumn,
+} from "~/utils/sorting";
 
 export async function getRandomProblem(
     order: string,
@@ -14,15 +17,21 @@ export async function getRandomProblem(
     excludedIds: string[],
     slug: string = '',
     topicSlug?: string,
-) {
-    const orderKey = getOrderKey(order);
-    if (!Array.isArray(companies) && companies != null) companies = [companies];
+): Promise<SanitizedAggregatedProblem | null> {
+    const windowCol = getStatWindowColumn(order);
+    // Normalize companies to string[] | null so we can safely push slug below.
+    const userCompanies: string[] | null =
+        companies == null ? null : Array.isArray(companies) ? companies : [companies];
     if (!Array.isArray(tags) && tags != null) tags = [tags];
     let difficultiesArray: string[] | null = null;
     if (difficulties != null) {
         difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
     }
-    const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
+    const whereFrag = getAggregatedWhereClause(search, difficultiesArray);
+    // Company-wise pages pass slug as implicit company filter.
+    const companyFilter: string[] | null = slug
+        ? (userCompanies?.includes(slug) ? userCompanies : [...(userCompanies ?? []), slug])
+        : userCompanies;
 
     const topicJoin = topicSlug
         ? `INNER JOIN "ProblemsOnTopicTags" topic_pt ON p.id = topic_pt."problemId"
@@ -35,49 +44,57 @@ export async function getRandomProblem(
         .filter(id => !isNaN(id) && Number.isFinite(id) && id > 0);
 
     const exclusionParamIdx = topicSlug ? 4 : 3;
-    const exclusionClause = excludedIdsInt.length > 0
-        ? `AND p.id != ALL($${exclusionParamIdx}::int[])`
-        : '';
-    
+
     const query = `
-        SELECT
-            p.*,
-            AVG(s."${orderKey}") AS "order",
-            array_agg(DISTINCT sh.name) AS "companies",
-            array_agg(DISTINCT t."name") AS tags
-        FROM "Problem" p
-        LEFT JOIN "SheetProblem" s ON p.id = s."problemId"
-        LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
-        LEFT JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
-        LEFT JOIN "TopicTag" t ON pt."topicTagId" = t.id
-        ${topicJoin}
-        ${whereClause}
-        ${exclusionClause}
-        GROUP BY p.id
-        HAVING (
-            ($1::text[] IS NULL OR
-              COUNT(CASE WHEN sh.name = ANY($1::text[]) THEN 1 END) > 0)
-            AND
-            ($2::text[] IS NULL OR
-              COUNT(CASE WHEN t."name" = ANY($2::text[]) THEN 1 END) > 0)
+        WITH pc AS (
+            SELECT cqs."problemId" AS pid, co.slug, co.name, co."reportCount",
+                   SUM(cqs."${windowCol}") AS freq, SUM(cqs."askCount") AS ask_count,
+                   MAX(cqs."lastAsked") AS last_asked
+            FROM "CompanyQuestionStat" cqs
+            JOIN "Company" co ON co.id = cqs."companyId" AND co."reportCount" > 0 AND co.slug <> 'other'
+            WHERE cqs.band = 'all' AND cqs."problemId" IS NOT NULL
+            GROUP BY cqs."problemId", co.slug, co.name, co."reportCount"
+        ),
+        agg AS (
+            SELECT pid, SUM(freq) AS "order", MAX(last_asked) AS "recency",
+                   json_agg(json_build_object('slug', slug, 'name', name)
+                     ORDER BY report_count DESC, ask_count DESC, name ASC) AS companies
+            FROM pc WHERE ($1::text[] IS NULL OR slug = ANY($1::text[]))
+            GROUP BY pid
+        ),
+        ptags AS (
+            SELECT pt."problemId" AS pid, array_agg(DISTINCT t."name") AS tags
+            FROM "ProblemsOnTopicTags" pt JOIN "TopicTag" t ON pt."topicTagId" = t.id
+            GROUP BY pt."problemId"
         )
+        SELECT p.*, agg."order", agg."recency",
+               COALESCE(agg.companies, '[]'::json) AS "companies",
+               COALESCE(ptags.tags, '{}') AS tags
+        FROM "Problem" p
+        LEFT JOIN agg ON agg.pid = p.id
+        LEFT JOIN ptags ON ptags.pid = p.id
+        ${topicJoin}
+        WHERE ($1::text[] IS NULL OR agg.pid IS NOT NULL)
+          AND ($2::text[] IS NULL OR ptags.tags && $2::text[])
+          ${whereFrag ? `AND (${whereFrag})` : ''}
+          ${excludedIdsInt.length > 0 ? `AND p.id != ALL($${exclusionParamIdx}::int[])` : ''}
         ORDER BY RANDOM()
         LIMIT 1;
     `;
 
     try {
-        const params: unknown[] = [companies, tags];
+        const params: unknown[] = [companyFilter, tags];
         if (topicSlug) params.push(topicSlug);
         if (excludedIdsInt.length > 0) params.push(excludedIdsInt);
         
-        const problems = await db.$queryRawUnsafe<ProblemWithStats[]>(
+        const problems = await db.$queryRawUnsafe<AggregatedProblem[]>(
             query,
             ...params
         );
         if (problems.length === 0) {
             return null;
         }
-        return sanitizeProblems(problems)[0];
+        return sanitizeAggregatedProblems(problems)[0] ?? null;
     } catch (e) {
         console.error("Error fetching random problem:", e);
         return null;

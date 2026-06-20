@@ -15,7 +15,7 @@ export function AllCompaniesSkeleton() {
                         <Button key={key} className="h-fit py-6 cursor-pointer w-full" variant="neutral">
                             <div className="w-fit h-fit">
                                 <div className="flex gap-6 min-w-[360px] px-6">
-                                    <Skeleton className="size-16 rounded-md" />
+                                    <Skeleton className="size-16 rounded-base" />
                                     <div className="pt-1">
                                         <Skeleton className="h-6 w-[200px] mb-3" />
                                         <Skeleton className="h-5 w-[160px]" />

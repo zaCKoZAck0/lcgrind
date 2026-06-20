@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { BASE_URL } from "~/config/constants";
 import { getProblems } from "~/server/actions/problems/getProblems";
 import { getProblemIds } from "~/server/actions/problems/getProblemIds";
+import { getFilterCompanies } from "~/server/actions/companies/getFilterCompanies";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -44,10 +45,11 @@ export const metadata: Metadata = {
 
 export default async function AllProblemsPage() {
     // Server-fetch initial data for SSR (default params: all problems, sorted by question-id, page 1)
-    const [initialProblems, initialProblemIds] = await Promise.all([
+    const [initialProblems, initialProblemIds, companyOptions] = await Promise.all([
         getProblems("all-problems", "", "question-id", null, null, null, 1, ITEMS_PER_PAGE),
         getProblemIds("all-problems", "", null, null, null),
+        getFilterCompanies(),
     ]);
 
-    return <ProblemsPage initialProblems={initialProblems} initialProblemIds={initialProblemIds} />
+    return <ProblemsPage initialProblems={initialProblems} initialProblemIds={initialProblemIds} companyOptions={companyOptions} />
 }

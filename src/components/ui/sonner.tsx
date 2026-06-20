@@ -1,14 +1,11 @@
 "use client"
 
-import { useTheme } from "~/hooks/use-theme"
 import { Toaster as Sonner, ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = useTheme()
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={"light" as ToasterProps["theme"]}
       style={{ fontFamily: "inherit", overflowWrap: "anywhere" }}
       toastOptions={{
         unstyled: true,

@@ -14,10 +14,12 @@ import { Plus, Loader2 } from "lucide-react";
 import { Filters, type FilterValues } from "~/components/company/filter";
 import { ProblemRow } from "~/components/company/problem-row";
 import { getProblems } from "~/server/actions/problems/getProblems";
+import { getFilterCompanies } from "~/server/actions/companies/getFilterCompanies";
 import { useAppDispatch, useAppSelector, getProblemList } from "~/hooks/redux";
 import { addProblemsToList } from "~/store/problemListsSlice";
-import type { SanitizedProblem } from "~/lib/utils";
 import { toast } from "sonner";
+
+type PickerProblem = Awaited<ReturnType<typeof getProblems>>[number];
 
 const ITEMS_PER_PAGE = 50;
 
@@ -44,9 +46,16 @@ export function AddProblemsDialog({ listId }: AddProblemsDialogProps) {
 
   const [open, setOpen] = useState(false);
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
-  const [pages, setPages] = useState<SanitizedProblem[][]>([]);
+  const [pages, setPages] = useState<PickerProblem[][]>([]);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+
+  const { data: companyOptions } = useQuery({
+    queryKey: ["filter-companies"],
+    queryFn: () => getFilterCompanies(),
+    enabled: open,
+    staleTime: Infinity,
+  });
 
   const filterKey = [
     filters.order,
@@ -144,6 +153,7 @@ export function AddProblemsDialog({ listId }: AddProblemsDialogProps) {
           <Filters
             filters={{ sorting: DEFAULT_FILTERS.sort, order: DEFAULT_FILTERS.order, search: DEFAULT_FILTERS.search }}
             isProblemFilter
+            companyOptions={companyOptions}
             controlled={{
               onChange: setFilters,
               hideRandomPicker: true,

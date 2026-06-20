@@ -15,7 +15,6 @@ import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { ProblemRowSkeleton } from "../all-problems/problem-row-skeleton";
 import { useSearchParams } from "next/navigation";
 import { AdBanner } from "../ads/banner";
-import { useTheme } from "~/hooks/use-theme";
 import { getLogoUrl } from "~/utils/logo";
 import { GlobalPagination } from "../global-pagination";
 
@@ -30,7 +29,6 @@ interface CompanyPageProps {
 
 export function CompanyPage({ slug, initialProblems, initialProblemIds, initialSheet }: CompanyPageProps) {
     const searchParams = useSearchParams();
-    const theme = useTheme();
 
     const tagsParam = searchParams.getAll('tags');
     const tags = tagsParam.length > 0 ? tagsParam : [];
@@ -99,9 +97,9 @@ export function CompanyPage({ slug, initialProblems, initialProblemIds, initialS
                     {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                         <div className="flex gap-6 min-w-[360px]">
                             <Image
-                                src={getLogoUrl(logoDomain, theme)}
+                                src={getLogoUrl(logoDomain, "light")}
                                 alt={`${selectedSheet?.name} logo`}
-                                className="size-14 rounded-md"
+                                className="size-14 rounded-base"
                                 width={56}
                                 height={56}
                             />
@@ -155,7 +153,7 @@ export function CompanyPage({ slug, initialProblems, initialProblemIds, initialS
 const SheetSkeleton = () => {
     return (<div className="w-fit h-fit">
         <div className="flex gap-6 min-w-[360px]">
-            <Skeleton className="size-14 rounded-md" />
+            <Skeleton className="size-14 rounded-base" />
             <div className="pt-1">
                 <Skeleton className="h-5 w-[120px] mb-3" />
                 <Skeleton className="h-4 w-[180px]" />

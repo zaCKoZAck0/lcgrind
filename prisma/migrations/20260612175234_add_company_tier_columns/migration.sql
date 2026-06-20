@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Company" ADD COLUMN     "difficultyTier" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "payTier" INTEGER NOT NULL DEFAULT 0;

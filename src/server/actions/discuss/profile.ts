@@ -1,0 +1,52 @@
+import { type PrismaClient } from "@prisma/client";
+
+import { BADGE_BY_ID, type BadgeId } from "~/config/gamification";
+
+// ---------------------------------------------------------------------------
+// Public profile shape — the only user data that may leave the server for a
+// public page. Critically: no name, no email, no image, no exact dates.
+// id is included for server-side feed queries only (never rendered to clients).
+// ---------------------------------------------------------------------------
+export type PublicProfile = {
+    id: string;
+    handle: string;
+    avatar: string | null;
+    karma: number;
+    points: number;
+    badges: { id: BadgeId; label: string; description: string }[];
+};
+
+// Resolves a handle to its public profile. Returns null when the handle is
+// unknown or the account is banned (neither case should produce a 200 page).
+export async function getProfileByHandle(
+    db: PrismaClient,
+    handle: string,
+): Promise<PublicProfile | null> {
+    const row = await db.user.findUnique({
+        where: { handle },
+        select: {
+            id: true,
+            handle: true,
+            avatar: true,
+            karma: true,
+            points: true,
+            bannedAt: true,
+            badges: { select: { badge: true } },
+        },
+    });
+
+    if (!row || row.bannedAt !== null) return null;
+
+    const badges = row.badges
+        .map((b) => BADGE_BY_ID[b.badge as BadgeId])
+        .filter((b): b is NonNullable<typeof b> => Boolean(b));
+
+    return {
+        id: row.id,
+        handle: row.handle!,
+        avatar: row.avatar,
+        karma: row.karma,
+        points: row.points,
+        badges,
+    };
+}

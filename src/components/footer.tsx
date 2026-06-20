@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { useTheme } from "~/hooks/use-theme";
 import { getLogoUrl } from "~/utils/logo";
 import { LAST_UPDATED } from "~/config/last-updated";
 import {
@@ -56,7 +55,6 @@ function getRelativeTime(date: Date): string {
 }
 
 export const Footer = () => {
-    const theme = useTheme();
     const [relativeTime, setRelativeTime] = useState<string | null>(null);
     const [exactDate, setExactDate] = useState<string | null>(null);
 
@@ -100,7 +98,7 @@ export const Footer = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev" target="_blank" rel="noopener noreferrer nofollow"><Image src={getLogoUrl("logo.dev", theme)} className="rounded-md" alt="Logo.dev logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-base bg-secondary-background text-foreground" href="https://logo.dev" target="_blank" rel="noopener noreferrer nofollow"><Image src={getLogoUrl("logo.dev", "light")} className="rounded-base" alt="Logo.dev logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 

@@ -18,7 +18,6 @@ import { DEFAULT_REVALIDATION, SHEET_OWNER_LOGO_SRC } from "~/config/constants";
 import { getSheetMetadata } from "~/server/actions/sheets/getSheetMetadata";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { useTheme } from "~/hooks/use-theme";
 import { addThemeToLogoUrl } from "~/utils/logo";
 import { SheetSettingsPanel } from "./sheet-settings-panel";
 import { SheetFilters } from "./sheet-filters";
@@ -122,7 +121,6 @@ interface SheetProps {
 
 export function Sheet({ slug, initialProblems, initialSheet }: SheetProps) {
 
-    const theme = useTheme();
     const settings = useAppSelector(
         state => state.sheetSettings.sheets[slug] ?? defaultSettings
     );
@@ -203,9 +201,9 @@ export function Sheet({ slug, initialProblems, initialSheet }: SheetProps) {
                 {isSheetLoading ? <SheetSkeleton /> : (<div className="w-fit h-fit">
                     <div className="flex gap-6 min-w-[360px]">
                         <Image
-                            src={addThemeToLogoUrl(SHEET_OWNER_LOGO_SRC[selectedSheet?.ownerName.toLowerCase()], theme)}
+                            src={addThemeToLogoUrl(SHEET_OWNER_LOGO_SRC[selectedSheet?.ownerName.toLowerCase()], "light")}
                             alt={`${selectedSheet?.name} logo`}
-                            className="size-14 rounded-md"
+                            className="size-14 rounded-base"
                             width={56}
                             height={56}
                         />
@@ -317,7 +315,7 @@ export function Sheet({ slug, initialProblems, initialSheet }: SheetProps) {
 const SheetSkeleton = () => {
     return (<div className="w-fit h-fit">
         <div className="flex gap-6 min-w-[360px]">
-            <Skeleton className="size-14 rounded-md" />
+            <Skeleton className="size-14 rounded-base" />
             <div className="flex flex-col justify-between">
                 <Skeleton className="h-7 w-[200px] mb-1" />
                 <Skeleton className="h-5 w-[140px]" />
