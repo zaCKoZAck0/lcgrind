@@ -12,7 +12,7 @@ import {
     Bell,
 } from "lucide-react";
 import Link from "next/link";
-import { Button, buttonVariants } from "../ui/button";
+import { buttonVariants } from "../ui/button";
 import { cn } from "~/lib/utils";
 import { isCurrentUserAdmin } from "~/server/actions/admin/whoami";
 import { getMyPoints } from "~/server/actions/gamification/actions";
@@ -33,7 +33,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { signIn, signOut, useSession } from "~/lib/auth-client";
+import { signOut, useSession } from "~/lib/auth-client";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export function UserMenu() {

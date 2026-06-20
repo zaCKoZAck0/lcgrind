@@ -166,7 +166,7 @@ export async function syncSocialBadges(db: PrismaClient, userId: string): Promis
     if (FEATURE_FLAGS.NOTIFICATIONS) {
         const { notify } = await import("../notifications/core");
         await Promise.all(
-            newBadges.map((badge) =>
+            newBadges.map(() =>
                 notify(db, { userId, type: "BADGE", actorId: null }).catch(() => undefined),
             ),
         );

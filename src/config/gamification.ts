@@ -25,7 +25,7 @@ export const BADGES: { id: BadgeId; label: string; description: string }[] = [
     { id: "first-report", label: "First Report", description: "Shared your first interview experience" },
     { id: "five-reports", label: "5 Reports", description: "Five approved interview reports" },
     { id: "twenty-five-reports", label: "25 Reports", description: "Twenty-five approved interview reports" },
-    ...(FEATURE_FLAGS.COMPENSATION ? [{ id: "comp-contributor", label: "Comp Contributor", description: "Contributed compensation data" }] : []),
+    ...(FEATURE_FLAGS.COMPENSATION ? [{ id: "comp-contributor" as const, label: "Comp Contributor", description: "Contributed compensation data" }] : []),
     { id: "multi-company", label: "Multi-Company", description: "Reports across three or more companies" },
     { id: "first-post", label: "First Post", description: "Published your first post on Discuss" },
     { id: "karma-10", label: "Karma 10", description: "Reached 10 karma from community votes" },

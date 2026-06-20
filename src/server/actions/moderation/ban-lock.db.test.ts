@@ -3,7 +3,6 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { banUserCore, lockPostCore, shadowContentCore } from "./core";
 import { addCommentCore } from "../comments/core";
-import { castVoteCore } from "../votes/core";
 import { createPostCore } from "../posts/core";
 
 const db = new PrismaClient({

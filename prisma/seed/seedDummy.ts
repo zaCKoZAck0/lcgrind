@@ -44,7 +44,7 @@ const CURATED_SHEET_DEFS = [
 ];
 
 function makeHandle(): string {
-    let h = faker.internet.userName().toLowerCase().replace(/[^a-z0-9_]/g, "_");
+    let h = faker.internet.username().toLowerCase().replace(/[^a-z0-9_]/g, "_");
     h = h.replace(/^[^a-z]+/, "");
     if (h.length < 3) h = "u" + h + faker.string.alphanumeric({ length: 2 });
     return h.slice(0, 20);

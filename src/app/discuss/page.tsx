@@ -17,7 +17,7 @@ import { PostCard } from "~/components/discuss/post-card";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { buttonVariants } from "~/components/ui/button";
-import { Badge, badgeVariants } from "~/components/ui/badge";
+import { badgeVariants } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
