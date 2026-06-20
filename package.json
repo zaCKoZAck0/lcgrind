@@ -11,6 +11,7 @@
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
     "seed:dummy": "tsx prisma/seed/seedDummy.ts",
     "seed:dummy:reset": "tsx prisma/seed/seedDummy.ts --reset",
+    "seed:sheets": "tsx prisma/seed/seedSheets.ts",
     "seed:interview": "tsx prisma/seed/seedInterview.ts"
   },
   "dependencies": {
