@@ -12,7 +12,7 @@ export default function SheetPageLoading() {
             <div className="p-6 border-2 border-border bg-card flex flex-col md:flex-row justify-between gap-6">
                 <div className="w-fit h-fit">
                     <div className="flex gap-6 min-w-[360px]">
-                        <Skeleton className="size-14 rounded-md" />
+                        <Skeleton className="size-14 rounded-base" />
                         <div className="flex flex-col justify-between">
                             <Skeleton className="h-7 w-[200px] mb-1" />
                             <Skeleton className="h-5 w-[140px]" />

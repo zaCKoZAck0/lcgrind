@@ -7,13 +7,18 @@ import {
   TOP_PRODUCT_COMPANIES_INDIA,
 } from "~/config/constants";
 import { getLogoUrl } from "~/utils/logo";
-import { useTheme } from "~/hooks/use-theme";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "~/lib/utils";
 
+type CompanyItem = { slug: string; name: string };
+
 interface CompanyAvatarGroupProps {
-  companies: string[];
+  // Legacy string[] (sheet names, non-clickable) or {slug,name}[] (interview0
+  // chips, clickable when onCompanyClick is set).
+  companies: (string | CompanyItem)[];
+  onCompanyClick?: (slug: string, name: string) => void;
+  maxVisible?: number;
 }
 
 const PREFERRED_COMPANIES = new Set([
@@ -22,9 +27,13 @@ const PREFERRED_COMPANIES = new Set([
   ...TOP_PRODUCT_COMPANIES_INDIA,
 ]);
 
-function sortCompanies(companies: string[]): string[] {
-  const preferred = companies.filter((c) => PREFERRED_COMPANIES.has(c));
-  const rest = companies.filter((c) => !PREFERRED_COMPANIES.has(c));
+function normalize(c: string | CompanyItem): CompanyItem {
+  return typeof c === "string" ? { slug: "", name: c } : c;
+}
+
+function sortCompanies(companies: CompanyItem[]): CompanyItem[] {
+  const preferred = companies.filter((c) => PREFERRED_COMPANIES.has(c.name));
+  const rest = companies.filter((c) => !PREFERRED_COMPANIES.has(c.name));
   return [...preferred, ...rest];
 }
 
@@ -36,43 +45,68 @@ function getCompanyDomain(company: string): string {
   );
 }
 
-export function CompanyAvatarGroup({ companies }: CompanyAvatarGroupProps) {
-  const theme = useTheme();
-  const sorted = sortCompanies(companies);
-  const total = sorted.length;
-  const maxVisible = 7;
-  const visibleCompanies = sorted.slice(0, maxVisible);
+export function CompanyAvatarGroup({
+  companies,
+  onCompanyClick,
+  maxVisible = 7,
+}: CompanyAvatarGroupProps) {
+  const items = companies.map(normalize);
+  // {slug,name} objects arrive pre-ordered by ask_count DESC from SQL — preserve
+  // that. Legacy string[] sheet names get the preferred-first sort.
+  const isStructured = companies.length > 0 && typeof companies[0] !== 'string';
+  const ordered = isStructured ? items : sortCompanies(items);
+  const total = ordered.length;
+  const visibleCompanies = ordered.slice(0, maxVisible);
+  const clickable = Boolean(onCompanyClick);
 
   return (
     <div className="mt-3 flex items-center">
       {visibleCompanies.map((company, i) => {
-        const domain = getCompanyDomain(company);
+        const domain = getCompanyDomain(company.name);
+        const avatar = (
+          <Avatar className="size-9 outline-none ring-2 ring-border shadow bg-secondary-background">
+            <AvatarImage
+              src={getLogoUrl(domain, "light")}
+              alt={company.name}
+              className="object-contain bg-transparent"
+            />
+            <AvatarFallback className="text-xs">
+              {company.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        );
         return (
-          <Tooltip key={company}>
+          <Tooltip key={company.slug || company.name}>
             <TooltipTrigger asChild>
-              <div className={cn("relative", i > 0 && "-ml-1")}>
-                <Avatar className="size-9 outline-none ring-2 ring-border shadow bg-secondary-background">
-                  <AvatarImage
-                    src={getLogoUrl(domain, theme)}
-                    alt={company}
-                    className="object-contain bg-transparent"
-                  />
-                  <AvatarFallback className="text-xs">
-                    {company.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+              {clickable ? (
+                <button
+                  type="button"
+                  aria-label={`Filter by ${company.name}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCompanyClick?.(company.slug, company.name);
+                  }}
+                  className={cn(
+                    "relative cursor-pointer transition-transform hover:-translate-y-0.5 focus:outline-none",
+                    i > 0 && "-ml-1",
+                  )}
+                >
+                  {avatar}
+                </button>
+              ) : (
+                <div className={cn("relative", i > 0 && "-ml-1")}>{avatar}</div>
+              )}
             </TooltipTrigger>
-            <TooltipContent>{company}</TooltipContent>
+            <TooltipContent>{company.name}</TooltipContent>
           </Tooltip>
         );
       })}
 
       {/* Responsive overflow indicators */}
-      {total > 7 && (
+      {total > maxVisible && (
         <OverflowIndicator
-          count={total - 7}
-          hiddenCompanies={sorted.slice(7)}
+          count={total - maxVisible}
+          hiddenCompanies={ordered.slice(maxVisible).map((c) => c.name)}
         />
       )}
     </div>

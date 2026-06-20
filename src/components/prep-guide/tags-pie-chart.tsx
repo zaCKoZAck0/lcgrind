@@ -118,19 +118,19 @@ export function TagsPieChart({ dataStructures, algorithms, totalProblemsCount }:
                 {chartData.length > 0 && (
                     <Select value={activeTag} onValueChange={setActiveTag}>
                         <SelectTrigger
-                            className="ml-auto h-7 w-full max-w-[200px] rounded-lg pl-2.5"
+                            className="ml-auto h-7 w-full max-w-[200px] pl-2.5"
                             aria-label="Select a tag"
                         >
                             <SelectValue placeholder="Select tag" />
                         </SelectTrigger>
-                        <SelectContent align="end" className="rounded-xl max-w-[280px]">
+                        <SelectContent align="end" className="max-w-[280px]">
                             {tags.map((tag) => {
                                 const index = chartData.findIndex(item => item.name === tag);
                                 return (
                                     <SelectItem
                                         key={tag}
                                         value={tag}
-                                        className="rounded-lg [&_span]:flex"
+                                        className="[&_span]:flex"
                                     >
                                         <div className="flex items-center gap-2 text-xs">
                                             <span

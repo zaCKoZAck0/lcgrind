@@ -4,14 +4,12 @@ import { Download, Upload, RefreshCw } from "lucide-react"
 import { useRef } from "react"
 import { toast } from "sonner"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { Button } from "~/components/ui/button"
 import { useAppSelector, useAppDispatch } from "~/hooks/redux"
 import { markCompleted } from "~/store/completedProblemsSlice"
 import { addNote } from "~/store/problemNotesSlice"
@@ -26,7 +24,7 @@ interface ExportedData {
 
 const EXPORT_VERSION = 1
 
-export function SyncDropdown() {
+export function SyncMenuItems() {
   const dispatch = useAppDispatch()
   const completedProblems = useAppSelector((state) => state.completedProblems)
   const problemNotes = useAppSelector((state) => state.problemNotes)
@@ -188,25 +186,24 @@ export function SyncDropdown() {
         className="hidden"
         aria-label="Import backup file"
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="neutral" size="icon" aria-label="Sync progress">
-            <RefreshCw className="size-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Sync Progress</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExport}>
-            <Download className="mr-2 size-4" />
-            Export Data
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleImportClick}>
-            <Upload className="mr-2 size-4" />
-            Import Data
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <RefreshCw className="mr-2 size-4" />
+          Sync Progress
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem onClick={handleExport}>
+              <Download className="mr-2 size-4" />
+              Export Data
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleImportClick}>
+              <Upload className="mr-2 size-4" />
+              Import Data
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
     </>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { Button } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
 
 export default function Error({
     error,
@@ -21,16 +23,8 @@ export default function Error({
                 An unexpected error occurred. Please try again.
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
-                <button
-                    onClick={reset}
-                    className="px-6 py-3 bg-main text-main-foreground border-2 border-border font-semibold hover:shadow-shadow transition-shadow cursor-pointer"
-                >
-                    Try Again
-                </button>
-                <Link
-                    href="/"
-                    className="px-6 py-3 bg-card text-foreground border-2 border-border font-semibold hover:shadow-shadow transition-shadow"
-                >
+                <Button onClick={reset}>Try Again</Button>
+                <Link href="/" className={buttonVariants({ variant: "neutral" })}>
                     Go Home
                 </Link>
             </div>

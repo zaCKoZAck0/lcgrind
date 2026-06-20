@@ -16,7 +16,12 @@ export interface TotalCountResult {
 export interface CompanyDetails {
   name: string;
   slug: string;
-  numOfProblems: number;
+  /** Boolean only: raw report counts never leave the server. */
+  hasReports: boolean;
+  lastSeen: string | null;
+  hasComp: boolean;
+  payTier: import("~/utils/company-tiers").TierLevel;
+  difficultyTier: import("~/utils/company-tiers").TierLevel;
 }
 
 export type TSheetProblem = SheetProblem & {

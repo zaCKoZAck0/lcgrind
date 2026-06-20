@@ -1,11 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ThemeToggle } from "~/components/theme-toggle"
-import { SyncDropdown } from "~/components/sync-dropdown"
 import { buttonVariants } from "./ui/button"
-import { Twitter } from "./home/tweet"
 import { HeartIcon } from "lucide-react"; 
 import { NavLinks } from "./nav-links"
+import { MobileNav } from "./mobile-nav"
+import { UserMenu } from "./auth/user-menu"
 import { cn } from "~/lib/utils"
 
 
@@ -13,7 +12,7 @@ interface RepoData {
   stargazers_count: number
 }
 
-async function getRepoData(): Promise<RepoData> {
+async function getRepoData(): Promise<RepoData | null> {
   try {
     const res = await fetch(
       "https://api.github.com/repos/zaCKoZAck0/lcgrind",
@@ -28,22 +27,24 @@ async function getRepoData(): Promise<RepoData> {
     )
 
     if (!res.ok) {
-      return { stargazers_count: 0 }
+      return null
     }
 
     return (res.json()) as unknown as RepoData;
   } catch {
-    return { stargazers_count: 0 }
+    return null
   }
 }
 
 export async function Header() {
   const repo = await getRepoData();
-  const starsCount = (repo.stargazers_count ?? 0);
+  // A failed fetch must not render as "0 stars"; hide the count instead.
+  const starsCount = repo?.stargazers_count || null;
   return (
     <header className="sticky top-2 z-50 w-full shadow-shadow bg-main text-main-foreground border-2 border-border">
       <div className="w-full flex h-14 items-center justify-between px-4 md:px-6 lg:px-8">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <MobileNav />
           <Link href="/">
             <Image
               src="/images/logo.svg"
@@ -61,9 +62,13 @@ export async function Header() {
             rel="noopener noreferrer"
             href="https://github.com/zaCKoZAck0/lcgrind"
             className={buttonVariants({ variant: "neutral" })}
-            aria-label={`Star LC Grind on GitHub (${starsCount} stars)`}
+            aria-label={
+              starsCount === null
+                ? "Star LC Grind on GitHub"
+                : `Star LC Grind on GitHub (${starsCount} stars)`
+            }
           >
-            <p className="font-semibold">{starsCount}</p>
+            {starsCount !== null && <p className="font-semibold">{starsCount}</p>}
 
             <svg
               className="size-5"
@@ -96,19 +101,7 @@ export async function Header() {
           >
             <HeartIcon className="size-5" />
           </a>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://x.com/zaCKoZAck0/status/1913558597688009006"
-            className={buttonVariants({ variant: "neutral", size: "icon" })}
-            aria-label="Follow LC Grind on X (Twitter)"
-          >
-            <Twitter className="size-5" />
-          </a>
-          <div className="hidden md:block">
-            <SyncDropdown />
-          </div>
-          <ThemeToggle />
+          <UserMenu />
         </div>
       </div>
     </header>

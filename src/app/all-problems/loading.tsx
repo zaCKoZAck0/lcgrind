@@ -9,7 +9,7 @@ export default function AllProblemsPageLoading() {
             </div>
 
             {/* Filter bar skeleton */}
-            <div className="w-full bg-card flex flex-col md:flex-row border-2 border-border">
+            <div className="w-full bg-card flex flex-col md:flex-row border-2 border-border rounded-base shadow-shadow">
                 <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
                     <div className="flex gap-3">
                         <Skeleton className="h-10 w-[120px]" />

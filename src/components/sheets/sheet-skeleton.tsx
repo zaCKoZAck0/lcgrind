@@ -3,7 +3,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 export function SheetCardSkeleton() {
     return (
         <div className="border-2 border-border p-4 flex items-center gap-4">
-            <Skeleton className="size-12 rounded-md flex-shrink-0" />
+            <Skeleton className="size-12 rounded-base flex-shrink-0" />
             <div className="flex-grow">
                 <Skeleton className="h-6 w-[180px] mb-2" />
                 <Skeleton className="h-4 w-[100px]" />

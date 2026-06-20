@@ -10,38 +10,37 @@ const ITEMS_PER_PAGE = 24;
 export const revalidate = 86400; // Revalidate every 24 hours
 
 export const metadata: Metadata = {
-    title: "Company Wise LeetCode Questions | Top Tech Companies",
+    title: "Company Interview Questions & Compensation | Top Tech Companies",
     description:
-        "Browse LeetCode interview questions sorted by company. Access free practice problems for Google, Meta, Amazon, Microsoft, Netflix, and 700+ other top tech firms.",
+        "Real interview experiences by company: rounds, coding questions, system design, and compensation insights for Google, Meta, Amazon, Microsoft, and 1000+ other tech firms.",
     keywords: [
-        "company wise leetcode questions",
-        "leetcode by company",
+        "company interview questions",
+        "interview experience by company",
         "faang interview questions",
         "maang interview prep",
-        "google leetcode questions",
+        "google interview questions",
         "meta interview questions",
         "amazon coding interview",
         "microsoft interview preparation",
         "tech company interview prep",
+        "software engineer compensation",
         "coding interview questions by company",
-        "leetcode company problems",
-        "free leetcode premium",
     ],
     alternates: {
         canonical: `${BASE_URL}/companies`,
     },
     openGraph: {
-        title: "Company Wise LeetCode Questions | 700+ Companies",
+        title: "Company Interview Questions & Compensation | 1000+ Companies",
         description:
-            "Browse LeetCode problems asked by 700+ companies including Google, Meta, Amazon, Microsoft, and more.",
+            "Real interview rounds, questions, and compensation insights for 1000+ companies including Google, Meta, Amazon, and Microsoft.",
         url: `${BASE_URL}/companies`,
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
-        title: "Company Wise LeetCode Questions | 700+ Companies | LC Grind",
+        title: "Company Interview Questions & Compensation | LC Grind",
         description:
-            "Browse LeetCode problems asked by 700+ companies including Google, Meta, Amazon, Microsoft, and more.",
+            "Real interview rounds, questions, and compensation insights for 1000+ companies including Google, Meta, Amazon, and Microsoft.",
     },
 };
 
@@ -54,7 +53,7 @@ export default async function CompaniesPage() {
                 <h1 className="md:text-5xl text-3xl p-6 font-bold relative">
                     <Star9 className="absolute size-10 top-0 left-0 text-main" />
                     <span>
-                        Company Wise LeetCode Questions
+                        Company Interviews and Compensation
                     </span>
                     <Star9 className="absolute size-10 bottom-0 right-0 text-main" />
                 </h1>

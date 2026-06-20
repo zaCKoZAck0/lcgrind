@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { buttonVariants } from "~/components/ui/button";
 
 export const metadata: Metadata = {
     title: "Page Not Found",
@@ -19,22 +20,11 @@ export default function NotFound() {
                 The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
-                <Link
-                    href="/"
-                    className="px-6 py-3 bg-main text-main-foreground border-2 border-border font-semibold hover:shadow-shadow transition-shadow"
-                >
-                    Go Home
-                </Link>
-                <Link
-                    href="/companies"
-                    className="px-6 py-3 bg-card text-foreground border-2 border-border font-semibold hover:shadow-shadow transition-shadow"
-                >
+                <Link href="/" className={buttonVariants()}>Go Home</Link>
+                <Link href="/companies" className={buttonVariants({ variant: "neutral" })}>
                     Browse Companies
                 </Link>
-                <Link
-                    href="/sheets"
-                    className="px-6 py-3 bg-card text-foreground border-2 border-border font-semibold hover:shadow-shadow transition-shadow"
-                >
+                <Link href="/sheets" className={buttonVariants({ variant: "neutral" })}>
                     DSA Sheets
                 </Link>
             </div>

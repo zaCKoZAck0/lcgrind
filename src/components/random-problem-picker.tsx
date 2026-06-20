@@ -26,7 +26,8 @@ import { useAppDispatch, useAppSelector, isProblemCompleted } from "~/hooks/redu
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { getRandomProblem } from "~/server/actions/problems/getRandomProblem";
 import { difficultyColor } from "~/utils/sorting";
-import { cn, SanitizedProblem } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import type { SanitizedAggregatedProblem } from "~/types/problem";
 import { NotesViewer } from "~/components/problem-notes";
 import {
     MAANG_COMPANIES,
@@ -62,7 +63,7 @@ export function RandomProblemPicker({
 }: RandomProblemPickerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [problem, setProblem] = useState<SanitizedProblem | null>(null);
+    const [problem, setProblem] = useState<SanitizedAggregatedProblem | null>(null);
     const [allSolved, setAllSolved] = useState(false);
     const [includeCompleted, setIncludeCompleted] = useState(false);
     const [showTags, setShowTags] = useState(false);
@@ -252,11 +253,11 @@ export function RandomProblemPicker({
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             {problem.companies.filter(Boolean).map((company) => (
                                                 <Badge
-                                                    key={company}
-                                                    variant={TOP_COMPANIES.has(company) ? "neutral" : "default"}
+                                                    key={company.slug}
+                                                    variant={TOP_COMPANIES.has(company.name) ? "neutral" : "default"}
                                                     className="px-2 py-1 bg-muted text-xs text-muted-foreground"
                                                 >
-                                                    {company}
+                                                    {company.name}
                                                 </Badge>
                                             ))}
                                         </div>

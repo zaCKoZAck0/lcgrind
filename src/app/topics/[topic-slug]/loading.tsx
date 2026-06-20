@@ -23,7 +23,7 @@ export default function TopicLoading() {
             </div>
 
             <div className="shadow-shadow">
-                <div className="w-full bg-card flex flex-col md:flex-row border-2 border-border">
+                <div className="w-full bg-card flex flex-col md:flex-row border-2 border-border rounded-base">
                     <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
                         <Skeleton className="h-9 w-[120px]" />
                         <Skeleton className="h-9 w-full" />

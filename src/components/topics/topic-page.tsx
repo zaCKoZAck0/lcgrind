@@ -137,7 +137,7 @@ export function TopicPage({
                               acceptance={problem.acceptance}
                               isPaid={problem.isPaid}
                               tags={problem.tags}
-                              companies={problem.companies}
+                              companyChips={problem.companies ?? []}
                           />
                       ))}
             </div>

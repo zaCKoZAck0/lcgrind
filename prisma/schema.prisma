@@ -29,6 +29,9 @@ model Problem {
 
   SheetProblem SheetProblem[]
 
+  questionStats CompanyQuestionStat[]
+  communityAsks CommunityQuestionAsk[]
+
   @@index([url])
 }
 
@@ -89,4 +92,420 @@ model Sheet {
   updatedAt    DateTime       @updatedAt
   SheetProblem SheetProblem[]
   isCompany    Boolean        @default(false)
+  company      Company?
+}
+
+model Company {
+  id          Int     @id @default(autoincrement())
+  slug        String  @unique
+  name        String
+  reportCount Int     @default(0)
+  // Month granularity (YYYY-MM) by design: imported data carries nothing finer
+  lastSeen    String?
+  sheetId     Int?    @unique
+  sheet       Sheet?  @relation(fields: [sheetId], references: [id])
+
+  // Quintile rank vs all qualifying companies, materialized by
+  // recomputeCompanyTiers (runs at seed end and on admin approval).
+  // 0 = hidden (thin data).
+  payTier        Int @default(0)
+  difficultyTier Int @default(0)
+
+  questionStats CompanyQuestionStat[]
+  compRollups   CompRollup[]
+  compCurves    CompCurve[]
+  submissions   Submission[]
+  communityAsks CommunityQuestionAsk[]
+  communityComp CommunityCompPoint[]
+  posts         Post[]
+}
+
+// Seeded comp aggregates: percentiles + histogram per grouping key, native
+// currency only (no FX conversion by design). Replaced per company on re-seed.
+
+model CompRollup {
+  id          Int     @id @default(autoincrement())
+  companyId   Int
+  company     Company @relation(fields: [companyId], references: [id])
+  roleFamily  String
+  level       String
+  expBand     String
+  currency    String
+  n           Int
+  tcP25       Float
+  tcMedian    Float
+  tcP75       Float
+  baseMedian  Float?
+  expMedian   Float?
+  tcHistogram Json
+
+  @@unique([companyId, roleFamily, level, expBand, currency])
+  @@index([companyId])
+}
+
+// Median TC per experience year for the exp-vs-pay chart, per currency.
+
+model CompCurve {
+  id        Int     @id @default(autoincrement())
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+  currency  String
+  points    Json
+
+  @@unique([companyId, currency])
+}
+
+// Seeded aggregate from the manual interview import; replaced wholesale per
+// company on re-seed. Community-contributed rows live in separate tables.
+
+model CompanyQuestionStat {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  band      String
+  type      String
+  kind      String
+  statement String
+  problemId Int?
+  problem   Problem? @relation(fields: [problemId], references: [id])
+  askCount   Int      @default(0)
+  // Rolling trailing-window ask counts, anchored at export run date. Drive sort
+  // order only; never rendered as numbers on the FE.
+  ask30d     Int      @default(0)
+  ask90d     Int      @default(0)
+  ask180d    Int      @default(0)
+  ask365d    Int      @default(0)
+  lastAsked  String?
+  firstAsked String?
+
+  @@unique([companyId, band, type, statement])
+  @@index([companyId, band])
+}
+
+// User-shared interview experiences. Paragraph (TEXT) or structured (FORM)
+// payloads; nothing is parsed or published until an admin acts on it.
+
+model Submission {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId   Int?
+  company     Company? @relation(fields: [companyId], references: [id])
+  companyName String
+  mode        String // TEXT | FORM
+  rawText     String?
+  structured  Json?
+  parsed      Json?
+  status      String   @default("PENDING") // PENDING | PARSED | APPROVED | REJECTED
+  adminNote   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  communityAsks CommunityQuestionAsk[]
+  communityComp CommunityCompPoint[]
+
+  // Discuss link: the private admin copy forked from a public EXPERIENCE Post.
+  // version bumps each time the author edits the public post before it is merged.
+  postId  String? @unique
+  post    Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  version Int     @default(1)
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+// Public/social plane. A Post is what users see and discuss; for EXPERIENCE it
+// has a forked Submission copy feeding the data plane. status drives visibility;
+// score/up/down/hotRank are denormalized from votes (see Vote, later phases).
+model Post {
+  id                String    @id @default(cuid())
+  type              String? // "EXPERIENCE" for structured experience; null for plain text posts
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  companyId         Int?
+  company           Company?  @relation(fields: [companyId], references: [id])
+  title             String
+  slug              String
+  body              String
+  isAnonymous       Boolean   @default(false)
+  score             Int       @default(0)
+  upCount           Int       @default(0)
+  downCount         Int       @default(0)
+  hotRank           Float     @default(0)
+  commentCount      Int       @default(0)
+  // FK to Comment lands with the comments slice; kept as a plain id until then.
+  acceptedCommentId String?
+  status            String    @default("PUBLISHED") // PUBLISHED | TOMBSTONED | REMOVED | SHADOW
+  lockedAt          DateTime?
+  // Set once the forked submission is merged; later social edits stop spawning
+  // admin versions and never touch aggregates (point-in-time, anti-gaming).
+  parseFrozen       Boolean   @default(false)
+  editedAt          DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  submission Submission?
+  comments   Comment[]
+  tags       PostTags[]
+
+  // Weighted FTS vector (title=A, body=B), generated/stored by the
+  // add_post_search migration. Prisma can't express the GENERATED expression,
+  // so it is modeled as Unsupported here purely to avoid migration drift.
+  searchVector Unsupported("tsvector")?
+
+  @@index([status, hotRank])
+  @@index([companyId, type])
+  @@index([authorId])
+  @@index([searchVector], type: Gin)
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+// Curated flair taxonomy, seeded from config POST_TAGS. Author-chosen and
+// deliberately separate from the algorithmic TopicTag — these drive the compose
+// flair picker, the feed tag filter, and the /discuss/tag/[slug] landing pages.
+model PostTag {
+  id    Int        @id @default(autoincrement())
+  slug  String     @unique
+  name  String
+  posts PostTags[]
+}
+
+// Many-to-many join between Post and the curated PostTag.
+model PostTags {
+  postId String
+  post   Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId  Int
+  tag    PostTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+// Threaded comments as an adjacency list. parentId links the tree; rootId and
+// depth are denormalized at write time so the whole thread fetches with one
+// query and assembles in memory (see buildCommentTree). status drives the
+// tombstone placeholder; score/up/down are denormalized from votes (later).
+model Comment {
+  id          String    @id @default(cuid())
+  postId      String
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Comment[] @relation("CommentReplies")
+  // Top-level ancestor id; null for a root comment (it is its own thread).
+  rootId      String?
+  depth       Int       @default(0)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body        String
+  isAnonymous Boolean   @default(false)
+  status      String    @default("PUBLISHED") // PUBLISHED | TOMBSTONED
+  score       Int       @default(0)
+  upCount     Int       @default(0)
+  downCount   Int       @default(0)
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([rootId])
+}
+
+// Granular rows written only when an admin approves a submission. Merged with
+// seeded aggregates at read time; never touched by the interview re-seed.
+
+model CommunityQuestionAsk {
+  id           String     @id @default(cuid())
+  companyId    Int
+  company      Company    @relation(fields: [companyId], references: [id])
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  band         String
+  type         String
+  statement    String
+  problemId    Int?
+  problem      Problem?   @relation(fields: [problemId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@index([companyId, band])
+  @@index([submissionId])
+}
+
+model CommunityCompPoint {
+  id           String     @id @default(cuid())
+  companyId    Int
+  company      Company    @relation(fields: [companyId], references: [id])
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  roleFamily   String
+  level        String?
+  expYears     Float?
+  expBand      String
+  currency     String
+  base         Float?
+  tc           Float
+  createdAt    DateTime   @default(now())
+
+  @@index([companyId, currency])
+  @@index([submissionId])
+}
+
+model User {
+  id            String       @id
+  name          String
+  email         String
+  emailVerified Boolean      @default(false)
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  points        Int          @default(0)
+  // Discuss identity & social reputation. handle is the public pseudonym (real
+  // name/email never shown); karma is net upvotes received, distinct from points.
+  handle        String?      @unique
+  avatar        String?
+  karma         Int          @default(0)
+  bannedAt      DateTime?
+  // Null until the user completes the post-login profile setup popup.
+  onboardedAt   DateTime?
+  sessions      Session[]
+  accounts      Account[]
+  submissions   Submission[]
+  ledger        PointsLedger[]
+  badges        UserBadge[]
+  posts         Post[]
+  comments      Comment[]
+  votes         Vote[]
+  reports       Report[]
+  notifications Notification[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+// In-app notifications. actorId is null when the actor posted anonymously (show
+// as "Someone"). Types: REPLY_POST, REPLY_COMMENT, MENTION, BADGE.
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String   // REPLY_POST | REPLY_COMMENT | MENTION | BADGE
+  actorId    String?  // null = anonymous actor
+  postId     String?
+  commentId  String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}
+
+// Up/down vote on a post or comment. Polymorphic (targetType + targetId) so one
+// table covers both targets; the unique key makes re-voting a toggle/flip. The
+// target's score/up/down counts and the author's karma are denormalized from
+// these rows on write. value is +1 or -1.
+model Vote {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetType String // POST | COMMENT
+  targetId   String
+  value      Int // +1 | -1
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])
+}
+
+// A user flagging a post or comment. Polymorphic like Vote (targetType +
+// targetId). The unique key blocks a user double-reporting the same target.
+// status drives the admin queue: OPEN until an admin acts (RESOLVED on
+// soft-delete, DISMISSED if no action).
+model Report {
+  id         String   @id @default(cuid())
+  reporterId String
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType String // POST | COMMENT
+  targetId   String
+  reason     String
+  status     String   @default("OPEN") // OPEN | RESOLVED | DISMISSED
+  createdAt  DateTime @default(now())
+
+  @@unique([reporterId, targetType, targetId])
+  @@index([targetType, targetId])
+  @@index([status])
+}
+
+// Auditable points history: every award or reversal is a signed entry tied to
+// its submission. User.points is the running total kept in sync alongside.
+model PointsLedger {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissionId String
+  delta        Int
+  reason       String
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([submissionId])
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     String
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badge])
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }

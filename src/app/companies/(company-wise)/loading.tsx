@@ -3,53 +3,43 @@ import { Skeleton } from "~/components/ui/skeleton"
 export default function CompanyPageLoading() {
     return (
         <div className="w-full max-w-[1000px] py-6">
-            {/* Company header skeleton */}
-            <div className="flex items-center gap-3 mb-4 p-3">
-                <Skeleton className="size-12 rounded-md" />
-                <div>
-                    <Skeleton className="h-8 w-[200px] mb-2" />
-                    <Skeleton className="h-4 w-[120px]" />
+            {/* Header card skeleton */}
+            <div className="mb-12">
+                <div className="p-3 border-2 border-border bg-card">
+                    <Skeleton className="h-9 w-[140px]" />
                 </div>
-            </div>
-
-            {/* Filter bar skeleton */}
-            <div className="w-full bg-card flex flex-col md:flex-row border-2 border-border">
-                <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
-                    <div className="flex gap-3">
-                        <Skeleton className="h-10 w-[120px]" />
-                        <Skeleton className="h-10 w-[120px]" />
+                <div className="p-6 border-2 border-t-0 border-border bg-card flex gap-6">
+                    <Skeleton className="size-14 rounded-base" />
+                    <div className="flex flex-col justify-between">
+                        <Skeleton className="h-8 w-[200px]" />
+                        <Skeleton className="h-5 w-[280px]" />
                     </div>
-                    <Skeleton className="h-10 w-full" />
-                </div>
-                <div className="flex flex-col-reverse md:flex-row py-6 px-3 flex-1 gap-3">
-                    <Skeleton className="h-10 w-[150px]" />
-                    <Skeleton className="h-10 w-[150px]" />
                 </div>
             </div>
 
-            {/* Progress bar skeleton */}
-            <div className="border-2 border-border border-t-0 p-3">
-                <Skeleton className="h-4 w-full" />
+            {/* Band selector + tab bar skeleton */}
+            <div className="mb-4 flex justify-end">
+                <Skeleton className="h-12 w-[360px]" />
             </div>
+            <Skeleton className="h-12 w-[280px] mb-4" />
 
-            {/* Problem rows skeleton */}
-            <div className="border-t-2 border-border">
-                {[...Array(10)].map((_, i) => (
-                    <div key={i} className="flex p-3 border-2 border-border border-t-0">
-                        <div className="flex-grow">
-                            <Skeleton className="h-7 w-[280px] mb-2" />
-                            <div className="flex flex-wrap gap-4 mt-2">
+            {/* Section skeletons */}
+            {[...Array(2)].map((_, s) => (
+                <div key={s} className="mb-8">
+                    <div className="p-3 border-2 border-border bg-card">
+                        <Skeleton className="h-6 w-[180px]" />
+                    </div>
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex justify-between p-3 border-2 border-border border-t-0">
+                            <Skeleton className="h-6 w-[320px]" />
+                            <div className="flex gap-3">
                                 <Skeleton className="h-6 w-[70px]" />
-                                <Skeleton className="h-6 w-[80px]" />
                                 <Skeleton className="h-6 w-[60px]" />
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 ml-6">
-                            <Skeleton className="h-10 w-10 rounded-full" />
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }

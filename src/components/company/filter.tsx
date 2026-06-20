@@ -17,6 +17,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import type { FilterCompany } from "~/server/actions/companies/getFilterCompanies";
 
 import { RandomProblemPicker } from "../random-problem-picker";
 
@@ -29,7 +30,7 @@ export type FilterValues = {
     difficulties: string[];
 };
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties, slug, topicSlug, defaultSort, controlled }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[], slug?: string, topicSlug?: string, defaultSort?: string, controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean } }) => {
+export const Filters = ({ filters, isProblemFilter = false, companies, companyOptions, tags, difficulties, slug, topicSlug, defaultSort, controlled }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], companyOptions?: FilterCompany[], tags?: string[], difficulties?: string[], slug?: string, topicSlug?: string, defaultSort?: string, controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean } }) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
@@ -39,6 +40,26 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     const router = useRouter();
     const currentSearchParams = useSearchParams();
     const pathName = usePathname();
+
+    // Slug-based company options (interview0-backed) when provided; the MAANG
+    // quick-toggle then operates on the matching slugs.
+    const useSlugCompanies = Boolean(companyOptions);
+    const maangSelection = useSlugCompanies
+        ? (companyOptions ?? []).filter((o) => MAANG_COMPANIES.includes(o.name)).map((o) => o.slug)
+        : MAANG_COMPANIES;
+    const maangChecked = maangSelection.length > 0
+        && c.length === maangSelection.length
+        && maangSelection.every((s) => c.includes(s));
+
+    // Keep internal company state in sync with the URL-driven `companies` prop so
+    // a chip click on a row (which appends to the URL) isn't clobbered by the
+    // param-writing effect below. Keyed on the joined string to avoid loops.
+    const companiesKey = (companies ?? []).join(',');
+    useEffect(() => {
+        if (controlled) return;
+        setC(companies ?? []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [companiesKey]);
 
     function reset() {
         setSort(defaultSort ?? (isProblemFilter ? 'question-id' : 'frequency'));
@@ -102,7 +123,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     }, [sort, order, t, c, d, currentSearchParams])
 
     return <div
-        className="w-full bg-card flex flex-col md:flex-row border-2 border-border relative">
+        className="w-full bg-card flex flex-col md:flex-row border-2 border-border rounded-base relative shadow-shadow">
         <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
             <div className='flex gap-3'>
                 <Select value={order} onValueChange={setOrder}>
@@ -131,6 +152,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="frequency">Frequency</SelectItem>
+                        {isProblemFilter && <SelectItem value="recency">Recently Asked</SelectItem>}
                         <SelectItem value="difficulty">Difficulty</SelectItem>
                         <SelectItem value="acceptance">Acceptance</SelectItem>
                         <SelectItem value="question-id">Question ID</SelectItem>
@@ -154,36 +176,47 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                         <MultiSelectContent>
                             <MultiSelectInput placeholder="Search..." />
                             <MultiSelectList>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>MAANG</MultiSelectLabel>
-                                    {
-                                        MAANG_COMPANIES.map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>All Companies</MultiSelectLabel>
-                                    {
-                                        Object.keys(COMPANIES).map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
+                                {useSlugCompanies ? (
+                                    <MultiSelectGroup>
+                                        <MultiSelectLabel>Companies</MultiSelectLabel>
+                                        {
+                                            (companyOptions ?? []).map(co => (
+                                                <MultiSelectItem key={co.slug} value={co.slug}>
+                                                    {co.name}
+                                                </MultiSelectItem>
+                                            ))
+                                        }
+                                    </MultiSelectGroup>
+                                ) : (
+                                    <>
+                                        <MultiSelectGroup>
+                                            <MultiSelectLabel>MAANG</MultiSelectLabel>
+                                            {
+                                                MAANG_COMPANIES.map(tag => (
+                                                    <MultiSelectItem key={tag} value={tag}>
+                                                        {tag}
+                                                    </MultiSelectItem>
+                                                ))
+                                            }
+                                        </MultiSelectGroup>
+                                        <MultiSelectGroup>
+                                            <MultiSelectLabel>All Companies</MultiSelectLabel>
+                                            {
+                                                Object.keys(COMPANIES).map(tag => (
+                                                    <MultiSelectItem key={tag} value={tag}>
+                                                        {tag}
+                                                    </MultiSelectItem>
+                                                ))
+                                            }
+                                        </MultiSelectGroup>
+                                    </>
+                                )}
                             </MultiSelectList>
                         </MultiSelectContent>
                     </MultiSelect>
                     <div className="flex items-center gap-3 px-1">
-                        <Checkbox id="MAANG" checked={c === MAANG_COMPANIES} onCheckedChange={(checked) => {
-                            if (checked) {
-                                setC(MAANG_COMPANIES);
-                            } else {
-                                setC([]);
-                            }
+                        <Checkbox id="MAANG" checked={maangChecked} onCheckedChange={(checked) => {
+                            setC(checked ? maangSelection : []);
                         }} />
                         <Label htmlFor="MAANG">MAANG</Label>
                     </div>

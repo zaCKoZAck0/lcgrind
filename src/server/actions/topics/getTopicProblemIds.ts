@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "~/lib/db";
-import { getDbWhereClause } from "~/utils/sorting";
+import { getAggregatedWhereClause } from "~/utils/sorting";
 
 export async function getTopicProblemIds(
     topicSlug: string,
@@ -18,24 +18,39 @@ export async function getTopicProblemIds(
         difficultiesArray = Array.isArray(difficulties) ? difficulties : [difficulties];
     }
 
-    const whereClause = getDbWhereClause(order, search, '', difficultiesArray);
+    void order;
+    const whereFrag = getAggregatedWhereClause(search, difficultiesArray);
 
     const query = `
+        WITH agg AS (
+            SELECT cqs."problemId" AS pid
+            FROM "CompanyQuestionStat" cqs
+            JOIN "Company" co
+              ON co.id = cqs."companyId"
+             AND co."reportCount" > 0
+             AND co.slug <> 'other'
+            WHERE cqs.band = 'all' AND cqs."problemId" IS NOT NULL
+              AND ($1::text[] IS NULL OR co.slug = ANY($1::text[]))
+            GROUP BY cqs."problemId"
+        ),
+        ptags AS (
+            SELECT pt."problemId" AS pid, array_agg(DISTINCT t."name") AS tags
+            FROM "ProblemsOnTopicTags" pt
+            JOIN "TopicTag" t ON pt."topicTagId" = t.id
+            GROUP BY pt."problemId"
+        )
         SELECT p.id
         FROM "Problem" p
-        LEFT JOIN "SheetProblem" s ON p.id = s."problemId"
-        LEFT JOIN "Sheet" sh ON s."sheetId" = sh.id
-        INNER JOIN "ProblemsOnTopicTags" pt ON p.id = pt."problemId"
-        INNER JOIN "TopicTag" t ON pt."topicTagId" = t.id AND t.slug = $3
-        LEFT JOIN "ProblemsOnTopicTags" all_pt ON p.id = all_pt."problemId"
-        LEFT JOIN "TopicTag" all_tags ON all_pt."topicTagId" = all_tags.id
-        ${whereClause}
-        GROUP BY p.id
-        HAVING (
-            ($1::text[] IS NULL OR COUNT(CASE WHEN sh.name = ANY($1::text[]) THEN 1 END) > 0)
-            AND
-            ($2::text[] IS NULL OR COUNT(CASE WHEN all_tags."name" = ANY($2::text[]) THEN 1 END) > 0)
-        )
+        LEFT JOIN agg ON agg.pid = p.id
+        LEFT JOIN ptags ON ptags.pid = p.id
+        WHERE ($1::text[] IS NULL OR agg.pid IS NOT NULL)
+          AND ($2::text[] IS NULL OR ptags.tags && $2::text[])
+          AND EXISTS (
+            SELECT 1 FROM "ProblemsOnTopicTags" pt2
+            INNER JOIN "TopicTag" t2 ON pt2."topicTagId" = t2.id
+            WHERE t2.slug = $3 AND pt2."problemId" = p.id
+          )
+          ${whereFrag ? `AND ${whereFrag}` : ''}
     `;
 
     try {

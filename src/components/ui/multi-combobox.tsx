@@ -234,15 +234,15 @@ export function MultiSelectItem({ value, className, disabled, children }: MultiS
             onSelect={handleSelect}
             className={cn(
                 "flex items-center gap-2",
-                isSelected && "bg-accent",
+                isSelected && "bg-main/10",
                 disabled && "cursor-not-allowed opacity-50",
                 className
             )}
         >
             <div
                 className={cn(
-                    "flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                    isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
+                    "flex h-4 w-4 items-center justify-center rounded-base border-2 border-border",
+                    isSelected ? "bg-main text-main-foreground" : "opacity-50 [&_svg]:invisible"
                 )}
             >
                 <Check className="h-3 w-3" />

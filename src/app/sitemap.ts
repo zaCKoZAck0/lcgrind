@@ -27,15 +27,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true },
   });
 
-  // Fetch company updatedAt dates for meaningful lastModified
-  const companySheets = await db.sheet.findMany({
-    where: { isCompany: true },
-    select: { slug: true, updatedAt: true },
-  });
-  const companyUpdatedMap = new Map(
-    companySheets.map((c) => [c.slug, c.updatedAt])
-  );
-
   // Fetch all topic tag slugs for topic pages
   const topicTags = await db.topicTag.findMany({
     select: { slug: true },
@@ -79,10 +70,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const companyPages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
     const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
-    const updatedAt = companyUpdatedMap.get(slug);
     return {
       url: `${BASE_URL}/companies/${slug}`,
-      lastModified: updatedAt ?? now,
+      lastModified: now,
       changeFrequency: "weekly" as const,
       priority: isHighPriority ? 0.8 : 0.6,
     };
@@ -91,10 +81,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
     const slug = generateSlug(company);
     const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
-    const updatedAt = companyUpdatedMap.get(slug);
     return {
       url: `${BASE_URL}/companies/${slug}/prep-guide`,
-      lastModified: updatedAt ?? now,
+      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: isHighPriority ? 0.7 : 0.5,
     };
