@@ -1,6 +1,6 @@
 import { type CompanyParams } from "~/types/company";
 import type { Metadata } from "next";
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
@@ -19,6 +19,8 @@ import { db } from "~/lib/db";
 import { getFeed } from "~/server/actions/discuss/feed";
 import { PostCard } from "~/components/discuss/post-card";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { getCategoryCountsForCompany } from "~/server/actions/companies/getCompanyCategoryCounts";
+import { MIN_CATEGORY_QUESTIONS, getEnabledCategorySlugs } from "~/config/categories";
 
 type Props = {
     params: Promise<CompanyParams>;
@@ -80,7 +82,7 @@ export async function generateMetadata(
         ? `${companyName} Interview Questions [${currentYear}]`
         : shortTitle;
     const pageDescription = `Real ${companyName} interview experiences: questions and compensation insights to prepare for your ${companyName} interview.`;
-    const pageUrl = `${BASE_URL}/companies/${companySlug}`;
+    const pageUrl = `${CANONICAL_URL}/companies/${companySlug}`;
 
     const keywords = [
         `${companyName} interview questions`,
@@ -135,6 +137,14 @@ export default async function CompanyInterviews({
 
     const sections = company.reportCount > 0 ? await getCompanyInterviews(slug, band) : null;
     const availableBands = company.reportCount > 0 ? await getAvailableBands(slug) : [];
+
+    const categoryCounts = company.reportCount > 0
+        ? await getCategoryCountsForCompany(slug)
+        : {};
+    const enabledCategorySlugs = getEnabledCategorySlugs();
+    const enabledCategories = enabledCategorySlugs.filter(
+        (cat) => (categoryCounts[cat] ?? 0) >= MIN_CATEGORY_QUESTIONS
+    );
     
     let comp: Awaited<ReturnType<typeof getCompanyComp>> | null = null;
     if (company.reportCount > 0 && FEATURE_FLAGS.COMPENSATION) {
@@ -155,9 +165,9 @@ export default async function CompanyInterviews({
     return (
         <>
             <BreadcrumbJsonLd items={[
-                { name: "Home", url: BASE_URL },
-                { name: "Companies", url: `${BASE_URL}/companies` },
-                { name: company.name, url: `${BASE_URL}/companies/${slug}` },
+                { name: "Home", url: CANONICAL_URL },
+                { name: "Companies", url: `${CANONICAL_URL}/companies` },
+                { name: company.name, url: `${CANONICAL_URL}/companies/${slug}` },
             ]} />
             <div className="w-full max-w-[1000px] py-6">
                 <div className="mb-12 shadow-shadow">
@@ -193,7 +203,12 @@ export default async function CompanyInterviews({
                         <InterviewTabs
                             interviews={
                                 hasQuestions ? (
-                                    <QuestionSections sections={sections} companyName={company.name} />
+                                    <QuestionSections
+                                        sections={sections}
+                                        companyName={company.name}
+                                        companySlug={slug}
+                                        enabledCategories={enabledCategories}
+                                    />
                                 ) : (
                                     <Card className="p-10 text-center text-muted-foreground/70">
                                         No interview questions reported
