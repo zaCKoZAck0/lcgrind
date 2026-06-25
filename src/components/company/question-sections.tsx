@@ -31,6 +31,7 @@ import {
     MultiSelectGroup,
     MultiSelectItem,
 } from "../ui/multi-combobox";
+import { cn } from "~/lib/utils";
 import { difficultyColor } from "~/utils/sorting";
 import { DIFFICULTIES } from "~/config/constants";
 import { ProblemRow } from "./problem-row";
@@ -48,7 +49,7 @@ const SECTION_ORDER: {
     title: string;
     icon: React.ReactNode;
 }[] = [
-    { key: "problemSolving", title: "Problem Solving", icon: <Code2 className="size-5" /> },
+    { key: "problemSolving", title: "DSA", icon: <Code2 className="size-5" /> },
     { key: "systemDesign", title: "System Design", icon: <Network className="size-5" /> },
     ...(FEATURE_FLAGS.LLD ? [{ key: "lld" as const, title: "Machine Coding / LLD", icon: <Boxes className="size-5" /> }] : []),
     ...(FEATURE_FLAGS.OTHERS ? [{ key: "others" as const, title: "Others", icon: <MessagesSquare className="size-5" /> }] : []),
@@ -228,17 +229,22 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<SortKey>("asked");
     const [diffs, setDiffs] = useState<string[]>([]);
+    const [activeSection, setActiveSection] = useState<keyof InterviewSections | null>(null);
+
+    const availableSections = SECTION_ORDER.filter((s) => sections[s.key].length > 0);
 
     const view = useMemo(
         () =>
-            SECTION_ORDER.map((s) => ({
-                ...s,
-                list: sortQuestions(
-                    sections[s.key].filter((q) => matchesFilters(q, search, diffs)),
-                    sort,
-                ),
-            })),
-        [sections, search, sort, diffs],
+            SECTION_ORDER
+                .filter((s) => activeSection === null || s.key === activeSection)
+                .map((s) => ({
+                    ...s,
+                    list: sortQuestions(
+                        sections[s.key].filter((q) => matchesFilters(q, search, diffs)),
+                        sort,
+                    ),
+                })),
+        [sections, search, sort, diffs, activeSection],
     );
 
     const total = view.reduce((n, s) => n + s.list.length, 0);
@@ -248,6 +254,36 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
 
     return (
         <div>
+            {availableSections.length > 1 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                    <button
+                        onClick={() => setActiveSection(null)}
+                        className={cn(
+                            "px-3 py-1 text-sm font-bold border-2 border-border rounded-base transition-colors",
+                            activeSection === null
+                                ? "bg-main text-main-foreground shadow-shadow"
+                                : "bg-background text-foreground hover:bg-secondary-background",
+                        )}
+                    >
+                        All
+                    </button>
+                    {availableSections.map((s) => (
+                        <button
+                            key={s.key}
+                            onClick={() => setActiveSection(s.key)}
+                            className={cn(
+                                "px-3 py-1 text-sm font-bold border-2 border-border rounded-base transition-colors flex items-center gap-1.5",
+                                activeSection === s.key
+                                    ? "bg-main text-main-foreground shadow-shadow"
+                                    : "bg-background text-foreground hover:bg-secondary-background",
+                            )}
+                        >
+                            {s.icon}
+                            {s.title}
+                        </button>
+                    ))}
+                </div>
+            )}
             <QuestionFilters
                 sort={sort}
                 setSort={setSort}

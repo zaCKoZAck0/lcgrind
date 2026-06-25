@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 const TABS = [
-    { label: "Coding", href: "/all-problems" },
+    { label: "DSA", href: "/all-problems" },
     ...(FEATURE_FLAGS.SYSTEM_DESIGN ? [{ label: "System Design", href: "/problems/system-design" as const }] : []),
     ...(FEATURE_FLAGS.LLD ? [{ label: "LLD", href: "/problems/lld" as const }] : []),
     ...(FEATURE_FLAGS.OTHERS ? [{ label: "Others", href: "/problems/others" as const }] : []),

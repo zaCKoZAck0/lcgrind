@@ -14,7 +14,8 @@ export function InterviewTabs({ interviews, compensation, experiences, defaultTa
     const showComp = compensation !== undefined;
     return (
         <Tabs defaultValue={defaultTab ?? "interviews"}>
-            <TabsList className="mb-4">
+            <div className="flex justify-end mb-4">
+            <TabsList>
                 <TabsTrigger value="interviews">
                     <MessagesSquare className="size-4" />
                     Interviews
@@ -32,6 +33,7 @@ export function InterviewTabs({ interviews, compensation, experiences, defaultTa
                     </TabsTrigger>
                 )}
             </TabsList>
+            </div>
             <TabsContent value="interviews">{interviews}</TabsContent>
             {showComp && (
                 <TabsContent value="compensation">{compensation}</TabsContent>
