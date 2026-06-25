@@ -8,6 +8,8 @@ interface CompanyHeaderProps {
     slug: string;
     payTier?: TierLevel;
     difficultyTier?: TierLevel;
+    headingSuffix?: string;
+    headingFull?: string;
 }
 
 export function CompanyHeader({
@@ -15,6 +17,8 @@ export function CompanyHeader({
     slug,
     payTier = 0,
     difficultyTier = 0,
+    headingSuffix = "Interview Questions",
+    headingFull,
 }: CompanyHeaderProps) {
     const logoDomain = COMPANIES[name.trim()] ?? `${slug}.com`;
 
@@ -30,7 +34,7 @@ export function CompanyHeader({
                     priority
                 />
                 <div className="flex flex-col justify-center gap-2">
-                    <h1 className="font-semibold text-2xl">{name}</h1>
+                    <h1 className="font-semibold text-2xl">{headingFull ?? `${name} ${headingSuffix}`}</h1>
                     {(payTier > 0 || difficultyTier > 0) && (
                         <span className="flex items-center gap-3">
                             <PayMarker tier={payTier} />

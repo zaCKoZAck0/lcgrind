@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
 import { DM_Sans } from "next/font/google"
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
 import { WebsiteJsonLd, OrganizationJsonLd } from "~/components/seo/json-ld";
 
 
@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(CANONICAL_URL),
   title: {
     default: "LC Grind - Company Wise LeetCode Problems | Free Interview Prep",
     template: "%s | LC Grind",
@@ -65,13 +65,13 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: BASE_URL,
+    canonical: CANONICAL_URL,
   },
   openGraph: {
     title: "LC Grind - Company Wise LeetCode Problems | Free Interview Prep",
     description:
       "Free company-wise LeetCode problems for FAANG interview prep. Practice coding questions from Google, Meta, Amazon, and 700+ companies.",
-    url: BASE_URL,
+    url: CANONICAL_URL,
     siteName: "LC Grind",
     locale: "en_US",
     type: "website",

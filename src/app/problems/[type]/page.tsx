@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
 import { getQuestionsByType } from "~/server/actions/problems/getQuestionsByType";
 import { TypeProblemsPage } from "~/components/problems/type-problems-page";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
@@ -82,12 +82,12 @@ export async function generateMetadata({
         description: meta.description,
         keywords: meta.keywords,
         alternates: {
-            canonical: `${BASE_URL}/problems/${type}`,
+            canonical: `${CANONICAL_URL}/problems/${type}`,
         },
         openGraph: {
             title: meta.title,
             description: meta.description,
-            url: `${BASE_URL}/problems/${type}`,
+            url: `${CANONICAL_URL}/problems/${type}`,
             type: "website",
         },
         twitter: {

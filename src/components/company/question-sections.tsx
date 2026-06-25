@@ -212,7 +212,19 @@ function QuestionFilters({
     );
 }
 
-export function QuestionSections({ sections, companyName }: { sections: InterviewSections; companyName?: string }) {
+const SECTION_KEY_TO_CATEGORY: Record<keyof InterviewSections, string> = {
+    problemSolving: "dsa",
+    systemDesign: "system-design",
+    lld: "lld",
+    others: "behavioral",
+};
+
+export function QuestionSections({ sections, companyName, companySlug, enabledCategories }: {
+    sections: InterviewSections;
+    companyName?: string;
+    companySlug?: string;
+    enabledCategories?: string[];
+}) {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<SortKey>("asked");
     const [diffs, setDiffs] = useState<string[]>([]);
@@ -261,6 +273,14 @@ export function QuestionSections({ sections, companyName }: { sections: Intervie
                                 {s.icon}
                                 <h2>{s.title}</h2>
                                 <span className="text-sm opacity-70">({s.list.length})</span>
+                                {companySlug && enabledCategories?.includes(SECTION_KEY_TO_CATEGORY[s.key]) && (
+                                    <a
+                                        href={`/companies/${companySlug}/${SECTION_KEY_TO_CATEGORY[s.key]}`}
+                                        className="ml-auto text-sm underline hover:no-underline"
+                                    >
+                                        View all →
+                                    </a>
+                                )}
                             </div>
                             {s.list.map((q) => {
                                 const row = (

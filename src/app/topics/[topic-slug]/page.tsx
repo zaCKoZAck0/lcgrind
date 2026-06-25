@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
 import { BreadcrumbJsonLd } from "~/components/seo/json-ld";
 import { TopicPage } from "~/components/topics/topic-page";
 import { getTopicProblems } from "~/server/actions/topics/getTopicProblems";
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             ? `${topicName} Problems [${currentYear}]`
             : shortTitle;
     const pageDescription = `Practice ${problemCount} ${topicName} problems on LeetCode. Master ${topicName.toLowerCase()} patterns and ace your coding interview.`;
-    const pageUrl = `${BASE_URL}/topics/${topicSlug}`;
+    const pageUrl = `${CANONICAL_URL}/topics/${topicSlug}`;
 
     const keywords = [
         `${topicName.toLowerCase()} leetcode`,
@@ -113,9 +113,9 @@ export default async function TopicProblemsPage({ params }: Props) {
         <>
             <BreadcrumbJsonLd
                 items={[
-                    { name: "Home", url: BASE_URL },
-                    { name: "Topics", url: `${BASE_URL}/topics` },
-                    { name: topicName, url: `${BASE_URL}/topics/${topicSlug}` },
+                    { name: "Home", url: CANONICAL_URL },
+                    { name: "Topics", url: `${CANONICAL_URL}/topics` },
+                    { name: topicName, url: `${CANONICAL_URL}/topics/${topicSlug}` },
                 ]}
             />
             <TopicPage
