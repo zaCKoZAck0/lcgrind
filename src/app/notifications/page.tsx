@@ -26,7 +26,7 @@ function NotifItem({ n }: { n: NotifRow }) {
     const meta = TYPE_META[n.type] ?? { label: n.type, Icon: Bell };
     const actor = n.actorHandle ? `@${n.actorHandle}` : "Someone";
     const href = n.postSlug
-        ? `/discuss/${n.postSlug}${n.commentId ? `#c-${n.commentId}` : ""}`
+        ? `/grinds/${n.postSlug}${n.commentId ? `#c-${n.commentId}` : ""}`
         : "/notifications";
 
     return (

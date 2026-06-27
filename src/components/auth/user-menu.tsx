@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import {
     LogOut,
-    Bug,
+    User,
     FileText,
-    MessagesSquare,
     ShieldCheck,
     Trophy,
     UserPen,
     Bell,
+    LogIn,
 } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
@@ -19,7 +19,7 @@ import { getMyPoints } from "~/server/actions/gamification/actions";
 import {
     getMyProfileStatus,
     type ProfileStatus,
-} from "~/server/actions/discuss/profile-actions";
+} from "~/server/actions/grinds/profile-actions";
 import { getUnreadCount } from "~/server/actions/notifications/getNotifications";
 import { ProfileDialog } from "./profile-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -33,7 +33,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { signOut, useSession } from "~/lib/auth-client";
+import { signOut, useSession, signIn } from "~/lib/auth-client";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export function UserMenu() {
@@ -77,9 +77,15 @@ export function UserMenu() {
                     className={cn(buttonVariants({ variant: "neutral", size: "icon" }))}
                     aria-label="Account menu"
                 >
-                    <Bug className="size-5" />
+                    <User className="size-5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    {FEATURE_FLAGS.LOGIN && (
+                        <DropdownMenuItem onClick={() => signIn.social({ provider: "google" })}>
+                            <LogIn className="size-4" />
+                            Sign in
+                        </DropdownMenuItem>
+                    )}
                     <SyncMenuItems />
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">
@@ -148,11 +154,11 @@ export function UserMenu() {
                         <UserPen className="size-4" />
                         Edit profile
                     </DropdownMenuItem>
-                    {FEATURE_FLAGS.DISCUSS && (
+                    {FEATURE_FLAGS.GRINDS && (
                         <DropdownMenuItem asChild>
-                            <Link href="/discuss">
-                                <MessagesSquare className="size-4" />
-                                Discuss
+                            <Link href="/grinds" className="flex items-center gap-2">
+                                Grinds
+                                <span className="ml-auto text-[10px] font-semibold px-1 py-0 border border-border rounded-sm">Beta</span>
                             </Link>
                         </DropdownMenuItem>
                     )}

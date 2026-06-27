@@ -10,10 +10,10 @@ import {
     navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 import Link from "next/link"
-import { BookMarkedIcon, HashIcon, ListTodoIcon, LogIn, MessagesSquare, TargetIcon } from "lucide-react";
-import { signIn } from "~/lib/auth-client";
+import { BookMarkedIcon, HashIcon, ListTodoIcon, TargetIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { Badge } from "~/components/ui/badge";
 
 
 export function NavLinks() {
@@ -52,20 +52,14 @@ export function NavLinks() {
                         </Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
-                {FEATURE_FLAGS.DISCUSS && (
+                {FEATURE_FLAGS.GRINDS && (
                     <NavigationMenuItem>
                         <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
-                            <Link href="/discuss">
-                                <MessagesSquare className="size-4" /> Discuss
+                            <Link href="/grinds">
+                                Grinds
+                                <Badge variant="neutral" className="text-[10px] px-1.5 py-0 h-4">Beta</Badge>
                             </Link>
                         </NavigationMenuLink>
-                    </NavigationMenuItem>
-                )}
-                {FEATURE_FLAGS.LOGIN && (
-                    <NavigationMenuItem>
-                        <button onClick={() => signIn.social({ provider: "google" })} className={cn(navigationMenuTriggerStyle(), "items-center gap-2 text-base")}>
-                            <LogIn className="size-4" /> Sign in
-                        </button>
                     </NavigationMenuItem>
                 )}
             </NavigationMenuList>

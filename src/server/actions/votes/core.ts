@@ -30,7 +30,6 @@ export function voteDeltas(
 }
 
 // The author's karma change for a vote transition: the net swing in vote value.
-// Self-votes never reach this — castVoteCore rejects them upstream.
 export function karmaDelta(prev: number, next: number): number {
     return next - prev;
 }
@@ -59,7 +58,7 @@ function resolveNext(prev: number, clicked: number): number {
 // Casts (or toggles/flips) a vote on a post or comment in one transaction:
 // upsert/delete the Vote row, apply denormalized score/up/down deltas to the
 // target, recompute hotRank for posts, and move the author's karma. Self-votes
-// are rejected outright (you cannot vote on your own content).
+// count toward the score but don't affect the author's karma.
 export async function castVoteCore(
     db: PrismaClient,
     userId: string,
@@ -100,9 +99,6 @@ export async function castVoteCore(
                       });
 
             if (!target) throw new Error("Not found");
-            if (target.authorId === userId) {
-                throw new Error("You can't vote on your own post");
-            }
 
             const existing = await tx.vote.findUnique({
                 where: {
@@ -166,9 +162,9 @@ export async function castVoteCore(
 
             // Anonymous content earns its author no public karma — the vote
             // counts still denormalize onto the target, but the author stays
-            // unattributed in the social graph.
+            // unattributed in the social graph. Self-votes also skip karma.
             const kd = karmaDelta(prev, next);
-            if (kd !== 0 && !target.isAnonymous) {
+            if (kd !== 0 && !target.isAnonymous && target.authorId !== userId) {
                 await tx.user.update({
                     where: { id: target.authorId },
                     data: { karma: { increment: kd } },

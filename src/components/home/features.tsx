@@ -43,11 +43,11 @@ const features = [
         description: "All features completely free, no hidden costs or premium tiers.",
         icon: <Gift className="w-6 h-6 text-secondary-foreground" />,
     },
-    ...(FEATURE_FLAGS.DISCUSS ? [{
-        title: "Discuss",
-        description: "Read real interview experiences and questions shared by the community.",
+    ...(FEATURE_FLAGS.GRINDS ? [{
+        title: "Grinds (Beta)",
+        description: "Real interview experiences, questions, and community posts.",
         icon: <MessagesSquare className="w-6 h-6 text-secondary-foreground" />,
-        href: "/discuss",
+        href: "/grinds",
     }] : []),
 ];
 

@@ -32,7 +32,7 @@ export async function castVote(input: {
     });
 
     if (res.ok === true) {
-        revalidatePath(`/discuss/${input.postParam}`);
+        revalidatePath(`/grinds/${input.postParam}`);
         // Sync karma-based badges for the content author (best-effort).
         const target =
             input.targetType === "POST"

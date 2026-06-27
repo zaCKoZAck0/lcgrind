@@ -1,6 +1,6 @@
 import { db } from "~/lib/db";
 import { faker } from "@faker-js/faker";
-import { seedPostTags } from "~/server/actions/discuss/tags";
+import { seedPostTags } from "~/server/actions/grinds/tags";
 
 const USER_COUNT = 100;
 const COMPANY_COUNT = 20;

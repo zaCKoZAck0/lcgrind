@@ -1,5 +1,5 @@
 import { db } from "~/lib/db";
-import { COMMENT_DEPTH_CAP } from "~/config/discuss";
+import { COMMENT_DEPTH_CAP } from "~/config/grinds";
 import { getViewerVoteMap } from "../votes/getVotes";
 import {
     buildCommentTree,

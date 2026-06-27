@@ -10,11 +10,11 @@ import {
     RATE_WINDOW_MS,
     HANDLE_RE,
     POST_TAG_MAX,
-} from "~/config/discuss";
+} from "~/config/grinds";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { toMonth } from "~/utils/public-date";
 import { createSubmissionCore, type DbClient } from "../submissions/core";
-import { attachPostTags, type PublicPostTag } from "../discuss/tags";
+import { attachPostTags, type PublicPostTag } from "../grinds/tags";
 import {
     hasProfanity,
     scanLinks,
@@ -74,7 +74,7 @@ export type PostRowForPublic = {
     status: string;
     createdAt: Date;
     editedAt: Date | null;
-    author: { handle: string | null; avatar: string | null };
+    author: { handle: string | null; avatar: string | null; image?: string | null };
     company: { slug: string; name: string } | null;
     // Curated flair join rows; absent when a read path doesn't select them.
     tags?: { tag: { slug: string; name: string } }[];
@@ -117,7 +117,7 @@ export function serializePostPublic(
         author:
             row.isAnonymous || row.author.handle === null
                 ? null
-                : { handle: row.author.handle, avatar: row.author.avatar },
+                : { handle: row.author.handle, avatar: (row.author.image ?? row.author.avatar) ?? null },
         company: row.company,
         tags: row.tags?.map((t) => t.tag) ?? [],
         createdMonth: toMonth(row.createdAt),

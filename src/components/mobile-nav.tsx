@@ -9,7 +9,6 @@ import {
     BookMarkedIcon,
     Building2,
     LogIn,
-    MessagesSquare,
 } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { signIn } from "~/lib/auth-client"
@@ -22,6 +21,7 @@ import {
     SheetTitle,
 } from "~/components/ui/sheet"
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { Badge } from "~/components/ui/badge";
 
 const BASE_NAV_ITEMS = [
     {
@@ -49,10 +49,10 @@ const BASE_NAV_ITEMS = [
         href: "/companies",
         icon: <Building2 className="size-4" />,
     },
-    ...(FEATURE_FLAGS.DISCUSS ? [{
-        label: "Discuss",
-        href: "/discuss",
-        icon: <MessagesSquare className="size-4" />,
+    ...(FEATURE_FLAGS.GRINDS ? [{
+        label: "Grinds",
+        href: "/grinds",
+        icon: null,
     }] : []),
     ...(FEATURE_FLAGS.LOGIN ? [{
         label: "Sign in",
@@ -99,6 +99,9 @@ export function MobileNav() {
                                 >
                                     {item.icon}
                                     {item.label}
+                                    {item.label === "Grinds" && (
+                                        <Badge variant="neutral" className="text-[10px] px-1.5 py-0 h-4">Beta</Badge>
+                                    )}
                                 </Link>
                             )}
                         </SheetClose>
