@@ -68,29 +68,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  function companyEntry(
+    company: string,
+    suffix: string,
+    frequency: MetadataRoute.Sitemap[number]["changeFrequency"],
+    highPri: number,
+    lowPri: number,
+  ): MetadataRoute.Sitemap[number] {
+    const slug = generateSlug(company);
+    return {
+      url: `${CANONICAL_URL}/companies/${slug}${suffix}`,
+      lastModified: now,
+      changeFrequency: frequency,
+      priority: HIGH_PRIORITY_COMPANIES.has(company) ? highPri : lowPri,
+    };
+  }
+
   // Include ALL companies in sitemap, not just top 26
   const allCompanyNames = Object.keys(COMPANIES);
-  const companyPages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
-    const slug = generateSlug(company);
-    const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
-    return {
-      url: `${CANONICAL_URL}/companies/${slug}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: isHighPriority ? 0.8 : 0.6,
-    };
-  });
-
-  const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map((company) => {
-    const slug = generateSlug(company);
-    const isHighPriority = HIGH_PRIORITY_COMPANIES.has(company);
-    return {
-      url: `${CANONICAL_URL}/companies/${slug}/prep-guide`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: isHighPriority ? 0.7 : 0.5,
-    };
-  });
+  const companyPages: MetadataRoute.Sitemap = allCompanyNames.map(
+    (c) => companyEntry(c, "", "weekly", 0.8, 0.6),
+  );
+  const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map(
+    (c) => companyEntry(c, "/prep-guide", "monthly", 0.7, 0.5),
+  );
 
   const sheetPages: MetadataRoute.Sitemap = sheets.map((sheet) => ({
     url: `${CANONICAL_URL}/sheets/${sheet.slug}`,

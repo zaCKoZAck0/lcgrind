@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, nanoid } from '@reduxjs/toolkit';
 
 export interface ProblemNote {
   id: string;
@@ -40,7 +40,7 @@ export const problemNotesSlice = createSlice({
   reducers: {
     addNote: (state, action: PayloadAction<CreateNotePayload>) => {
       const { problemId, title, content, color } = action.payload;
-      const noteId = `note_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const noteId = `note_${nanoid()}`;
       const now = Date.now();
       
       const note: ProblemNote = {
