@@ -123,26 +123,22 @@ export function SyncMenuItems() {
         // Import notes (skip duplicates based on problemId, title, and content)
         let importedNotesCount = 0
         const notes = importedData.problemNotes.notes
-        const existingNotesValues = Object.values(problemNotes.notes)
-        
+        const existingNoteKeys = new Set(
+          Object.values(problemNotes.notes).map(
+            (n) => `${n.problemId}\0${n.title}\0${n.content}`
+          )
+        )
+
         for (const noteId in notes) {
           const note = notes[noteId]
-          
-          // Validate note structure with proper type checks
-          if (note && 
-              typeof note.problemId === "string" && 
-              typeof note.title === "string" && 
+
+          if (note &&
+              typeof note.problemId === "string" &&
+              typeof note.title === "string" &&
               typeof note.content === "string") {
-            
-            // Check for duplicate notes (same problemId, title, and content)
-            const isDuplicate = existingNotesValues.some(
-              (existingNote) => 
-                existingNote.problemId === note.problemId &&
-                existingNote.title === note.title &&
-                existingNote.content === note.content
-            )
-            
-            if (!isDuplicate) {
+
+            const key = `${note.problemId}\0${note.title}\0${note.content}`
+            if (!existingNoteKeys.has(key)) {
               dispatch(addNote({
                 problemId: note.problemId,
                 title: note.title,

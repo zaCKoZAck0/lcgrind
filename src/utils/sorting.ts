@@ -50,10 +50,12 @@ export const getDbWhereClause = (order: string, search: string, slug: string, di
   const trimmedSearch = (search ?? '').trim();
   const trimmedSlug = (slug ?? '').trim();
   if (trimmedSearch.length > 0) {
-    whereQueries.push(`(p.title ILIKE '%${trimmedSearch}%' OR p.id::text ILIKE '%${trimmedSearch}%')`);
+    const safeSearch = trimmedSearch.replaceAll("'", "''");
+    whereQueries.push(`(p.title ILIKE '%${safeSearch}%' OR p.id::text ILIKE '%${safeSearch}%')`);
   }
   if (trimmedSlug.length > 0) {
-    whereQueries.push(`sh.slug = '${trimmedSlug}'`);
+    const safeSlug = trimmedSlug.replaceAll("'", "''");
+    whereQueries.push(`sh.slug = '${safeSlug}'`);
   }
   if (order !== 'all-problems') { 
     whereQueries.push(`s."${getOrderKey(order)}" > 0`);
@@ -125,7 +127,7 @@ export const getAggregatedWhereClause = (
   const predicates: string[] = [];
   const trimmedSearch = (search ?? '').trim();
   if (trimmedSearch.length > 0) {
-    const safeSearch = trimmedSearch.replace(/'/g, "''");
+    const safeSearch = trimmedSearch.replaceAll("'", "''");
     predicates.push(`(p.title ILIKE '%${safeSearch}%' OR p.id::text ILIKE '%${safeSearch}%')`);
   }
   if (difficulties && difficulties.length > 0) {
@@ -140,15 +142,7 @@ export const getAggregatedWhereClause = (
   return predicates.join(' AND ');
 };
 
-export const getDifficultyThreshold = (difficulty: string): number => {
-  switch (difficulty) {
-    case 'Easy':
-      return 0;
-    case 'Medium':
-      return 1;
-    case 'Hard':
-      return 2;
-    default:
-      return 0;
-  }
-};
+const DIFFICULTY_THRESHOLD: Record<string, number> = { Easy: 0, Medium: 1, Hard: 2 };
+
+export const getDifficultyThreshold = (difficulty: string): number =>
+  DIFFICULTY_THRESHOLD[difficulty] ?? 0;

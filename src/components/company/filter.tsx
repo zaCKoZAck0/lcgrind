@@ -1,7 +1,7 @@
 "use client";
 import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon, SignalIcon } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -30,7 +30,20 @@ export type FilterValues = {
     difficulties: string[];
 };
 
-export const Filters = ({ filters, isProblemFilter = false, companies, companyOptions, tags, difficulties, slug, topicSlug, defaultSort, controlled }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], companyOptions?: FilterCompany[], tags?: string[], difficulties?: string[], slug?: string, topicSlug?: string, defaultSort?: string, controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean } }) => {
+type FiltersProps = {
+    filters: { sorting: string; order: string; search?: string };
+    isProblemFilter?: boolean;
+    companies?: string[];
+    companyOptions?: FilterCompany[];
+    tags?: string[];
+    difficulties?: string[];
+    slug?: string;
+    topicSlug?: string;
+    defaultSort?: string;
+    controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean };
+};
+
+export const Filters = ({ filters, isProblemFilter = false, companies, companyOptions, tags, difficulties, slug, topicSlug, defaultSort, controlled }: FiltersProps) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
@@ -44,12 +57,17 @@ export const Filters = ({ filters, isProblemFilter = false, companies, companyOp
     // Slug-based company options (interview0-backed) when provided; the MAANG
     // quick-toggle then operates on the matching slugs.
     const useSlugCompanies = Boolean(companyOptions);
-    const maangSelection = useSlugCompanies
-        ? (companyOptions ?? []).filter((o) => MAANG_COMPANIES.includes(o.name)).map((o) => o.slug)
-        : MAANG_COMPANIES;
-    const maangChecked = maangSelection.length > 0
-        && c.length === maangSelection.length
-        && maangSelection.every((s) => c.includes(s));
+    const maangSelection = useMemo(
+        () => useSlugCompanies
+            ? (companyOptions ?? []).filter((o) => MAANG_COMPANIES.includes(o.name)).map((o) => o.slug)
+            : MAANG_COMPANIES,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [useSlugCompanies, companyOptions],
+    );
+    const maangChecked = useMemo(
+        () => maangSelection.length > 0 && c.length === maangSelection.length && maangSelection.every((s) => c.includes(s)),
+        [maangSelection, c],
+    );
 
     // Keep internal company state in sync with the URL-driven `companies` prop so
     // a chip click on a row (which appends to the URL) isn't clobbered by the

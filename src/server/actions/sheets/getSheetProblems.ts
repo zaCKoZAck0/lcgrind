@@ -19,24 +19,21 @@ type RSheetProblem = {
 };
 
 export async function getSheetProblems(sheetSlug: string) {
-
-    const query = `
-    SELECT 
-        sp."sheetOrder" as order, 
-        sp.group,
-        sp."solutionVideoLink",
-        p.*  
-    FROM "SheetProblem" sp
-        LEFT JOIN "Problem" p
-        ON sp."problemId" = p.id
-    WHERE sp."sheetId" = (
-        SELECT id from "Sheet" where slug = '${sheetSlug}'
-    )
-    ORDER BY sp."sheetOrder";
-    `;
-
-    try{
-        const problems = await db.$queryRawUnsafe<RSheetProblem[]>(query);
+    try {
+        const problems = await db.$queryRaw<RSheetProblem[]>`
+            SELECT
+                sp."sheetOrder" as order,
+                sp.group,
+                sp."solutionVideoLink",
+                p.*
+            FROM "SheetProblem" sp
+                LEFT JOIN "Problem" p
+                ON sp."problemId" = p.id
+            WHERE sp."sheetId" = (
+                SELECT id FROM "Sheet" WHERE slug = ${sheetSlug}
+            )
+            ORDER BY sp."sheetOrder"
+        `;
         return sanitizeSheetProblem(problems);
     } catch (e) {
         console.error(e);
@@ -47,7 +44,6 @@ export async function getSheetProblems(sheetSlug: string) {
 function sanitizeSheetProblem(problems: RSheetProblem[]) {
     return problems.map((problem) => ({
         ...problem,
-        order: problem.order.toNumber(), 
+        order: problem.order.toNumber(),
     }));
 }
-
