@@ -19,8 +19,6 @@ import { db } from "~/lib/db";
 import { getFeed } from "~/server/actions/discuss/feed";
 import { PostCard } from "~/components/discuss/post-card";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
-import { getCategoryCountsForCompany } from "~/server/actions/companies/getCompanyCategoryCounts";
-import { MIN_CATEGORY_QUESTIONS, getEnabledCategorySlugs } from "~/config/categories";
 
 type Props = {
     params: Promise<CompanyParams>;
@@ -138,14 +136,6 @@ export default async function CompanyInterviews({
     const sections = company.reportCount > 0 ? await getCompanyInterviews(slug, band) : null;
     const availableBands = company.reportCount > 0 ? await getAvailableBands(slug) : [];
 
-    const categoryCounts = company.reportCount > 0
-        ? await getCategoryCountsForCompany(slug)
-        : {};
-    const enabledCategorySlugs = getEnabledCategorySlugs();
-    const enabledCategories = enabledCategorySlugs.filter(
-        (cat) => (categoryCounts[cat] ?? 0) >= MIN_CATEGORY_QUESTIONS
-    );
-    
     let comp: Awaited<ReturnType<typeof getCompanyComp>> | null = null;
     if (company.reportCount > 0 && FEATURE_FLAGS.COMPENSATION) {
         comp = await getCompanyComp(slug);
@@ -206,8 +196,6 @@ export default async function CompanyInterviews({
                                     <QuestionSections
                                         sections={sections}
                                         companyName={company.name}
-                                        companySlug={slug}
-                                        enabledCategories={enabledCategories}
                                     />
                                 ) : (
                                     <Card className="p-10 text-center text-muted-foreground/70">
