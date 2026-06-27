@@ -133,7 +133,7 @@ export function LightRow({ q, companyName }: { q: InterviewQuestion; companyName
     );
 }
 
-function QuestionRow({ q, index, companyName, onCompanyClick }: { q: InterviewQuestion; index: number; companyName?: string; onCompanyClick?: (slug: string, name: string) => void }) {
+function QuestionRow({ q, index, companyName, onCompanyClick }: { q: InterviewQuestion; index: number; companyName?: string; onCompanyClick?: (slug: string) => void }) {
     if (q.problemId != null && q.problemUrl) {
         return (
             <ProblemRow
@@ -252,7 +252,7 @@ export function QuestionSections({ sections, companyName }: {
     const [activeSection, setActiveSection] = useState<keyof InterviewSections | null>("problemSolving");
     const [page, setPage] = useState(1);
 
-    const onCompanyClick = useCallback((slug: string, name: string) => {
+    const onCompanyClick = useCallback((slug: string) => {
         if (slug) router.push(`/companies/${slug}`);
     }, [router]);
 

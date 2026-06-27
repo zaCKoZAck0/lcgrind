@@ -60,7 +60,7 @@ interface ProblemRowProps {
   /** Extra inline badges (e.g. company recency chips) shown in the meta row. */
   chips?: React.ReactNode;
   /** When provided, overrides the default filter-by-company behavior on click. */
-  onCompanyClick?: (slug: string, name: string) => void;
+  onCompanyClick?: (slug: string) => void;
 }
 
 export const ProblemRow = ({
@@ -92,7 +92,7 @@ export const ProblemRow = ({
   const onCompanyChipClick = (slug: string, name: string) => {
     if (!slug) return;
     if (onCompanyClick) {
-      onCompanyClick(slug, name);
+      onCompanyClick(slug);
       return;
     }
     const params = new URLSearchParams(searchParams.toString());
