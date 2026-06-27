@@ -1,8 +1,8 @@
 import { CANONICAL_URL } from "~/config/constants";
 import {
-  buildDiscussionForumPostingJsonLd,
-  type DiscussionForumPostingInput,
-} from "~/utils/discuss-seo";
+  buildGrindsForumPostingJsonLd,
+  type GrindsForumPostingInput,
+} from "~/utils/grinds-seo";
 
 interface WebsiteJsonLdProps {
   name?: string;
@@ -132,10 +132,10 @@ export function FAQJsonLd({ items }: FAQJsonLdProps) {
 
 // Discuss post structured data for EXPERIENCE/DISCUSSION pages. Built by the
 // pure helper so dates stay month-coarsened and no provenance leaks.
-export function DiscussionForumPostingJsonLd(
-  props: DiscussionForumPostingInput,
+export function GrindsForumPostingJsonLd(
+  props: GrindsForumPostingInput,
 ) {
-  const jsonLd = buildDiscussionForumPostingJsonLd(props);
+  const jsonLd = buildGrindsForumPostingJsonLd(props);
   return (
     <script
       type="application/ld+json"

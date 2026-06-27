@@ -16,8 +16,8 @@ import type { TierLevel } from "~/utils/company-tiers";
 import { buttonVariants } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { db } from "~/lib/db";
-import { getFeed } from "~/server/actions/discuss/feed";
-import { PostCard } from "~/components/discuss/post-card";
+import { getFeed } from "~/server/actions/grinds/feed";
+import { PostCard } from "~/components/grinds/post-card";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 type Props = {
@@ -142,14 +142,14 @@ export default async function CompanyInterviews({
     }
     
     let experienceFeed: { posts: any[]; nextCursor: string | null } = { posts: [], nextCursor: null };
-    if (company.reportCount > 0 && FEATURE_FLAGS.DISCUSS) {
+    if (company.reportCount > 0 && FEATURE_FLAGS.GRINDS) {
         experienceFeed = await getFeed(db, { type: "EXPERIENCE", companyId: company.id, sort: "new", limit: 20 });
     }
     
     const hasQuestions = sections !== null
         && Object.values(sections).some((list) => list.length > 0);
     const hasComp = FEATURE_FLAGS.COMPENSATION && comp !== null && comp.rollups.length > 0;
-    const hasExperiences = FEATURE_FLAGS.DISCUSS && experienceFeed.posts.length > 0;
+    const hasExperiences = FEATURE_FLAGS.GRINDS && experienceFeed.posts.length > 0;
     const hasData = hasQuestions || hasComp;
 
     return (
@@ -168,10 +168,10 @@ export default async function CompanyInterviews({
                         >
                             <ArrowLeft />All Companies
                         </Link>
-                        {FEATURE_FLAGS.DISCUSS && FEATURE_FLAGS.LOGIN && (
+                        {FEATURE_FLAGS.GRINDS && FEATURE_FLAGS.LOGIN && (
                             <Link
                                 className={buttonVariants({ variant: 'neutral', size: 'sm' })}
-                                href={`/discuss/new?experience=true&company=${encodeURIComponent(company.name)}`}
+                                href={`/grinds/new?experience=true&company=${encodeURIComponent(company.name)}`}
                             >
                                 <MessageSquarePlus />Share your experience
                             </Link>
@@ -205,7 +205,7 @@ export default async function CompanyInterviews({
                                 )
                             }
                             compensation={FEATURE_FLAGS.COMPENSATION ? <CompensationTab comp={comp!} band={band} /> : undefined}
-                            experiences={FEATURE_FLAGS.DISCUSS ? (
+                            experiences={FEATURE_FLAGS.GRINDS ? (
                                 hasExperiences ? (
                                     <div className="flex flex-col gap-4">
                                         {experienceFeed.posts.map((post) => (
@@ -213,7 +213,7 @@ export default async function CompanyInterviews({
                                         ))}
                                         {experienceFeed.nextCursor && (
                                             <Link
-                                                href={`/discuss?type=EXPERIENCE&company=${encodeURIComponent(company.name)}`}
+                                                href={`/grinds?type=EXPERIENCE&company=${encodeURIComponent(company.name)}`}
                                                 className="text-sm text-center text-muted-foreground hover:underline"
                                             >
                                                 View all experiences on Discuss
@@ -229,7 +229,7 @@ export default async function CompanyInterviews({
                                         {FEATURE_FLAGS.LOGIN && (
                                             <Link
                                                 className={buttonVariants({ size: 'sm' })}
-                                                href={`/discuss/new?experience=true&company=${encodeURIComponent(company.name)}`}
+                                                href={`/grinds/new?experience=true&company=${encodeURIComponent(company.name)}`}
                                             >
                                                 <MessageSquarePlus />Share your experience
                                             </Link>
@@ -246,10 +246,10 @@ export default async function CompanyInterviews({
                         <p className="text-muted-foreground/70 max-w-[480px]">
                             Interviewed at {company.name}? Share your experience to help others prepare.
                         </p>
-                        {FEATURE_FLAGS.DISCUSS && FEATURE_FLAGS.LOGIN && (
+                        {FEATURE_FLAGS.GRINDS && FEATURE_FLAGS.LOGIN && (
                             <Link
                                 className={buttonVariants({ size: 'sm' })}
-                                href={`/discuss/new?experience=true&company=${encodeURIComponent(company.name)}`}
+                                href={`/grinds/new?experience=true&company=${encodeURIComponent(company.name)}`}
                             >
                                 <MessageSquarePlus />Share your experience
                             </Link>

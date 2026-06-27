@@ -15,7 +15,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { updateMyProfile } from "~/server/actions/discuss/profile-actions";
+import { updateMyProfile } from "~/server/actions/grinds/profile-actions";
 
 type Props = {
     open: boolean;

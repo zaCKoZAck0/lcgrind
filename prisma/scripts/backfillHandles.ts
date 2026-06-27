@@ -8,7 +8,7 @@
  * their next login and can confirm / change the auto-generated handle.
  */
 import { PrismaClient } from "@prisma/client";
-import { generateHandle } from "../../src/server/actions/discuss/handle";
+import { generateHandle } from "../../src/server/actions/grinds/handle";
 
 const db = new PrismaClient();
 

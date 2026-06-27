@@ -40,8 +40,8 @@ export async function removeContent(input: {
 
     const res = await removeContentCore(db, input.targetType, input.targetId);
     if (res.ok === true) {
-        revalidatePath("/discuss");
-        if (input.postParam) revalidatePath(`/discuss/${input.postParam}`);
+        revalidatePath("/grinds");
+        if (input.postParam) revalidatePath(`/grinds/${input.postParam}`);
     }
     return res;
 }
@@ -55,8 +55,8 @@ export async function shadowContent(input: {
     if (gate.ok === false) return gate;
     const res = await shadowContentCore(db, input.targetType, input.targetId);
     if (res.ok === true) {
-        revalidatePath("/discuss");
-        if (input.postParam) revalidatePath(`/discuss/${input.postParam}`);
+        revalidatePath("/grinds");
+        if (input.postParam) revalidatePath(`/grinds/${input.postParam}`);
     }
     return res;
 }
@@ -72,7 +72,7 @@ export async function lockPost(postId: string, postParam?: string): Promise<Lock
     if (gate.ok === false) return gate;
     const res = await lockPostCore(db, postId);
     if (res.ok === true) {
-        if (postParam) revalidatePath(`/discuss/${postParam}`);
+        if (postParam) revalidatePath(`/grinds/${postParam}`);
     }
     return res;
 }

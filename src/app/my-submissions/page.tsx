@@ -32,7 +32,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function MySubmissionsPage() {
-    if (!FEATURE_FLAGS.DISCUSS) notFound();
+    if (!FEATURE_FLAGS.GRINDS) notFound();
     if (!FEATURE_FLAGS.LOGIN) notFound();
     const session = await auth.api.getSession({ headers: await headers() });
 
@@ -75,7 +75,7 @@ export default async function MySubmissionsPage() {
                     <h1 className="font-bold text-xl">My submissions</h1>
                 </Card>
                 <div className="flex items-center gap-2 flex-wrap">
-                    {FEATURE_FLAGS.DISCUSS && handle && (
+                    {FEATURE_FLAGS.GRINDS && handle && (
                         <Link
                             href={`/u/${handle}`}
                             className={buttonVariants({ variant: "neutral" })}
@@ -84,9 +84,9 @@ export default async function MySubmissionsPage() {
                             View public profile
                         </Link>
                     )}
-                    {FEATURE_FLAGS.DISCUSS && (
+                    {FEATURE_FLAGS.GRINDS && (
                         <Link
-                            href="/discuss/new?experience=true"
+                            href="/grinds/new?experience=true"
                             className={buttonVariants()}
                         >
                             <MessageSquarePlus className="size-4" />

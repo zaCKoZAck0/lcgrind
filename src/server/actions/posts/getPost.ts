@@ -27,7 +27,7 @@ export async function getPublicPost(
             status: true,
             createdAt: true,
             editedAt: true,
-            author: { select: { handle: true, avatar: true } },
+            author: { select: { handle: true, avatar: true, image: true } },
             company: { select: { slug: true, name: true } },
             tags: { select: { tag: { select: { slug: true, name: true } } } },
         },

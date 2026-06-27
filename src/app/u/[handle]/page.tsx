@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, ArrowBigUp, Trophy, Award } from "lucide-react";
+import { ChevronRight, ArrowBigUp, Trophy, Award } from "lucide-react";
 
 import { db } from "~/lib/db";
-import { getFeed } from "~/server/actions/discuss/feed";
-import { getProfileByHandle } from "~/server/actions/discuss/profile";
-import { PostCard } from "~/components/discuss/post-card";
+import { getFeed } from "~/server/actions/grinds/feed";
+import { getProfileByHandle } from "~/server/actions/grinds/profile";
+import { PostCard } from "~/components/grinds/post-card";
+import { BackLink } from "~/components/grinds/back-link";
+import { EmptyState } from "~/components/grinds/empty-state";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Card, CardContent } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { buttonVariants } from "~/components/ui/button";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
@@ -45,7 +47,7 @@ export default async function UserProfilePage({
     const profile = await getProfileByHandle(db, handle);
     if (!profile) notFound();
 
-    const feedPosts = FEATURE_FLAGS.DISCUSS ? await getFeed(db, {
+    const feedPosts = FEATURE_FLAGS.GRINDS ? await getFeed(db, {
         sort: "new",
         authorId: profile.id,
         cursor,
@@ -54,14 +56,8 @@ export default async function UserProfilePage({
 
     return (
         <div className="w-full max-w-[800px] py-6 px-4 mx-auto">
-            {FEATURE_FLAGS.DISCUSS && (
-                <Link
-                    href="/discuss"
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-                >
-                    <ChevronLeft className="size-4" />
-                    Discuss
-                </Link>
+            {FEATURE_FLAGS.GRINDS && (
+                <BackLink href="/grinds" label="Grinds" />
             )}
 
             {/* Profile header */}
@@ -105,11 +101,7 @@ export default async function UserProfilePage({
             </Card>
 
             {posts.length === 0 ? (
-                <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">
-                        No public posts yet.
-                    </CardContent>
-                </Card>
+                <EmptyState>No public posts yet.</EmptyState>
             ) : (
                 <div className="flex flex-col gap-4">
                     {posts.map((post) => (

@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createPostCore, editPostCore } from "./core";
-import { EXPERIENCE_WEEKLY_CAP } from "~/config/discuss";
+import { EXPERIENCE_WEEKLY_CAP } from "~/config/grinds";
 
 const db = new PrismaClient({
     datasourceUrl:

@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client";
 
-import { COMMENT_BODY_MAX } from "~/config/discuss";
+import { COMMENT_BODY_MAX } from "~/config/grinds";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { hasProfanity } from "../posts/publish-gate";
 import { notify, parseMentions } from "../notifications/core";

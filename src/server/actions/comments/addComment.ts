@@ -30,7 +30,7 @@ export async function addComment(input: {
     });
 
     if (res.ok === true) {
-        revalidatePath(`/discuss/${input.postParam}`);
+        revalidatePath(`/grinds/${input.postParam}`);
         void syncSocialBadges(db, session.user.id);
     }
     return res;
