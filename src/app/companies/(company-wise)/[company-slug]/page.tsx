@@ -206,8 +206,6 @@ export default async function CompanyInterviews({
                                     <QuestionSections
                                         sections={sections}
                                         companyName={company.name}
-                                        companySlug={slug}
-                                        enabledCategories={enabledCategories}
                                     />
                                 ) : (
                                     <Card className="p-10 text-center text-muted-foreground/70">
