@@ -4,11 +4,14 @@ import { redirect } from "next/navigation";
 import { UserPen } from "lucide-react";
 import { auth } from "~/lib/auth";
 import { getMyProfileStatus } from "~/server/actions/grinds/profile-actions";
+import { getProgressSync } from "~/server/actions/progress/sync";
 import { ProfileForm } from "~/components/auth/profile-form";
+import { ProgressSyncToggle } from "~/components/settings/progress-sync-toggle";
+import { Card } from "~/components/ui/card";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export const metadata: Metadata = {
-    title: "Edit profile",
+    title: "Edit profile (Legacy)",
     robots: { index: false },
 };
 
@@ -17,19 +20,31 @@ export default async function EditProfilePage() {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) redirect("/");
 
-    const profile = await getMyProfileStatus();
+    const [profile, syncStatus] = await Promise.all([
+        getMyProfileStatus(),
+        getProgressSync(),
+    ]);
 
     return (
-        <div className="w-full max-w-[480px] py-10 px-4 mx-auto">
-            <div className="flex items-center gap-2 mb-8">
+        <div className="w-full max-w-[480px] py-10 px-4 mx-auto flex flex-col gap-8">
+            <div className="flex items-center gap-2">
                 <UserPen className="size-5" />
                 <h1 className="font-bold text-xl">Edit profile</h1>
+                <span className="text-xs text-muted-foreground border border-border rounded px-1.5 py-0.5 ml-1">
+                    Legacy
+                </span>
             </div>
+
             <ProfileForm
                 initialName={profile.name}
                 email={profile.email}
                 initialHandle={profile.handle}
             />
+
+            <Card className="p-4 flex flex-col gap-1">
+                <p className="font-semibold text-sm mb-2">Progress storage</p>
+                <ProgressSyncToggle initialEnabled={syncStatus.enabled} />
+            </Card>
         </div>
     );
 }
