@@ -11,19 +11,43 @@ import { store, persistor } from "~/store";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { useState, useEffect } from "react";
-import { getProgressSync } from "~/server/actions/progress/sync";
+import { getProgressSync, saveProgress } from "~/server/actions/progress/sync";
 
-const HYDRATION_SESSION_KEY = "progress_hydrated";
+const SESSION_HYDRATED_KEY = "progress_hydrated";
+
+// Cached after ProgressSyncHydrator fetches from server. Avoids a round-trip
+// per Redux action in the subscriber below.
+let _syncEnabledCache = false;
+let _saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Module-level subscriber — runs on both server (SSR) and client. The
+// typeof-window guard prevents sessionStorage access from crashing SSR.
+store.subscribe(() => {
+    if (typeof window === "undefined") return;
+    if (!_syncEnabledCache) return;
+    if (!sessionStorage.getItem(SESSION_HYDRATED_KEY)) return;
+
+    if (_saveTimer) clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(() => {
+        const state = store.getState() as unknown as Record<string, unknown>;
+        saveProgress(state).catch(() => {});
+    }, 2000);
+});
 
 function ProgressSyncHydrator() {
     useEffect(() => {
-        if (sessionStorage.getItem(HYDRATION_SESSION_KEY)) return;
+        // Already hydrated this browser session — re-set cache and skip re-fetch.
+        if (sessionStorage.getItem(SESSION_HYDRATED_KEY)) {
+            _syncEnabledCache = true;
+            return;
+        }
 
         getProgressSync()
             .then(({ enabled, data }) => {
+                _syncEnabledCache = enabled;
                 if (!enabled || !data || typeof data !== "object") return;
 
-                sessionStorage.setItem(HYDRATION_SESSION_KEY, "1");
+                sessionStorage.setItem(SESSION_HYDRATED_KEY, "1");
 
                 const serialized: Record<string, string> = {};
                 for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
@@ -38,40 +62,11 @@ function ProgressSyncHydrator() {
                     payload: data,
                 });
             })
-            .catch(() => {
-                // Not logged in or network error — stay local silently
-            });
+            .catch(() => {});
     }, []);
 
     return null;
 }
-
-let _saveTimer: ReturnType<typeof setTimeout> | null = null;
-
-function setupSyncSubscriber() {
-    store.subscribe(() => {
-        if (!sessionStorage.getItem(HYDRATION_SESSION_KEY)) return;
-
-        if (_saveTimer) clearTimeout(_saveTimer);
-        _saveTimer = setTimeout(() => {
-            getProgressSync()
-                .then(({ enabled }) => {
-                    if (!enabled) return;
-                    return import("~/server/actions/progress/sync").then(
-                        ({ saveProgress }) => {
-                            const state = store.getState() as unknown as Record<string, unknown>;
-                            return saveProgress(state);
-                        },
-                    );
-                })
-                .catch(() => {
-                    // Silent — sync failure should never surface as an error to the user
-                });
-        }, 2000);
-    });
-}
-
-setupSyncSubscriber();
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
