@@ -373,6 +373,8 @@ model User {
   role          String    @default("USER")
   // Null until the user completes the post-login profile setup popup.
   onboardedAt   DateTime?
+  syncProgress  Boolean   @default(false)
+  progressData  Json?
   sessions      Session[]
   accounts      Account[]
   submissions   Submission[]
