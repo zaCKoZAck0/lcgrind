@@ -29,10 +29,7 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
     return (
         <article className="relative rounded-base border-2 border-border bg-card p-4 flex gap-3 hover:bg-secondary-background/40 transition-colors">
             {post.isPinned && (
-                <span className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                    <Pin className="size-3" />
-                    Pinned
-                </span>
+                <Pin className="absolute top-3 right-3 size-4 text-muted-foreground" aria-label="Pinned" />
             )}
             <Avatar className="size-9 shrink-0 border-2 border-border">
                 <AvatarImage src={post.author?.avatar ?? undefined} alt={post.author?.handle ?? "anon"} />
@@ -70,19 +67,9 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
                     )}
                 </Link>
 
-                {/* Company + flair tags */}
-                {(post.company || post.tags.length > 0) && (
+                {/* Flair tags */}
+                {post.tags.length > 0 && (
                     <div className="relative z-10 flex flex-wrap gap-1 mt-2">
-                        {post.company && (
-                            <Link
-                                href={`/companies/${post.company.slug}`}
-                                className={cn(
-                                    "text-[10px] px-1.5 py-0 h-4 inline-flex items-center rounded-base border-2 border-border font-medium hover:bg-secondary-background transition-colors",
-                                )}
-                            >
-                                {post.company.name}
-                            </Link>
-                        )}
                         {post.tags.map((tag) => (
                             <Link
                                 key={tag.slug}

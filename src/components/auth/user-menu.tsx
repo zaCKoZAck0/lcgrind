@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import {
     LogOut,
     User,
-    FileText,
+    ScrollText,
     ShieldCheck,
-    Trophy,
+    Zap,
     UserPen,
     Bell,
     LogIn,
@@ -136,7 +136,7 @@ export function UserMenu() {
                 >
                     {points !== null && (
                         <div className="flex items-center gap-1.5 font-semibold tabular-nums pl-1">
-                            <Trophy className="size-4" />
+                            <Zap className="size-4" />
                             <span>{points}</span>
                         </div>
                     )}
@@ -150,9 +150,19 @@ export function UserMenu() {
                         {user.name}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-                        <UserPen className="size-4" />
-                        Edit profile
+                    {FEATURE_FLAGS.GRINDS && profileStatus?.handle && (
+                        <DropdownMenuItem asChild>
+                            <Link href={`/u/${profileStatus.handle}`}>
+                                <ScrollText className="size-4" />
+                                Profile
+                            </Link>
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem asChild>
+                        <Link href="/settings/profile">
+                            <UserPen className="size-4" />
+                            Edit profile
+                        </Link>
                     </DropdownMenuItem>
                     {FEATURE_FLAGS.GRINDS && (
                         <DropdownMenuItem asChild>
@@ -162,12 +172,6 @@ export function UserMenu() {
                             </Link>
                         </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem asChild>
-                        <Link href="/my-submissions">
-                            <FileText className="size-4" />
-                            My submissions
-                        </Link>
-                    </DropdownMenuItem>
                     {isAdmin && (
                         <>
                             <DropdownMenuItem asChild>
