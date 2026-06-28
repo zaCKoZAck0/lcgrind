@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, ThumbsUp, Zap, Award } from "lucide-react";
+import { ChevronRight, ThumbsUp, Zap, Award, Pencil } from "lucide-react";
+import { headers } from "next/headers";
 
 import { db } from "~/lib/db";
+import { auth } from "~/lib/auth";
+import { cn } from "~/lib/utils";
 import { getFeed } from "~/server/actions/grinds/feed";
 import { getProfileByHandle } from "~/server/actions/grinds/profile";
 import { PostCard } from "~/components/grinds/post-card";
@@ -48,6 +51,9 @@ export default async function UserProfilePage({
     const profile = await getProfileByHandle(db, handle);
     if (!profile) notFound();
 
+    const session = await auth.api.getSession({ headers: await headers() });
+    const isOwnProfile = session?.user.id === profile.id;
+
     const feedPosts = FEATURE_FLAGS.GRINDS ? await getFeed(db, {
         sort: "new",
         authorId: profile.id,
@@ -64,7 +70,21 @@ export default async function UserProfilePage({
             {/* Profile header */}
             <Card className="mb-6 p-0 gap-0 overflow-hidden bg-secondary-background">
                 {/* Banner */}
-                <ProfileBanner />
+                <div className="relative">
+                    <ProfileBanner />
+                    {isOwnProfile && (
+                        <Link
+                            href="/settings/profile"
+                            className={cn(
+                                buttonVariants({ variant: "neutral", size: "icon" }),
+                                "absolute top-2 right-2 size-8"
+                            )}
+                            aria-label="Edit profile"
+                        >
+                            <Pencil className="size-3.5" />
+                        </Link>
+                    )}
+                </div>
 
                 <div className="px-5 pb-5 flex flex-col gap-4">
                     {/* Avatar + name — avatar overlaps banner */}
