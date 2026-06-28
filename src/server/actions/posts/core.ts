@@ -74,6 +74,7 @@ export type PostRowForPublic = {
     status: string;
     createdAt: Date;
     editedAt: Date | null;
+    pinnedAt: Date | null;
     author: { handle: string | null; avatar: string | null; image?: string | null };
     company: { slug: string; name: string } | null;
     // Curated flair join rows; absent when a read path doesn't select them.
@@ -96,6 +97,7 @@ export type PublicPost = {
     downCount: number;
     commentCount: number;
     status: string;
+    isPinned: boolean;
     // The viewer's own vote on this post (+1 / -1 / 0). Their vote only; never
     // anyone else's. 0 for signed-out viewers.
     myVote: number;
@@ -127,6 +129,7 @@ export function serializePostPublic(
         downCount: row.downCount,
         commentCount: row.commentCount,
         status: row.status,
+        isPinned: row.pinnedAt !== null,
         myVote,
     };
 }
@@ -282,15 +285,65 @@ export async function runPublishGate(
     return { ok: true };
 }
 
-// Auto-compute flair slugs for a structured experience from question types.
+type ExperienceEntry = {
+    company: string;
+    role?: string;
+    rounds?: { type: string; questions: { text: string }[] }[];
+    comp?: { currency: string; tc: number };
+};
+
+type LegacyStructured = { role?: string; rounds?: { type: string; questions: { text: string }[] }[]; comp?: { currency: string; tc: number } };
+
+function getExperienceEntries(structured: unknown, fallbackCompany: string): ExperienceEntry[] {
+    if (!structured || typeof structured !== "object") return [];
+    if ("experiences" in structured && Array.isArray((structured as { experiences: unknown }).experiences)) {
+        return (structured as { experiences: ExperienceEntry[] }).experiences;
+    }
+    const s = structured as LegacyStructured;
+    return [{ company: fallbackCompany, role: s.role, rounds: s.rounds, comp: s.comp }];
+}
+
+function buildExperienceSection(exp: ExperienceEntry, roundOffset = 0): string[] {
+    const lines: string[] = [];
+    const role = exp.role?.trim();
+    lines.push(role ? `## ${exp.company} — ${role}` : `## ${exp.company}`);
+    lines.push("");
+    for (let i = 0; i < (exp.rounds?.length ?? 0); i++) {
+        const r = exp.rounds![i];
+        lines.push(`### Round ${roundOffset + i + 1} — ${r.type}`);
+        lines.push("");
+        for (const q of r.questions.filter((q) => q.text.trim())) {
+            lines.push(`- ${q.text.trim()}`);
+        }
+        lines.push("");
+    }
+    if (exp.comp) {
+        lines.push(`**Compensation:** ${exp.comp.currency} ${exp.comp.tc.toLocaleString()}/year`);
+        lines.push("");
+    }
+    return lines;
+}
+
+function buildExperienceBody(companyName: string, structured: unknown): string {
+    const entries = getExperienceEntries(structured, companyName);
+    const parts: string[] = [];
+    for (let i = 0; i < entries.length; i++) {
+        if (i > 0) { parts.push("---"); parts.push(""); }
+        parts.push(...buildExperienceSection(entries[i]));
+    }
+    return parts.join("\n").trim();
+}
+
+// Auto-compute flair slugs from round types across all experiences.
 function autoFlairsForExperience(structured: unknown): string[] {
-    const s = structured as { rounds?: { questions?: { type?: string }[] }[] } | null;
-    if (!s?.rounds?.length) return [];
-    const qtypes = new Set(s.rounds.flatMap((r) => r.questions?.map((q) => q.type ?? "") ?? []));
+    const entries = getExperienceEntries(structured, "");
+    const rounds = entries.flatMap((e) => e.rounds ?? []);
+    if (!rounds.length) return [];
+    const rtypes = new Set(rounds.map((r) => r.type));
     const slugs: string[] = [];
-    if (qtypes.has("DSA")) slugs.push("dsa");
-    if (FEATURE_FLAGS.SYSTEM_DESIGN && qtypes.has("System Design")) slugs.push("system-design");
-    if (qtypes.has("Behavioral")) slugs.push("behavioral");
+    if (rtypes.has("Coding") || rtypes.has("Phone Screen")) slugs.push("dsa");
+    if (FEATURE_FLAGS.SYSTEM_DESIGN && rtypes.has("System Design")) slugs.push("system-design");
+    if (rtypes.has("Behavioral")) slugs.push("behavioral");
     return slugs.slice(0, POST_TAG_MAX);
 }
 
@@ -324,12 +377,9 @@ export async function createPostCore(
                 error: `Please write at least ${EXPERIENCE_BODY_MIN} characters about your experience`,
             };
         }
-        // For FORM mode generate a minimal public body so the post isn't empty.
+        // For FORM mode generate a structured markdown body from the interview data.
         if (input.mode === "FORM" && body.length === 0) {
-            const s = input.structured as { role?: string; rounds?: unknown[] } | null;
-            const role = s?.role?.trim() ? ` for ${s.role.trim()}` : "";
-            const n = s?.rounds?.length ?? 0;
-            body = `Interview experience at ${companyName}${role}${n > 0 ? ` — ${n} round${n !== 1 ? "s" : ""}` : ""}.`;
+            body = buildExperienceBody(companyName, input.structured);
         }
     }
 

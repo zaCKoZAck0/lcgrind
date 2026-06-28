@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { MessageSquare, Building2, ArrowLeft } from "lucide-react";
 import { headers } from "next/headers";
 import { auth, isAdminEmail } from "~/lib/auth";
+import { getUserRole, canPin } from "~/lib/rbac";
 import { postIdFromParam, postParam } from "~/server/actions/posts/core";
-import { getPublicPost } from "~/server/actions/posts/getPost";
+import { getPublicPost, getPostExperienceCompanies } from "~/server/actions/posts/getPost";
 import { getPostComments } from "~/server/actions/comments/getComments";
 import { renderMarkdown } from "~/utils/markdown";
 import { formatMonth } from "~/utils/public-date";
@@ -56,11 +57,16 @@ export default async function GrindsPostPage({
         : null;
     const viewerId = session?.user.id;
     const isAdmin = isAdminEmail(session?.user.email);
+    const role = await getUserRole(viewerId, session?.user.email);
+    const userCanPin = canPin(role);
 
     const post = await getPublicPost(postIdFromParam(idSlug), viewerId);
     if (!post) notFound();
 
-    const comments = await getPostComments(post.id, viewerId);
+    const [comments, experienceCompanies] = await Promise.all([
+        getPostComments(post.id, viewerId),
+        post.type === "EXPERIENCE" ? getPostExperienceCompanies(post.id) : Promise.resolve([]),
+    ]);
     const author = post.author?.handle ? `@${post.author.handle}` : "Anonymous";
     const param = postParam(post.id, post.title);
     const emitForumJsonLd = post.type === "EXPERIENCE" || post.type === null;
@@ -93,8 +99,14 @@ export default async function GrindsPostPage({
                     targetType="POST"
                     targetId={post.id}
                     postParam={param}
-                    canReport={Boolean(session)}
+                    canReport={Boolean(session) && !post.isOwner}
                     isAdmin={isAdmin}
+                    isOwner={post.isOwner}
+                    canPin={userCanPin}
+                    isPinned={post.isPinned}
+                    postTitle={post.title}
+                    postBody={post.body}
+                    postType={post.type}
                 />
             </div>
 
@@ -129,18 +141,48 @@ export default async function GrindsPostPage({
                                 {post.editedMonth && post.editedMonth !== post.createdMonth && (
                                     <span className="italic">· edited {formatMonth(post.editedMonth)}</span>
                                 )}
-                                {post.company && (
-                                    <Badge variant="neutral" className="text-[10px] px-1.5 py-0 h-4" asChild>
-                                        <Link href={`/companies/${post.company.slug}`}>
-                                            <Building2 className="size-3 mr-1" />
-                                            {post.company.name}
-                                        </Link>
-                                    </Badge>
-                                )}
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Company + flair tags */}
+                {(experienceCompanies.length > 0 || post.company || post.tags.length > 0) && (
+                    <div className="px-5 pt-3 pb-0 flex flex-wrap gap-1.5">
+                        {experienceCompanies.length > 0
+                            ? experienceCompanies.map((name, i) => {
+                                  const slug = post.company?.name === name ? post.company.slug : null;
+                                  return slug ? (
+                                      <Badge key={i} variant="neutral" className="text-xs" asChild>
+                                          <Link href={`/companies/${slug}`}>
+                                              <Building2 className="size-3 mr-1" />
+                                              {name}
+                                          </Link>
+                                      </Badge>
+                                  ) : (
+                                      <Badge key={i} variant="neutral" className="text-xs">
+                                          <Building2 className="size-3 mr-1" />
+                                          {name}
+                                      </Badge>
+                                  );
+                              })
+                            : post.company && (
+                                  <Badge variant="neutral" className="text-xs" asChild>
+                                      <Link href={`/companies/${post.company.slug}`}>
+                                          <Building2 className="size-3 mr-1" />
+                                          {post.company.name}
+                                      </Link>
+                                  </Badge>
+                              )}
+                        {post.tags.map((tag) => (
+                            <Badge key={tag.slug} variant="default" className="text-xs" asChild>
+                                <Link href={`/grinds/tag/${tag.slug}`}>
+                                    {tag.name}
+                                </Link>
+                            </Badge>
+                        ))}
+                    </div>
+                )}
 
                 {/* Body */}
                 <div

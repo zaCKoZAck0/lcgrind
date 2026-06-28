@@ -237,6 +237,7 @@ model Post {
   acceptedCommentId String?
   status            String    @default("PUBLISHED") // PUBLISHED | TOMBSTONED | REMOVED | SHADOW
   lockedAt          DateTime?
+  pinnedAt          DateTime?
   // Set once the forked submission is merged; later social edits stop spawning
   // admin versions and never touch aggregates (point-in-time, anti-gaming).
   parseFrozen       Boolean   @default(false)
@@ -253,6 +254,7 @@ model Post {
   // so it is modeled as Unsupported here purely to avoid migration drift.
   searchVector Unsupported("tsvector")?
 
+  @@index([status, pinnedAt])
   @@index([status, hotRank])
   @@index([companyId, type])
   @@index([authorId])
@@ -366,6 +368,9 @@ model User {
   avatar        String?
   karma         Int          @default(0)
   bannedAt      DateTime?
+  // "USER" | "MODERATOR" | "ADMIN". Email-based ADMIN_EMAILS env var takes
+  // precedence; this field enables DB-granted moderator and admin roles.
+  role          String    @default("USER")
   // Null until the user completes the post-login profile setup popup.
   onboardedAt   DateTime?
   sessions      Session[]

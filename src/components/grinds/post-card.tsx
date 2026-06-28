@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Pin } from "lucide-react";
 
-import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
+import { cn } from "~/lib/utils";
 import { formatMonth } from "~/utils/public-date";
 import { postParam } from "~/server/actions/posts/core";
 import type { PublicPost } from "~/server/actions/posts/core";
@@ -28,6 +28,12 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
 
     return (
         <article className="relative rounded-base border-2 border-border bg-card p-4 flex gap-3 hover:bg-secondary-background/40 transition-colors">
+            {post.isPinned && (
+                <span className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                    <Pin className="size-3" />
+                    Pinned
+                </span>
+            )}
             <Avatar className="size-9 shrink-0 border-2 border-border">
                 <AvatarImage src={post.author?.avatar ?? undefined} alt={post.author?.handle ?? "anon"} />
                 <AvatarFallback className="text-sm font-bold">
@@ -49,13 +55,6 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
                     )}
                     <span>·</span>
                     <span>{formatMonth(post.createdMonth)}</span>
-                    {post.company && (
-                        <Badge variant="neutral" className="relative z-10 text-[10px] px-1.5 py-0 h-4" asChild>
-                            <Link href={`/companies/${post.company.slug}`}>
-                                {post.company.name}
-                            </Link>
-                        </Badge>
-                    )}
                 </div>
 
                 {/* Title + excerpt — stretched link covers whole card */}
@@ -70,6 +69,33 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
                         </p>
                     )}
                 </Link>
+
+                {/* Company + flair tags */}
+                {(post.company || post.tags.length > 0) && (
+                    <div className="relative z-10 flex flex-wrap gap-1 mt-2">
+                        {post.company && (
+                            <Link
+                                href={`/companies/${post.company.slug}`}
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0 h-4 inline-flex items-center rounded-base border-2 border-border font-medium hover:bg-secondary-background transition-colors",
+                                )}
+                            >
+                                {post.company.name}
+                            </Link>
+                        )}
+                        {post.tags.map((tag) => (
+                            <Link
+                                key={tag.slug}
+                                href={`/grinds/tag/${tag.slug}`}
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0 h-4 inline-flex items-center rounded-base border-2 border-main bg-main text-main-foreground font-medium hover:opacity-80 transition-opacity",
+                                )}
+                            >
+                                {tag.name}
+                            </Link>
+                        ))}
+                    </div>
+                )}
 
                 {/* Footer */}
                 <div className="relative z-10 flex items-center gap-2 text-xs text-muted-foreground mt-3 pt-3 border-t border-border/30">
