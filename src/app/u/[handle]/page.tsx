@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, ThumbsUp, Zap, Award, Pencil } from "lucide-react";
+import { ChevronRight, ThumbsUp, Zap, Award, Pencil, Flame } from "lucide-react";
 import { headers } from "next/headers";
 
 import { db } from "~/lib/db";
@@ -60,7 +60,6 @@ export default async function UserProfilePage({
         cursor,
     }) : { posts: [], nextCursor: null };
     const { posts, nextCursor } = feedPosts;
-
     return (
         <div className="w-full max-w-[800px] py-6 px-4 mx-auto">
             {FEATURE_FLAGS.GRINDS && (
@@ -115,12 +114,20 @@ export default async function UserProfilePage({
                                 Reputation
                             </span>
                         </div>
-                        <div className="flex-1 flex flex-col items-center py-4 px-4">
+                        <div className="flex-1 flex flex-col items-center py-4 px-4 border-r-2 border-border">
                             <span className="font-bold text-3xl tabular-nums leading-none">{profile.exp}</span>
                             <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
                                 <Zap className="size-4" />
                                 Exp
                             </span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center py-4 px-4">
+                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.loginStreak}</span>
+                            <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
+                                <Flame className="size-4" />
+                                Streak
+                            </span>
+                            <span className="text-xs text-muted-foreground mt-1">Best: {profile.longestStreak}</span>
                         </div>
                     </div>
 

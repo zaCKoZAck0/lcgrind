@@ -6,7 +6,7 @@ import {
     User,
     ScrollText,
     ShieldCheck,
-    Zap,
+    Zap, Flame,
     UserPen,
     Bell,
     LogIn,
@@ -15,7 +15,7 @@ import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import { cn } from "~/lib/utils";
 import { isCurrentUserAdmin } from "~/server/actions/admin/whoami";
-import { getMyExp } from "~/server/actions/gamification/actions";
+import { getMyGameStats } from "~/server/actions/gamification/actions";
 import {
     getMyProfileStatus,
     type ProfileStatus,
@@ -39,7 +39,8 @@ import { FEATURE_FLAGS } from "~/config/feature-flags";
 export function UserMenu() {
     const { data: session, isPending } = useSession();
     const [isAdmin, setIsAdmin] = useState(false);
-    const [points, setPoints] = useState<number | null>(null);
+    const [exp, setExp] = useState<number | null>(null);
+    const [loginStreak, setLoginStreak] = useState<number>(0);
     const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -47,7 +48,9 @@ export function UserMenu() {
     useEffect(() => {
         if (session) {
             isCurrentUserAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-            getMyExp().then(setPoints).catch(() => setPoints(null));
+            getMyGameStats()
+                .then(({ exp, loginStreak }) => { setExp(exp); setLoginStreak(loginStreak); })
+                .catch(() => { setExp(null); setLoginStreak(0); });
             if (FEATURE_FLAGS.NOTIFICATIONS) {
                 getUnreadCount().then(setUnreadCount).catch(() => setUnreadCount(0));
             }
@@ -60,7 +63,8 @@ export function UserMenu() {
                 .catch(() => setProfileStatus(null));
         } else {
             setIsAdmin(false);
-            setPoints(null);
+            setExp(null);
+            setLoginStreak(0);
             setProfileStatus(null);
             setUnreadCount(0);
         }
@@ -134,10 +138,18 @@ export function UserMenu() {
                     )}
                     aria-label="Account menu"
                 >
-                    {points !== null && (
-                        <div className="flex items-center gap-1.5 font-semibold tabular-nums pl-1">
-                            <Zap className="size-4" />
-                            <span>{points}</span>
+                    {exp !== null && (
+                        <div className="flex items-center gap-2 pl-1">
+                            <div className="flex items-center gap-1.5 font-semibold tabular-nums">
+                                <Zap className="size-4" />
+                                <span>{exp}</span>
+                            </div>
+                            {loginStreak > 0 && (
+                                <div className="flex items-center gap-1 font-semibold tabular-nums text-sm">
+                                    <Flame className="size-3.5" />
+                                    <span>{loginStreak}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                     <Avatar className="size-7">
