@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
+import { syncGrindBadges } from "~/server/actions/gamification/core";
 
 export type ProgressSyncStatus = {
     enabled: boolean;
@@ -51,6 +52,8 @@ export async function saveProgress(
         where: { id: session.user.id },
         data: { progressData: data as object },
     });
+
+    syncGrindBadges(db, session.user.id).catch(() => undefined);
 
     return { ok: true };
 }

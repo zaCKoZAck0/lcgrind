@@ -152,6 +152,64 @@ export async function grantNewBadgesWithExp(
     }
 }
 
+type CompletedProblemEntry = { completedAt: string };
+type ProgressData = {
+    completedProblems?: Record<string, CompletedProblemEntry>;
+    [key: string]: unknown;
+};
+
+export async function syncGrindBadges(db: PrismaClient, userId: string): Promise<void> {
+    const user = await db.user.findUnique({
+        where: { id: userId },
+        select: { progressData: true, syncProgress: true },
+    });
+    if (!user?.syncProgress || !user.progressData) return;
+
+    const raw = user.progressData as ProgressData;
+    const completedEntries = Object.entries(raw.completedProblems ?? {});
+    if (completedEntries.length === 0) return;
+
+    const completedIds = completedEntries.map(([id]) => id);
+
+    const problems = await db.problem.findMany({
+        where: { frontendQuestionId: { in: completedIds } },
+        select: { frontendQuestionId: true, difficulty: true },
+    });
+    const diffMap = new Map(problems.map((p) => [p.frontendQuestionId, p.difficulty]));
+
+    const totalSolved = completedEntries.length;
+    const hardSolved = completedEntries.filter(([id]) => diffMap.get(id) === "Hard").length;
+
+    const solvedDays = new Set(
+        completedEntries.map(([, e]) => e.completedAt.slice(0, 10)),
+    );
+    const distinctDays = solvedDays.size;
+
+    let solvingStreak = 0;
+    const today = new Date();
+    for (let i = 0; ; i++) {
+        const d = new Date(today);
+        d.setUTCDate(d.getUTCDate() - i);
+        const dayStr = d.toISOString().slice(0, 10);
+        if (!solvedDays.has(dayStr)) break;
+        solvingStreak++;
+    }
+
+    const sheets = await db.sheet.findMany({
+        select: {
+            id: true,
+            SheetProblem: { select: { problem: { select: { frontendQuestionId: true } } } },
+        },
+    });
+    const completedSet = new Set(completedIds);
+    const completedSheetIds = sheets
+        .filter((s) => s.SheetProblem.length > 0 && s.SheetProblem.every((sp) => completedSet.has(sp.problem.frontendQuestionId)))
+        .map((s) => s.id);
+
+    const earned = evaluateGrindBadges({ totalSolved, hardSolved, solvingStreak, distinctDays, completedSheetIds });
+    await grantNewBadgesWithExp(db, userId, earned);
+}
+
 // Reconciles the ledger entry for one submission inside a transaction:
 // removes any prior entry for it, writes the new signed entry (when non-zero),
 // and adjusts the user's running total by the net change. Idempotent — running
