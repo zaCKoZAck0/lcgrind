@@ -35,25 +35,16 @@ export function awardForExperience(payload: SanitizedExperience): AwardOutcome {
 }
 
 export type ContributionStats = {
-    reportCount: number;
     compCount: number;
-    companyCount: number;
+    hasStructured: boolean;
 };
 
 // Milestone badges from contribution history. Pure; additive (earned badges
 // never get revoked here — callers persist with a unique constraint).
 export function evaluateBadges(stats: ContributionStats): BadgeId[] {
     const earned: BadgeId[] = [];
-    // @ts-ignore — old badge IDs; remapped in Task 4
-    if (stats.reportCount >= 1) earned.push("first-report");
-    // @ts-ignore
-    if (stats.reportCount >= 5) earned.push("five-reports");
-    // @ts-ignore
-    if (stats.reportCount >= 25) earned.push("twenty-five-reports");
-    // @ts-ignore
-    if (stats.compCount >= 1) earned.push("comp-contributor");
-    // @ts-ignore
-    if (stats.companyCount >= 3) earned.push("multi-company");
+    if (stats.compCount >= 1) earned.push("valuable-contributor");
+    if (stats.hasStructured) earned.push("well-structured");
     return earned;
 }
 
@@ -69,7 +60,42 @@ export function evaluateSocialBadges(stats: SocialStats): BadgeId[] {
     const earned: BadgeId[] = [];
     if (stats.postCount >= 1) earned.push("first-post");
     if (stats.karma >= 10) earned.push("karma-10");
+    if (stats.karma >= 100) earned.push("karma-100");
+    if (stats.karma >= 500) earned.push("karma-500");
     if (stats.commentCount >= 25) earned.push("prolific-commenter");
+    // helpful-answer: not evaluated until accepted-answers feature ships
+    return earned;
+}
+
+export type GrindStats = {
+    totalSolved: number;
+    hardSolved: number;
+    solvingStreak: number;
+    distinctDays: number;
+    completedSheetIds: number[];
+};
+
+export function evaluateGrindBadges(stats: GrindStats): BadgeId[] {
+    const earned: BadgeId[] = [];
+    if (stats.totalSolved >= 10) earned.push("solver-10");
+    if (stats.totalSolved >= 50) earned.push("solver-50");
+    if (stats.totalSolved >= 100) earned.push("solver-100");
+    if (stats.totalSolved >= 500) earned.push("solver-500");
+    if (stats.hardSolved >= 10) earned.push("hard-hitter-10");
+    if (stats.hardSolved >= 50) earned.push("hard-hitter-50");
+    if (stats.solvingStreak >= 7) earned.push("streak-7");
+    if (stats.solvingStreak >= 30) earned.push("streak-30");
+    if (stats.solvingStreak >= 100) earned.push("streak-100");
+    if (stats.distinctDays >= 50) earned.push("committed");
+    if (stats.completedSheetIds.length > 0) earned.push("interview-ready");
+    return earned;
+}
+
+export function evaluateLoginBadges(streak: number): BadgeId[] {
+    const earned: BadgeId[] = [];
+    if (streak >= 7) earned.push("login-streak-7");
+    if (streak >= 30) earned.push("login-streak-30");
+    if (streak >= 100) earned.push("login-streak-100");
     return earned;
 }
 
@@ -77,6 +103,54 @@ type TxClient = Omit<
     PrismaClient,
     "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
 >;
+
+// Inserts newly earned badge rows, credits their one-time exp to the ledger and
+// User.exp, and fires BADGE notifications. Idempotent via the unique constraint.
+export async function grantNewBadgesWithExp(
+    db: PrismaClient,
+    userId: string,
+    earnedIds: BadgeId[],
+): Promise<void> {
+    if (earnedIds.length === 0) return;
+
+    const existing = await db.userBadge.findMany({
+        where: { userId, badge: { in: earnedIds } },
+        select: { badge: true },
+    });
+    const existingSet = new Set(existing.map((b) => b.badge));
+    const newIds = earnedIds.filter((id) => !existingSet.has(id));
+    if (newIds.length === 0) return;
+
+    const totalExp = newIds.reduce((sum, id) => sum + BADGE_BY_ID[id].exp, 0);
+
+    await db.$transaction(async (tx) => {
+        await tx.userBadge.createMany({
+            data: newIds.map((badge) => ({ userId, badge })),
+            skipDuplicates: true,
+        });
+        await tx.pointsLedger.createMany({
+            data: newIds.map((id) => ({
+                userId,
+                submissionId: null,
+                delta: BADGE_BY_ID[id].exp,
+                reason: `badge:${id}`,
+            })),
+        });
+        await tx.user.update({
+            where: { id: userId },
+            data: { exp: { increment: totalExp } },
+        });
+    });
+
+    if (FEATURE_FLAGS.NOTIFICATIONS) {
+        const { notify } = await import("../notifications/core");
+        await Promise.all(
+            newIds.map(() =>
+                notify(db, { userId, type: "BADGE", actorId: null }).catch(() => undefined),
+            ),
+        );
+    }
+}
 
 // Reconciles the ledger entry for one submission inside a transaction:
 // removes any prior entry for it, writes the new signed entry (when non-zero),
@@ -191,22 +265,16 @@ export async function syncBadges(db: PrismaClient, userId: string): Promise<void
         },
     });
 
-    let reportCount = 0;
     let compCount = 0;
-    const companies = new Set<number>();
+    let hasStructured = false;
     for (const s of approved) {
-        const hasAsks = s.communityAsks.length > 0;
         const hasComp = s.communityComp.length > 0;
-        if (hasAsks) reportCount += 1;
+        const hasAsks = s.communityAsks.length > 0;
         if (hasComp) compCount += 1;
-        if ((hasAsks || hasComp) && s.companyId !== null) companies.add(s.companyId);
+        if (hasAsks) hasStructured = true;
     }
 
-    const earned = evaluateBadges({
-        reportCount,
-        compCount,
-        companyCount: companies.size,
-    });
+    const earned = evaluateBadges({ compCount, hasStructured });
     if (earned.length === 0) return;
 
     await db.userBadge.createMany({
