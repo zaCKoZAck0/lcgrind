@@ -226,30 +226,7 @@ export async function syncSocialBadges(db: PrismaClient, userId: string): Promis
     if (!user) return;
 
     const earned = evaluateSocialBadges({ postCount, commentCount, karma: user.karma });
-    if (earned.length === 0) return;
-
-    const existing = await db.userBadge.findMany({
-        where: { userId, badge: { in: earned } },
-        select: { badge: true },
-    });
-    const existingSet = new Set(existing.map((b) => b.badge));
-    const newBadges = earned.filter((b) => !existingSet.has(b));
-    if (newBadges.length === 0) return;
-
-    await db.userBadge.createMany({
-        data: newBadges.map((badge) => ({ userId, badge })),
-        skipDuplicates: true,
-    });
-
-    // Notify the user for each newly awarded badge (lazy import to avoid cycle).
-    if (FEATURE_FLAGS.NOTIFICATIONS) {
-        const { notify } = await import("../notifications/core");
-        await Promise.all(
-            newBadges.map(() =>
-                notify(db, { userId, type: "BADGE", actorId: null }).catch(() => undefined),
-            ),
-        );
-    }
+    await grantNewBadgesWithExp(db, userId, earned);
 }
 
 // Recomputes contribution stats from the user's currently-live community rows
@@ -259,8 +236,7 @@ export async function syncBadges(db: PrismaClient, userId: string): Promise<void
     const approved = await db.submission.findMany({
         where: { userId, status: "APPROVED" },
         select: {
-            companyId: true,
-            communityAsks: { select: { id: true }, take: 1 },
+            structured: true,
             communityComp: { select: { id: true }, take: 1 },
         },
     });
@@ -268,17 +244,10 @@ export async function syncBadges(db: PrismaClient, userId: string): Promise<void
     let compCount = 0;
     let hasStructured = false;
     for (const s of approved) {
-        const hasComp = s.communityComp.length > 0;
-        const hasAsks = s.communityAsks.length > 0;
-        if (hasComp) compCount += 1;
-        if (hasAsks) hasStructured = true;
+        if (s.communityComp.length > 0) compCount += 1;
+        if (s.structured !== null) hasStructured = true;
     }
 
     const earned = evaluateBadges({ compCount, hasStructured });
-    if (earned.length === 0) return;
-
-    await db.userBadge.createMany({
-        data: earned.map((badge) => ({ userId, badge })),
-        skipDuplicates: true,
-    });
+    await grantNewBadgesWithExp(db, userId, earned);
 }
