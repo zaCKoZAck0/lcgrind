@@ -63,13 +63,13 @@ describe("approval gamification", () => {
         expect(ledger[0].delta).toBe(60);
 
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.points).toBe(60);
+        expect(user?.exp).toBe(60);
     });
 
     it("is idempotent: re-approving does not double-count", async () => {
         await approveSubmissionCore(db, reportId);
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.points).toBe(60);
+        expect(user?.exp).toBe(60);
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: reportId } });
         expect(ledger).toHaveLength(1);
     });
@@ -83,7 +83,7 @@ describe("approval gamification", () => {
         const result = await rejectSubmissionCore(db, reportId, "spam");
         expect(result.ok).toBe(true);
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.points).toBe(0);
+        expect(user?.exp).toBe(0);
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: reportId } });
         expect(ledger).toHaveLength(0);
     });

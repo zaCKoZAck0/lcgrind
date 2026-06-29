@@ -57,11 +57,11 @@ Negative: no gradients, no glossy reflections, no realistic wood, no emoji, no p
 ### reputation-10
 
 ```text
-A flat neobrutalist achievement badge icon for a "10 Karma" award.
+A flat neobrutalist achievement badge icon for a "10 Reputation" award.
 
 Subject: a bold geometric thumbs-up with a small spark at the center, simplified into clean flat shapes like a Lucide line icon turned solid. The thumbs-up holds a small "10" in a heavy condensed sans-serif. The glyph sits inside a chunky hexagonal medal frame.
 
-Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in bronze (#CD7F32) with a black border; one small ribbon banner under the medal reading "KARMA".
+Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in bronze (#CD7F32) with a black border; one small ribbon banner under the medal reading "REP".
 
 Composition: single centered badge, square 1:1, generous padding, sticker-like, crisp vector look, fully symmetrical.
 
@@ -73,11 +73,11 @@ Negative: no gradients, no glossy reflections, no realistic hand, no emoji, no p
 ### reputation-100
 
 ```text
-A flat neobrutalist achievement badge icon for a "100 Karma" award.
+A flat neobrutalist achievement badge icon for a "100 Reputation" award.
 
 Subject: a bold geometric thumbs-up with an upward arrow at the center, simplified into clean flat shapes like a Lucide line icon turned solid. The thumbs-up holds a small "100" in a heavy condensed sans-serif. The glyph sits inside a chunky hexagonal medal frame.
 
-Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in silver (#C0C7CF) with a black border; one small ribbon banner under the medal reading "KARMA".
+Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in silver (#C0C7CF) with a black border; one small ribbon banner under the medal reading "REP".
 
 Composition: single centered badge, square 1:1, generous padding, sticker-like, crisp vector look, fully symmetrical.
 
@@ -89,11 +89,11 @@ Negative: no gradients, no glossy reflections, no realistic hand, no emoji, no p
 ### reputation-500
 
 ```text
-A flat neobrutalist achievement badge icon for a "500 Karma" award.
+A flat neobrutalist achievement badge icon for a "500 Reputation" award.
 
 Subject: a bold geometric thumbs-up flanked by a laurel wreath at the center, simplified into clean flat shapes like a Lucide line icon turned solid. The thumbs-up holds a small "500" in a heavy condensed sans-serif. The glyph sits inside a chunky hexagonal medal frame.
 
-Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in platinum cool white-violet (#DDE3F0) with a black border; one small ribbon banner under the medal reading "KARMA".
+Style: neobrutalism. Thick uniform 4px pure-black outlines on every shape. A hard-edged solid drop shadow offset down-right (no blur, no gradient). Flat saturated fills only — no shading, no glow, no 3D, no texture. Color: violet thumbs-up (#8B5CF6); medal frame in platinum cool white-violet (#DDE3F0) with a black border; one small ribbon banner under the medal reading "REP".
 
 Composition: single centered badge, square 1:1, generous padding, sticker-like, crisp vector look, fully symmetrical.
 

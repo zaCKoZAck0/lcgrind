@@ -100,7 +100,7 @@ describe("updateSubmissionCore", () => {
         const sub = await makeSubmission("PARSED");
         await approveSubmissionCore(db, sub.id);
         const before = await db.user.findUnique({ where: { id: OWNER } });
-        expect(before?.points).toBeGreaterThan(0);
+        expect(before?.exp).toBeGreaterThan(0);
 
         const result = await updateSubmissionCore(db, OWNER, sub.id, mkEdit("c"));
         expect(result.ok).toBe(true);
@@ -114,7 +114,7 @@ describe("updateSubmissionCore", () => {
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: sub.id } });
         const sum = ledger.reduce((a, e) => a + e.delta, 0);
         expect(sum).toBe(0);
-        expect(after?.points).toBe((before?.points ?? 0) - 60);
+        expect(after?.exp).toBe((before?.exp ?? 0) - 60);
         // A negative reversal entry is recorded (audit trail preserved).
         expect(ledger.some((e) => e.delta < 0)).toBe(true);
     });

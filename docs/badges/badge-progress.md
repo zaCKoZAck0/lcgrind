@@ -1,5 +1,7 @@
 # Badge Image Generation Progress
 
+> **Migration note:** Any existing `UserBadge` rows with `badge` values `karma-10`, `karma-100`, or `karma-500` will not appear in UI (BADGE_BY_ID lookup miss). Run: `UPDATE "UserBadge" SET badge = REPLACE(badge, 'karma-', 'reputation-') WHERE badge LIKE 'karma-%';`
+
 Generated via ChatGPT image generation.
 Last updated: 2026-06-29
 
