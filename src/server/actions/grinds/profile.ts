@@ -14,7 +14,9 @@ export type PublicProfile = {
     image: string | null;
     avatar: string | null;
     karma: number;
-    points: number;
+    exp: number;
+    loginStreak: number;
+    longestStreak: number;
     badges: { id: BadgeId; label: string; description: string }[];
 };
 
@@ -33,7 +35,9 @@ export async function getProfileByHandle(
             image: true,
             avatar: true,
             karma: true,
-            points: true,
+            exp: true,
+            loginStreak: true,
+            longestStreak: true,
             bannedAt: true,
             badges: { select: { badge: true } },
         },
@@ -52,7 +56,9 @@ export async function getProfileByHandle(
         image: row.image,
         avatar: row.avatar,
         karma: row.karma,
-        points: row.points,
+        exp: row.exp,
+        loginStreak: row.loginStreak,
+        longestStreak: row.longestStreak,
         badges,
     };
 }

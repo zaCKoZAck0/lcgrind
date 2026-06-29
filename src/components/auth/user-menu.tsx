@@ -15,7 +15,7 @@ import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import { cn } from "~/lib/utils";
 import { isCurrentUserAdmin } from "~/server/actions/admin/whoami";
-import { getMyPoints } from "~/server/actions/gamification/actions";
+import { getMyExp } from "~/server/actions/gamification/actions";
 import {
     getMyProfileStatus,
     type ProfileStatus,
@@ -47,7 +47,7 @@ export function UserMenu() {
     useEffect(() => {
         if (session) {
             isCurrentUserAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-            getMyPoints().then(setPoints).catch(() => setPoints(null));
+            getMyExp().then(setPoints).catch(() => setPoints(null));
             if (FEATURE_FLAGS.NOTIFICATIONS) {
                 getUnreadCount().then(setUnreadCount).catch(() => setUnreadCount(0));
             }

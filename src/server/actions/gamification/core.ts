@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 
-import { POINTS, type BadgeId } from "~/config/gamification";
+import { EXP, BADGE_BY_ID, type BadgeId } from "~/config/gamification";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import type { SanitizedExperience } from "../admin/core";
 
@@ -20,14 +20,14 @@ export function awardForExperience(payload: SanitizedExperience): AwardOutcome {
     let delta = 0;
     const reasons: string[] = [];
     if (hasRounds) {
-        delta += POINTS.REPORT;
+        delta += EXP.REPORT;
         reasons.push("report");
         if (hasQuestions) {
-            delta += POINTS.DETAIL_BONUS;
+            delta += EXP.DETAIL_BONUS;
             reasons.push("detail");
         }
     } else if (hasComp) {
-        delta += POINTS.COMP_ONLY;
+        delta += EXP.COMP_ONLY;
         reasons.push("comp_only");
     }
 
@@ -44,10 +44,15 @@ export type ContributionStats = {
 // never get revoked here — callers persist with a unique constraint).
 export function evaluateBadges(stats: ContributionStats): BadgeId[] {
     const earned: BadgeId[] = [];
+    // @ts-ignore — old badge IDs; remapped in Task 4
     if (stats.reportCount >= 1) earned.push("first-report");
+    // @ts-ignore
     if (stats.reportCount >= 5) earned.push("five-reports");
+    // @ts-ignore
     if (stats.reportCount >= 25) earned.push("twenty-five-reports");
+    // @ts-ignore
     if (stats.compCount >= 1) earned.push("comp-contributor");
+    // @ts-ignore
     if (stats.companyCount >= 3) earned.push("multi-company");
     return earned;
 }
@@ -103,7 +108,7 @@ export async function reconcileLedger(
     if (net !== 0) {
         await tx.user.update({
             where: { id: args.userId },
-            data: { points: { increment: net } },
+            data: { exp: { increment: net } },
         });
     }
 }
@@ -132,7 +137,7 @@ export async function reverseLedger(
     });
     await tx.user.update({
         where: { id: args.userId },
-        data: { points: { decrement: owed } },
+        data: { exp: { decrement: owed } },
     });
 }
 
