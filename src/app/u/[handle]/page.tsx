@@ -19,6 +19,7 @@ import { Card } from "~/components/ui/card";
 import { buttonVariants } from "~/components/ui/button";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { StreakCalendar } from "~/components/grinds/streak-calendar";
 
 type RawParams = { handle: string };
 type RawSearch = { cursor?: string };
@@ -130,6 +131,13 @@ export default async function UserProfilePage({
                             <span className="text-xs text-muted-foreground mt-1">Best: <span className="font-semibold text-foreground">{profile.longestStreak}</span></span>
                         </div>
                     </div>
+
+                    {profile.loginStreak > 0 && (
+                        <div className="rounded-base border-2 border-border px-4 pt-3 pb-4">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Last 7 Days</p>
+                            <StreakCalendar loginStreak={profile.loginStreak} lastSeenOn={profile.lastSeenOn} />
+                        </div>
+                    )}
 
                     {profile.badges.length > 0 && (
                         <div className="flex flex-wrap gap-2">

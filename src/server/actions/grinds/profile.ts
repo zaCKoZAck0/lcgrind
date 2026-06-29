@@ -17,6 +17,7 @@ export type PublicProfile = {
     exp: number;
     loginStreak: number;
     longestStreak: number;
+    lastSeenOn: string | null;
     badges: { id: BadgeId; label: string; description: string }[];
 };
 
@@ -38,6 +39,7 @@ export async function getProfileByHandle(
             exp: true,
             loginStreak: true,
             longestStreak: true,
+            lastSeenOn: true,
             bannedAt: true,
             badges: { select: { badge: true } },
         },
@@ -59,6 +61,7 @@ export async function getProfileByHandle(
         exp: row.exp,
         loginStreak: row.loginStreak,
         longestStreak: row.longestStreak,
+        lastSeenOn: row.lastSeenOn,
         badges,
     };
 }

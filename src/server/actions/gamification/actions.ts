@@ -19,21 +19,23 @@ export type GameStats = {
     exp: number;
     loginStreak: number;
     longestStreak: number;
+    lastSeenOn: string | null;
 };
 
 export async function getMyGameStats(): Promise<GameStats> {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) return { exp: 0, loginStreak: 0, longestStreak: 0 };
+    if (!session) return { exp: 0, loginStreak: 0, longestStreak: 0, lastSeenOn: null };
 
     await creditDailyLogin(db, session.user.id);
 
     const user = await db.user.findUnique({
         where: { id: session.user.id },
-        select: { exp: true, loginStreak: true, longestStreak: true },
+        select: { exp: true, loginStreak: true, longestStreak: true, lastSeenOn: true },
     });
     return {
         exp: user?.exp ?? 0,
         loginStreak: user?.loginStreak ?? 0,
         longestStreak: user?.longestStreak ?? 0,
+        lastSeenOn: user?.lastSeenOn ?? null,
     };
 }
