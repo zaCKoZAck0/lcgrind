@@ -309,3 +309,39 @@ export async function syncBadges(db: PrismaClient, userId: string): Promise<void
     const earned = evaluateBadges({ compCount, hasStructured });
     await grantNewBadgesWithExp(db, userId, earned);
 }
+
+// Credits +5 exp once per calendar day (UTC). Idempotent — concurrent calls are
+// safe because the updateMany guard (NOT lastSeenOn: today) is atomic. Also
+// tracks login streak and awards login-streak badges.
+export async function creditDailyLogin(db: PrismaClient, userId: string): Promise<void> {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+
+    const user = await db.user.findUnique({
+        where: { id: userId },
+        select: { lastSeenOn: true, loginStreak: true, longestStreak: true },
+    });
+    if (!user || user.lastSeenOn === today) return;
+
+    const newStreak = user.lastSeenOn === yesterday ? user.loginStreak + 1 : 1;
+    const newLongest = Math.max(user.longestStreak, newStreak);
+
+    await db.$transaction(async (tx) => {
+        const updated = await tx.user.updateMany({
+            where: { id: userId, NOT: { lastSeenOn: today } },
+            data: {
+                lastSeenOn: today,
+                loginStreak: newStreak,
+                longestStreak: newLongest,
+                exp: { increment: EXP.DAILY },
+            },
+        });
+        if (updated.count === 0) return;
+        await tx.pointsLedger.create({
+            data: { userId, submissionId: null, delta: EXP.DAILY, reason: "daily" },
+        });
+    });
+
+    const loginBadges = evaluateLoginBadges(newStreak);
+    await grantNewBadgesWithExp(db, userId, loginBadges);
+}

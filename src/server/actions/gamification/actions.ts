@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
+import { creditDailyLogin } from "./core";
 
 export async function getMyExp(): Promise<number> {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -12,4 +13,27 @@ export async function getMyExp(): Promise<number> {
         select: { exp: true },
     });
     return user?.exp ?? 0;
+}
+
+export type GameStats = {
+    exp: number;
+    loginStreak: number;
+    longestStreak: number;
+};
+
+export async function getMyGameStats(): Promise<GameStats> {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) return { exp: 0, loginStreak: 0, longestStreak: 0 };
+
+    await creditDailyLogin(db, session.user.id);
+
+    const user = await db.user.findUnique({
+        where: { id: session.user.id },
+        select: { exp: true, loginStreak: true, longestStreak: true },
+    });
+    return {
+        exp: user?.exp ?? 0,
+        loginStreak: user?.loginStreak ?? 0,
+        longestStreak: user?.longestStreak ?? 0,
+    };
 }
