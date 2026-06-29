@@ -162,8 +162,9 @@ model Submission {
   communityComp CommunityCompPoint[]
   communityAsks CommunityQuestionAsk[]
   company       Company?               @relation(fields: [companyId], references: [id])
-  post          Post?                  @relation(fields: [postId], references: [id])
+  post          Post?                  @relation(fields: [postId], references: [id], onDelete: SetNull)
   user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pointsLedger  PointsLedger[]
 
   @@index([userId, createdAt])
   @@index([status])
@@ -363,13 +364,14 @@ model Report {
 }
 
 model PointsLedger {
-  id           String   @id @default(cuid())
+  id           String       @id @default(cuid())
   userId       String
   submissionId String?
   delta        Int
   reason       String
-  createdAt    DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission   Submission?  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([submissionId])
