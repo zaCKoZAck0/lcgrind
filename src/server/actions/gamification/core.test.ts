@@ -1,5 +1,30 @@
 import { describe, expect, it } from "vitest";
+import { BADGES, BADGE_BY_ID, EXP, type BadgeId } from "~/config/gamification";
 import { awardForExperience, evaluateBadges, evaluateSocialBadges } from "./core";
+
+describe("gamification config", () => {
+    it("has at least 21 always-present badges", () => {
+        expect(BADGES.length).toBeGreaterThanOrEqual(21);
+    });
+
+    it("every badge has exp > 0 and a valid group", () => {
+        const validGroups = new Set(["contribution", "social", "grind", "daily"]);
+        for (const b of BADGES) {
+            expect(b.exp).toBeGreaterThan(0);
+            expect(validGroups.has(b.group)).toBe(true);
+        }
+    });
+
+    it("BADGE_BY_ID lookup works for all badges", () => {
+        for (const b of BADGES) {
+            expect(BADGE_BY_ID[b.id]).toStrictEqual(b);
+        }
+    });
+
+    it("EXP.DAILY is 5", () => {
+        expect(EXP.DAILY).toBe(5);
+    });
+});
 
 describe("awardForExperience", () => {
     it("awards 50 for an interview report with rounds and questions plus the detail bonus", () => {
