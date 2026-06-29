@@ -57,8 +57,8 @@ function resolveNext(prev: number, clicked: number): number {
 
 // Casts (or toggles/flips) a vote on a post or comment in one transaction:
 // upsert/delete the Vote row, apply denormalized score/up/down deltas to the
-// target, recompute hotRank for posts, and move the author's karma. Self-votes
-// count toward the score but don't affect the author's karma.
+// target, recompute hotRank for posts, and move the author's reputation. Self-votes
+// count toward the score but don't affect the author's reputation.
 export async function castVoteCore(
     db: PrismaClient,
     userId: string,
