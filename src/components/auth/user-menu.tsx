@@ -7,7 +7,6 @@ import {
     ScrollText,
     ShieldCheck,
     Zap, Flame,
-    UserPen,
     Bell,
     LogIn,
 } from "lucide-react";
@@ -24,7 +23,6 @@ import { getUnreadCount } from "~/server/actions/notifications/getNotifications"
 import { ProfileDialog } from "./profile-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Twitter } from "../home/tweet";
-import { SyncMenuItems } from "../sync-dropdown";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -90,7 +88,6 @@ export function UserMenu() {
                             Sign in
                         </DropdownMenuItem>
                     )}
-                    <SyncMenuItems />
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">
                             <Twitter className="size-4" />
@@ -145,8 +142,8 @@ export function UserMenu() {
                                 <span>{exp}</span>
                             </div>
                             {loginStreak > 0 && (
-                                <div className="flex items-center gap-1 font-semibold tabular-nums text-sm">
-                                    <Flame className="size-3.5" />
+                                <div className="flex items-center gap-1 font-semibold tabular-nums text-sm text-orange-500">
+                                    <Flame className="size-4" />
                                     <span>{loginStreak}</span>
                                 </div>
                             )}
@@ -170,20 +167,8 @@ export function UserMenu() {
                             </Link>
                         </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem asChild>
-                        <Link href="/settings/profile">
-                            <UserPen className="size-4" />
-                            Edit profile
-                        </Link>
-                    </DropdownMenuItem>
-                    {FEATURE_FLAGS.GRINDS && (
-                        <DropdownMenuItem asChild>
-                            <Link href="/grinds" className="flex items-center gap-2">
-                                Grinds
-                                <span className="ml-auto text-[10px] font-semibold px-1 py-0 border border-border rounded-sm">Beta</span>
-                            </Link>
-                        </DropdownMenuItem>
-                    )}
+
+
                     {isAdmin && (
                         <>
                             <DropdownMenuItem asChild>
@@ -201,7 +186,6 @@ export function UserMenu() {
                         </>
                     )}
                     <DropdownMenuSeparator />
-                    <SyncMenuItems />
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">
                             <Twitter className="size-4" />

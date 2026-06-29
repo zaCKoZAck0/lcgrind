@@ -122,12 +122,12 @@ export default async function UserProfilePage({
                             </span>
                         </div>
                         <div className="flex-1 flex flex-col items-center py-4 px-4">
-                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.loginStreak}</span>
+                            <span className="font-bold text-3xl tabular-nums leading-none text-orange-500">{profile.loginStreak}</span>
                             <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
-                                <Flame className="size-4" />
-                                Streak
+                                <Flame className="size-4 text-orange-500" />
+                                Day Streak
                             </span>
-                            <span className="text-xs text-muted-foreground mt-1">Best: {profile.longestStreak}</span>
+                            <span className="text-xs text-muted-foreground mt-1">Best: <span className="font-semibold text-foreground">{profile.longestStreak}</span></span>
                         </div>
                     </div>
 
