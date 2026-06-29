@@ -51,7 +51,7 @@ export function evaluateBadges(stats: ContributionStats): BadgeId[] {
 export type SocialStats = {
     postCount: number;
     commentCount: number;
-    karma: number;
+    reputation: number;
 };
 
 // Social badges earned from public posting activity (distinct from contribution
@@ -59,9 +59,9 @@ export type SocialStats = {
 export function evaluateSocialBadges(stats: SocialStats): BadgeId[] {
     const earned: BadgeId[] = [];
     if (stats.postCount >= 1) earned.push("first-post");
-    if (stats.karma >= 10) earned.push("karma-10");
-    if (stats.karma >= 100) earned.push("karma-100");
-    if (stats.karma >= 500) earned.push("karma-500");
+    if (stats.reputation >= 10) earned.push("reputation-10");
+    if (stats.reputation >= 100) earned.push("reputation-100");
+    if (stats.reputation >= 500) earned.push("reputation-500");
     if (stats.commentCount >= 25) earned.push("prolific-commenter");
     // helpful-answer: not evaluated until accepted-answers feature ships
     return earned;
@@ -279,11 +279,11 @@ export async function syncSocialBadges(db: PrismaClient, userId: string): Promis
     const [postCount, commentCount, user] = await Promise.all([
         db.post.count({ where: { authorId: userId, status: "PUBLISHED", isAnonymous: false } }),
         db.comment.count({ where: { authorId: userId, isAnonymous: false } }),
-        db.user.findUnique({ where: { id: userId }, select: { karma: true } }),
+        db.user.findUnique({ where: { id: userId }, select: { reputation: true } }),
     ]);
     if (!user) return;
 
-    const earned = evaluateSocialBadges({ postCount, commentCount, karma: user.karma });
+    const earned = evaluateSocialBadges({ postCount, commentCount, reputation: user.reputation });
     await grantNewBadgesWithExp(db, userId, earned);
 }
 

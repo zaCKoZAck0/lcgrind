@@ -301,11 +301,12 @@ model User {
   avatar        String?
   bannedAt      DateTime?
   handle        String?        @unique
-  karma         Int            @default(0)
+  reputation    Int            @default(0)
   onboardedAt   DateTime?
   role          String         @default("USER")
-  syncProgress  Boolean        @default(false)
-  progressData  Json?
+  syncProgress        Boolean        @default(false)
+  progressData        Json?
+  lastProgressSyncAt  DateTime?
   comments      Comment[]
   notifications Notification[]
   ledger        PointsLedger[]

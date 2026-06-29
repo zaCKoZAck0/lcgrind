@@ -13,7 +13,7 @@ export type PublicProfile = {
     name: string;
     image: string | null;
     avatar: string | null;
-    karma: number;
+    reputation: number;
     exp: number;
     loginStreak: number;
     longestStreak: number;
@@ -34,7 +34,7 @@ export async function getProfileByHandle(
             name: true,
             image: true,
             avatar: true,
-            karma: true,
+            reputation: true,
             exp: true,
             loginStreak: true,
             longestStreak: true,
@@ -55,7 +55,7 @@ export async function getProfileByHandle(
         name: row.name,
         image: row.image,
         avatar: row.avatar,
-        karma: row.karma,
+        reputation: row.reputation,
         exp: row.exp,
         loginStreak: row.loginStreak,
         longestStreak: row.longestStreak,

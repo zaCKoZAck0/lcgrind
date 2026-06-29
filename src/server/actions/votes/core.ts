@@ -29,8 +29,8 @@ export function voteDeltas(
     return { score: next - prev, up, down };
 }
 
-// The author's karma change for a vote transition: the net swing in vote value.
-export function karmaDelta(prev: number, next: number): number {
+// The author's reputation change for a vote transition: the net swing in vote value.
+export function reputationDelta(prev: number, next: number): number {
     return next - prev;
 }
 
@@ -160,14 +160,14 @@ export async function castVoteCore(
                 });
             }
 
-            // Anonymous content earns its author no public karma — the vote
+            // Anonymous content earns its author no public reputation — the vote
             // counts still denormalize onto the target, but the author stays
-            // unattributed in the social graph. Self-votes also skip karma.
-            const kd = karmaDelta(prev, next);
+            // unattributed in the social graph. Self-votes also skip reputation.
+            const kd = reputationDelta(prev, next);
             if (kd !== 0 && !target.isAnonymous && target.authorId !== userId) {
                 await tx.user.update({
                     where: { id: target.authorId },
-                    data: { karma: { increment: kd } },
+                    data: { reputation: { increment: kd } },
                 });
             }
 

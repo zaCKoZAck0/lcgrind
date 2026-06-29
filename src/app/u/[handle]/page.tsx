@@ -108,7 +108,7 @@ export default async function UserProfilePage({
                     {/* Stats */}
                     <div className="flex rounded-base border-2 border-border overflow-hidden">
                         <div className="flex-1 flex flex-col items-center py-4 px-4 border-r-2 border-border">
-                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.karma}</span>
+                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.reputation}</span>
                             <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
                                 <ThumbsUp className="size-4" />
                                 Reputation

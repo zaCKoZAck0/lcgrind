@@ -91,17 +91,17 @@ describe("evaluateBadges (contribution)", () => {
 
 describe("evaluateSocialBadges", () => {
     it("awards first-post at postCount 1", () => {
-        expect(evaluateSocialBadges({ postCount: 1, commentCount: 0, karma: 0 })).toContain("first-post");
+        expect(evaluateSocialBadges({ postCount: 1, commentCount: 0, reputation: 0 })).toContain("first-post");
     });
 
-    it("awards karma-10, karma-100, karma-500 at thresholds", () => {
-        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, karma: 500 })).toContain("karma-10");
-        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, karma: 500 })).toContain("karma-100");
-        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, karma: 500 })).toContain("karma-500");
+    it("awards reputation-10, reputation-100, reputation-500 at thresholds", () => {
+        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, reputation: 500 })).toContain("reputation-10");
+        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, reputation: 500 })).toContain("reputation-100");
+        expect(evaluateSocialBadges({ postCount: 0, commentCount: 0, reputation: 500 })).toContain("reputation-500");
     });
 
     it("awards prolific-commenter at 25 comments", () => {
-        expect(evaluateSocialBadges({ postCount: 0, commentCount: 25, karma: 0 })).toContain("prolific-commenter");
+        expect(evaluateSocialBadges({ postCount: 0, commentCount: 25, reputation: 0 })).toContain("prolific-commenter");
     });
 });
 

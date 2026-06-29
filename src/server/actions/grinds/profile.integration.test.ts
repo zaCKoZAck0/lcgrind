@@ -26,8 +26,8 @@ beforeAll(async () => {
             email: `prof-${RUN}@example.com`,
             emailVerified: false,
             handle: HANDLE,
-            karma: 42,
-            points: 100,
+            reputation: 42,
+            exp: 100,
         },
     });
     userId = u.id;
@@ -51,12 +51,12 @@ afterAll(async () => {
 });
 
 describe("getProfileByHandle", () => {
-    it("resolves a handle to {handle, karma, points, badges}", async () => {
+    it("resolves a handle to {handle, reputation, exp, badges}", async () => {
         const p = await getProfileByHandle(db, HANDLE);
         expect(p).not.toBeNull();
         expect(p!.handle).toBe(HANDLE);
-        expect(p!.karma).toBe(42);
-        expect(p!.points).toBe(100);
+        expect(p!.reputation).toBe(42);
+        expect(p!.exp).toBe(100);
         expect(Array.isArray(p!.badges)).toBe(true);
     });
 

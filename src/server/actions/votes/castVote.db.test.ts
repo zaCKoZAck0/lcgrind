@@ -49,7 +49,7 @@ afterAll(async () => {
 });
 
 describe("castVoteCore — posts", () => {
-    it("upvotes a post: denormalizes counts and credits the author's karma", async () => {
+    it("upvotes a post: denormalizes counts and credits the author's reputation", async () => {
         const res = await castVoteCore(db, VOTER, {
             targetType: "POST",
             targetId: postId,
@@ -68,11 +68,11 @@ describe("castVoteCore — posts", () => {
 
         const author = await db.user.findUniqueOrThrow({
             where: { id: AUTHOR },
-            select: { karma: true, points: true },
+            select: { reputation: true, exp: true },
         });
-        expect(author.karma).toBe(1);
-        // Karma is independent of the contribution points ledger.
-        expect(author.points).toBe(0);
+        expect(author.reputation).toBe(1);
+        // Reputation is independent of the contribution exp ledger.
+        expect(author.exp).toBe(0);
     });
 
     it("re-clicking the same direction toggles the vote off", async () => {
@@ -95,9 +95,9 @@ describe("castVoteCore — posts", () => {
 
         const author = await db.user.findUniqueOrThrow({
             where: { id: AUTHOR },
-            select: { karma: true },
+            select: { reputation: true },
         });
-        expect(author.karma).toBe(0);
+        expect(author.reputation).toBe(0);
     });
 
     it("flips a downvote to an upvote, moving counts across buckets", async () => {

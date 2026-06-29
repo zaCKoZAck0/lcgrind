@@ -13,9 +13,9 @@ export type BadgeId =
     | "valuable-contributor"
     | "well-structured"
     | "first-post"
-    | "karma-10"
-    | "karma-100"
-    | "karma-500"
+    | "reputation-10"
+    | "reputation-100"
+    | "reputation-500"
     | "prolific-commenter"
     | "helpful-answer"
     | "solver-10"
@@ -39,9 +39,9 @@ export const BADGES: { id: BadgeId; label: string; description: string; exp: num
     { id: "well-structured", label: "Well Structured", description: "Shared an interview experience using the structured editor", exp: 100, group: "contribution" },
     // B. Social
     { id: "first-post", label: "First Post", description: "Published your first post on Discuss", exp: 50, group: "social" },
-    { id: "karma-10", label: "Karma 10", description: "Reached 10 karma from community votes", exp: 50, group: "social" },
-    { id: "karma-100", label: "Karma 100", description: "Reached 100 karma from community votes", exp: 250, group: "social" },
-    { id: "karma-500", label: "Karma 500", description: "Reached 500 karma from community votes", exp: 1500, group: "social" },
+    { id: "reputation-10", label: "Reputation 10", description: "Reached 10 reputation from community votes", exp: 50, group: "social" },
+    { id: "reputation-100", label: "Reputation 100", description: "Reached 100 reputation from community votes", exp: 250, group: "social" },
+    { id: "reputation-500", label: "Reputation 500", description: "Reached 500 reputation from community votes", exp: 1500, group: "social" },
     { id: "prolific-commenter", label: "Prolific Commenter", description: "Posted 25 comments", exp: 100, group: "social" },
     // helpful-answer: in catalog but evaluator never fires until accepted-answers ships
     { id: "helpful-answer", label: "Helpful Answer", description: "First accepted answer", exp: 100, group: "social" },
