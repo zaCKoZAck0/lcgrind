@@ -11,7 +11,8 @@ import { cn } from "~/lib/utils";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { getLogoUrl } from "~/utils/logo";
-import { DifficultyMarker, PayMarker } from "../company/tier-markers";
+import { PayMarker } from "../company/tier-markers";
+import { DifficultyBarCompact } from "../company/difficulty-bar";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import type { CompanyDetails, TotalCountResult } from "~/types/company";
 
@@ -68,12 +69,14 @@ export function AllCompanies({ initialData }: AllCompaniesProps) {
                             <Image src={getLogoUrl(domain, "light")} width={48} height={48} className="size-16 rounded-base object-cover" alt={company.name} />
                             <div>
                                 <p className="font-semibold text-2xl">{company.name}</p>
-                                {(FEATURE_FLAGS.COMPENSATION && company.payTier > 0 || company.difficultyTier > 0) && (
-                                    <span className="flex items-center gap-3 mt-1">
-                                        {FEATURE_FLAGS.COMPENSATION && <PayMarker tier={company.payTier} />}
-                                        <DifficultyMarker tier={company.difficultyTier} />
-                                    </span>
-                                )}
+                                <span className="flex items-center gap-3 mt-1">
+                                    {FEATURE_FLAGS.COMPENSATION && company.payTier > 0 && <PayMarker tier={company.payTier} />}
+                                    <DifficultyBarCompact
+                                        easyCount={company.easyCount}
+                                        mediumCount={company.mediumCount}
+                                        hardCount={company.hardCount}
+                                    />
+                                </span>
                             </div>
                         </div>
                     </Link>

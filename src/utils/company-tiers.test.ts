@@ -2,22 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
     payRatiosFromRollups,
     quintileTiers,
-    weightedDifficulty,
 } from "./company-tiers";
-
-describe("weightedDifficulty", () => {
-    it("scores easy +0.5 / medium +1 / hard +3 per known ask", () => {
-        // 25*0.5 + 50*1 + 25*3 = 12.5 + 50 + 75 = 137.5 over 100 asks
-        expect(weightedDifficulty({ easy: 25, medium: 50, hard: 25 })).toBeCloseTo(1.375);
-        expect(weightedDifficulty({ easy: 0, medium: 0, hard: 50 })).toBe(3);
-        expect(weightedDifficulty({ easy: 50, medium: 0, hard: 0 })).toBe(0.5);
-    });
-
-    it("is null (hidden) below 50 difficulty-known asks", () => {
-        expect(weightedDifficulty({ easy: 20, medium: 15, hard: 14 })).toBeNull(); // 49 asks
-        expect(weightedDifficulty({ easy: 20, medium: 15, hard: 15 })).not.toBeNull(); // 50 asks
-    });
-});
 
 describe("payRatiosFromRollups", () => {
     const rollup = (

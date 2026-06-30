@@ -164,16 +164,16 @@ export function ComposeForm({
                 />
             </div>
 
-            {/* Flair — hidden when experience mode is active */}
+            {/* Tags — hidden when experience mode is active */}
             {!hasExperienceContent && (
                 <div className="flex flex-col gap-1.5">
-                    <Label>Flair</Label>
+                    <Label>Tags</Label>
                     <MultiSelect
                         value={tagSlugs}
                         onValueChange={(v) => setTagSlugs(v.slice(0, POST_TAG_MAX))}
                     >
                         <MultiSelectTrigger>
-                            <MultiSelectValue placeholder="Add flair…" />
+                            <MultiSelectValue placeholder="Add tags…" />
                         </MultiSelectTrigger>
                         <MultiSelectContent>
                             <MultiSelectList autoHeight>
@@ -197,7 +197,7 @@ export function ComposeForm({
             {/* Experience disclosure */}
             <Accordion type="single" collapsible value={expValue} onValueChange={setExpValue}>
                 <AccordionItem value="exp">
-                    <AccordionTrigger>Add interview experience</AccordionTrigger>
+                    <AccordionTrigger>Add interview experience <span className="ml-1 text-xs font-normal text-foreground/60">(Optional)</span></AccordionTrigger>
                     <AccordionContent>
                         <ExperienceList form={form} />
                     </AccordionContent>

@@ -1,54 +1,61 @@
-// Materializes Company.payTier / Company.difficultyTier: gathers each
-// qualifying company's metric, quintile-ranks across the whole population,
-// and bulk-writes the 0-5 tiers. Called from the interview seed and whenever
-// community rows change (admin approve/reject, author edit) so the markers
-// always reflect the data actually on the site.
+// Materializes Company.payTier (quintile-ranked pay) and the per-company
+// easy/medium/hard DSA problem counts that feed the difficulty-mix bar.
+// Called from the interview seed and whenever community rows change (admin
+// approve/reject, author edit) so both stay in sync with the data on the site.
 
 import type { PrismaClient } from "@prisma/client";
 import {
     payRatiosFromRollups,
     quintileTiers,
-    weightedDifficulty,
     PAY_MIN_TOTAL_SALARIES,
     type TierLevel,
 } from "~/utils/company-tiers";
 
-const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
+type DifficultyCounts = { easy: number; medium: number; hard: number };
 
-async function difficultyMetrics(db: PrismaClient): Promise<Map<number, number>> {
-    // Known-difficulty DSA asks per company: seeded aggregates carry askCount;
-    // each community row is a single ask.
-    const counts = new Map<number, { easy: number; medium: number; hard: number }>();
-    const bump = (companyId: number, key: "easy" | "medium" | "hard", by: number) => {
-        const c = counts.get(companyId) ?? { easy: 0, medium: 0, hard: 0 };
-        c[key] += by;
-        counts.set(companyId, c);
-    };
+const DIFFICULTY_KEY: Record<string, keyof DifficultyCounts> = {
+    Easy: "easy",
+    Medium: "medium",
+    Hard: "hard",
+};
 
-    for (const difficulty of DIFFICULTIES) {
-        const key = difficulty.toLowerCase() as "easy" | "medium" | "hard";
-        const [seeded, community] = await Promise.all([
-            db.companyQuestionStat.groupBy({
-                by: ["companyId"],
-                where: { band: "all", type: "DSA", problem: { difficulty } },
-                _sum: { askCount: true },
-            }),
-            db.communityQuestionAsk.groupBy({
-                by: ["companyId"],
-                where: { type: "DSA", problem: { difficulty } },
-                _count: { _all: true },
-            }),
-        ]);
-        for (const r of seeded) bump(r.companyId, key, r._sum.askCount ?? 0);
-        for (const r of community) bump(r.companyId, key, r._count._all);
+async function difficultyCounts(
+    db: PrismaClient,
+): Promise<Map<number, DifficultyCounts>> {
+    // DISTINCT DSA problems per company, grouped by difficulty. We count each
+    // problem once per company (deduped across seeded + community sources) and
+    // never the ask volume — the problem set is already public, the volume is not.
+    const where = { type: "DSA", problemId: { not: null } } as const;
+    const select = {
+        companyId: true,
+        problemId: true,
+        problem: { select: { difficulty: true } },
+    } as const;
+
+    const [seeded, community] = await Promise.all([
+        db.companyQuestionStat.findMany({
+            where: { band: "all", ...where },
+            select,
+        }),
+        db.communityQuestionAsk.findMany({ where, select }),
+    ]);
+
+    // Dedupe by (companyId, problemId) so a problem reported by both sources
+    // counts once.
+    const seen = new Set<string>();
+    const counts = new Map<number, DifficultyCounts>();
+    for (const row of [...seeded, ...community]) {
+        if (row.problemId === null) continue;
+        const key = DIFFICULTY_KEY[row.problem?.difficulty ?? ""];
+        if (!key) continue;
+        const dedupeKey = `${row.companyId}:${row.problemId}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        const c = counts.get(row.companyId) ?? { easy: 0, medium: 0, hard: 0 };
+        c[key] += 1;
+        counts.set(row.companyId, c);
     }
-
-    const metrics = new Map<number, number>();
-    for (const [companyId, asks] of counts) {
-        const score = weightedDifficulty(asks);
-        if (score !== null) metrics.set(companyId, score);
-    }
-    return metrics;
+    return counts;
 }
 
 async function payMetrics(db: PrismaClient): Promise<Map<number, number>> {
@@ -86,7 +93,7 @@ async function payMetrics(db: PrismaClient): Promise<Map<number, number>> {
 
 async function writeTiers(
     db: PrismaClient,
-    column: "payTier" | "difficultyTier",
+    column: "payTier",
     tiers: Map<number, TierLevel>,
 ) {
     const byTier = new Map<TierLevel, number[]>();
@@ -107,11 +114,37 @@ async function writeTiers(
     ]);
 }
 
+async function writeDifficultyCounts(
+    db: PrismaClient,
+    counts: Map<number, DifficultyCounts>,
+) {
+    await db.$transaction([
+        // Reset companies that no longer have any counted DSA problems.
+        db.company.updateMany({
+            where: {
+                id: { notIn: [...counts.keys()] },
+                OR: [
+                    { easyCount: { not: 0 } },
+                    { mediumCount: { not: 0 } },
+                    { hardCount: { not: 0 } },
+                ],
+            },
+            data: { easyCount: 0, mediumCount: 0, hardCount: 0 },
+        }),
+        ...[...counts].map(([id, c]) =>
+            db.company.update({
+                where: { id },
+                data: { easyCount: c.easy, mediumCount: c.medium, hardCount: c.hard },
+            }),
+        ),
+    ]);
+}
+
 export async function recomputeCompanyTiers(db: PrismaClient): Promise<void> {
     const [pay, difficulty] = await Promise.all([
         payMetrics(db),
-        difficultyMetrics(db),
+        difficultyCounts(db),
     ]);
     await writeTiers(db, "payTier", quintileTiers(pay));
-    await writeTiers(db, "difficultyTier", quintileTiers(difficulty));
+    await writeDifficultyCounts(db, difficulty);
 }

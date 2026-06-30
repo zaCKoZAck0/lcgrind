@@ -1,4 +1,3 @@
-import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export type RoundDraft = { type: string; questions: string[] };
 export type CompComponent = { label: string; amount: string };
@@ -14,10 +13,17 @@ export type ExperienceDraft = {
 
 export const ROUND_TYPES = [
     "Phone Screen",
+    "Technical Screen",
     "Coding",
+    "Take-Home / Assignment",
+    "Pair Programming",
     "System Design",
-    ...(FEATURE_FLAGS.LLD ? ["Machine Coding / LLD"] : []),
-    ...(FEATURE_FLAGS.OTHERS ? ["Behavioral", "HR", "Other"] : []),
+    "Machine Coding / LLD",
+    "Bar Raiser",
+    "Hiring Manager",
+    "Culture Fit",
+    "Behavioral",
+    "HR",
 ];
 
 export const COMP_SUGGESTIONS = [

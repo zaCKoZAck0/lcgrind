@@ -80,7 +80,9 @@ model Company {
   reportCount    Int                    @default(0)
   lastSeen       String?
   sheetId        Int?                   @unique
-  difficultyTier Int                    @default(0)
+  easyCount      Int                    @default(0)
+  mediumCount    Int                    @default(0)
+  hardCount      Int                    @default(0)
   payTier        Int                    @default(0)
   communityComp  CommunityCompPoint[]
   communityAsks  CommunityQuestionAsk[]

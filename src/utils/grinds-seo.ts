@@ -82,3 +82,19 @@ export function shouldNoindexPost(p: {
     if (p.score <= LOW_SCORE) return true;
     return false;
 }
+
+export function stripMarkdown(text: string): string {
+    return text
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/`([^`\n]*)`/g, "$1")
+        .replace(/!\[.*?\]\(.*?\)/g, "")
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/^#{1,6}\s*/gm, "")
+        .replace(/\*\*([^\n]+?)\*\*/g, "$1")
+        .replace(/\*([^\n]+?)\*/g, "$1")
+        .replace(/_{2}([^\n]+?)_{2}/g, "$1")
+        .replace(/_([^\n]+?)_/g, "$1")
+        .replace(/^>\s*/gm, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}

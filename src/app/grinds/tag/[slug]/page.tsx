@@ -30,10 +30,24 @@ export async function generateMetadata({
     const { slug } = await params;
     const tag = await getPostTag(db, slug);
     if (!tag) return { title: "Tag not found" };
+    const title = `${tag.name} — interview experiences and discussion`;
+    const description = `Posts tagged ${tag.name}: interview experiences, questions, and discussion from the community.`;
     return {
-        title: `${tag.name} — interview experiences and discussion`,
-        description: `Posts tagged ${tag.name}: interview experiences, questions, and discussion from the community.`,
+        title,
+        description,
         alternates: { canonical: `${BASE_URL}/grinds/tag/${tag.slug}` },
+        openGraph: {
+            type: "website",
+            title,
+            description,
+            url: `${BASE_URL}/grinds/tag/${tag.slug}`,
+            siteName: "LC Grind",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+        },
     };
 }
 

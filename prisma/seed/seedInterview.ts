@@ -179,7 +179,9 @@ async function syncCompanies(): Promise<Map<number, number>> {
         reportCount: company.reportCount,
         lastSeen: company.lastSeen,
         payTier: 0,
-        difficultyTier: 0,
+        easyCount: 0,
+        mediumCount: 0,
+        hardCount: 0,
         sheetId: prodSheetId,
       },
       create: {
@@ -188,7 +190,9 @@ async function syncCompanies(): Promise<Map<number, number>> {
         reportCount: company.reportCount,
         lastSeen: company.lastSeen,
         payTier: 0,
-        difficultyTier: 0,
+        easyCount: 0,
+        mediumCount: 0,
+        hardCount: 0,
         sheetId: prodSheetId,
       },
     });

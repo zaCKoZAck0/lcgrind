@@ -34,6 +34,7 @@ import {
 import { signOut, useSession, signIn } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { SyncMenuItems } from "../sync-dropdown";
 
 const CREDIT_KEY = "daily_credited";
 
@@ -211,6 +212,7 @@ export function UserMenu() {
                             </DropdownMenuItem>
                         </>
                     )}
+                    <SyncMenuItems />
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">

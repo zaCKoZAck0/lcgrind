@@ -12,6 +12,10 @@ import {
   generateSlug
 } from "~/utils/slug";
 import { getAllCompanyCategoryCounts } from "~/server/actions/companies/getCompanyCategoryCounts";
+import { POST_TAGS } from "~/config/grinds";
+import { postParam } from "~/server/actions/posts/core";
+import { shouldNoindexPost } from "~/utils/grinds-seo";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 const HIGH_PRIORITY_COMPANIES = new Set([
   ...MAANG_COMPANIES,
@@ -34,6 +38,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const categoryCounts = await getAllCompanyCategoryCounts();
+
+  const grindsPosts = FEATURE_FLAGS.GRINDS
+    ? await db.post.findMany({
+        where: { status: "PUBLISHED" },
+        select: { id: true, title: true, body: true, score: true, updatedAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -114,6 +126,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const grindsStaticPage: MetadataRoute.Sitemap = FEATURE_FLAGS.GRINDS
+    ? [
+        {
+          url: `${CANONICAL_URL}/grinds`,
+          lastModified: now,
+          changeFrequency: "hourly",
+          priority: 0.8,
+        },
+      ]
+    : [];
+
+  const grindsPostPages: MetadataRoute.Sitemap = grindsPosts
+    .filter((p) => !shouldNoindexPost({ status: "PUBLISHED", body: p.body, score: p.score }))
+    .map((p) => ({
+      url: `${CANONICAL_URL}/grinds/${postParam(p.id, p.title)}`,
+      lastModified: p.updatedAt ?? now,
+      changeFrequency: "weekly" as const,
+      priority: 0.65,
+    }));
+
+  const grindsTagPages: MetadataRoute.Sitemap = FEATURE_FLAGS.GRINDS
+    ? POST_TAGS.map((t) => ({
+        url: `${CANONICAL_URL}/grinds/tag/${t.slug}`,
+        lastModified: now,
+        changeFrequency: "daily" as const,
+        priority: 0.6,
+      }))
+    : [];
+
   return [
     ...staticPages,
     ...companyPages,
@@ -121,5 +162,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...sheetPages,
     ...topicPages,
     ...categoryPages,
+    ...grindsStaticPage,
+    ...grindsPostPages,
+    ...grindsTagPages,
   ];
 }

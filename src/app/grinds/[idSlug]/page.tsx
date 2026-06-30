@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MessageSquare, ArrowLeft, Pin, Building2 } from "lucide-react";
+import { MessageSquare, ArrowLeft, Pin } from "lucide-react";
 import { headers } from "next/headers";
 import { auth, isAdminEmail } from "~/lib/auth";
 import { getUserRole, canPin } from "~/lib/rbac";
 import { postIdFromParam, postParam } from "~/server/actions/posts/core";
-import { getPublicPost, getPostExperienceCompanies } from "~/server/actions/posts/getPost";
+import { getPublicPost } from "~/server/actions/posts/getPost";
 import { getPostComments } from "~/server/actions/comments/getComments";
 import { renderMarkdown } from "~/utils/markdown";
 import { formatMonth } from "~/utils/public-date";
@@ -14,7 +14,7 @@ import { CommentSection } from "~/components/grinds/comment-thread";
 import { VoteControl } from "~/components/grinds/vote-control";
 import { ModerationMenu } from "~/components/grinds/moderation-menu";
 import { GrindsForumPostingJsonLd } from "~/components/seo/json-ld";
-import { shouldNoindexPost } from "~/utils/grinds-seo";
+import { shouldNoindexPost, stripMarkdown } from "~/utils/grinds-seo";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { Badge } from "~/components/ui/badge";
@@ -33,14 +33,30 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { idSlug } = await params;
     const post = await getPublicPost(postIdFromParam(idSlug));
-    if (!post) return { title: "Post not found" };
+    if (!post) return { title: "Post not found", robots: { index: false } };
     const canonical = `${BASE_URL}/grinds/${postParam(post.id, post.title)}`;
+    const description = stripMarkdown(post.body).slice(0, 160);
+    const noindex = shouldNoindexPost(post);
     return {
         title: post.title,
-        description: post.body.slice(0, 160),
+        description,
         alternates: { canonical },
-        ...(shouldNoindexPost(post)
-            ? { robots: { index: false, follow: true } }
+        ...(noindex ? { robots: { index: false, follow: true } } : {}),
+        ...(!noindex
+            ? {
+                  openGraph: {
+                      type: "article",
+                      title: post.title,
+                      description,
+                      url: canonical,
+                      siteName: "LC Grind",
+                  },
+                  twitter: {
+                      card: "summary_large_image",
+                      title: post.title,
+                      description,
+                  },
+              }
             : {}),
     };
 }
@@ -63,10 +79,7 @@ export default async function GrindsPostPage({
     const post = await getPublicPost(postIdFromParam(idSlug), viewerId);
     if (!post) notFound();
 
-    const [comments, experienceCompanies] = await Promise.all([
-        getPostComments(post.id, viewerId),
-        post.type === "EXPERIENCE" ? getPostExperienceCompanies(post.id) : Promise.resolve([]),
-    ]);
+    const comments = await getPostComments(post.id, viewerId);
     const author = post.author?.handle ? `@${post.author.handle}` : "Anonymous";
     const param = postParam(post.id, post.title);
     const emitForumJsonLd = post.type === "EXPERIENCE" || post.type === null;
@@ -149,34 +162,9 @@ export default async function GrindsPostPage({
                     </div>
                 </div>
 
-                {/* Company + flair tags */}
-                {(experienceCompanies.length > 0 || post.company || post.tags.length > 0) && (
+                {/* Flairs */}
+                {post.tags.length > 0 && (
                     <div className="px-5 pt-3 pb-0 flex flex-wrap gap-1.5">
-                        {experienceCompanies.length > 0
-                            ? experienceCompanies.map((name, i) => {
-                                  const slug = post.company?.name === name ? post.company.slug : null;
-                                  return slug ? (
-                                      <Badge key={i} variant="neutral" className="text-xs" asChild>
-                                          <Link href={`/companies/${slug}`}>
-                                              <Building2 className="size-3 mr-1" />
-                                              {name}
-                                          </Link>
-                                      </Badge>
-                                  ) : (
-                                      <Badge key={i} variant="neutral" className="text-xs">
-                                          <Building2 className="size-3 mr-1" />
-                                          {name}
-                                      </Badge>
-                                  );
-                              })
-                            : post.company && (
-                                  <Badge variant="neutral" className="text-xs" asChild>
-                                      <Link href={`/companies/${post.company.slug}`}>
-                                          <Building2 className="size-3 mr-1" />
-                                          {post.company.name}
-                                      </Link>
-                                  </Badge>
-                              )}
                         {post.tags.map((tag) => (
                             <Badge key={tag.slug} variant="default" className="text-xs" asChild>
                                 <Link href={`/grinds/tag/${tag.slug}`}>
