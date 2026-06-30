@@ -101,9 +101,6 @@ export default async function GrindsPostPage({
                     isOwner={post.isOwner}
                     canPin={userCanPin}
                     isPinned={post.isPinned}
-                    postTitle={post.title}
-                    postBody={post.body}
-                    postType={post.type}
                 />
             </div>
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BADGES, BADGE_BY_ID, EXP, type BadgeId } from "~/config/gamification";
+import { BADGES, BADGE_BY_ID, EXP } from "~/config/gamification";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import {
     awardForExperience,

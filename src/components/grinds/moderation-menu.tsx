@@ -25,7 +25,6 @@ import { removeContent } from "~/server/actions/moderation/actions";
 import { pinPost, unpinPost } from "~/server/actions/moderation/pin";
 import { deletePost } from "~/server/actions/posts/createPost";
 import { deleteComment } from "~/server/actions/comments/addComment";
-import { FEATURE_FLAGS } from "~/config/feature-flags";
 import type { ReportTargetType } from "~/server/actions/moderation/core";
 
 const REASONS = ["Spam", "Harassment", "Off-topic", "Other"] as const;
@@ -43,10 +42,6 @@ export function ModerationMenu({
     isOwner = false,
     canPin: canPinProp = false,
     isPinned = false,
-    // Post-owner props (only relevant when targetType === "POST")
-    postTitle,
-    postBody,
-    postType,
     // Comment-owner prop (only relevant when targetType === "COMMENT")
     onEditComment,
 }: {
@@ -58,9 +53,6 @@ export function ModerationMenu({
     isOwner?: boolean;
     canPin?: boolean;
     isPinned?: boolean;
-    postTitle?: string;
-    postBody?: string;
-    postType?: string | null;
     onEditComment?: () => void;
 }) {
     const router = useRouter();
