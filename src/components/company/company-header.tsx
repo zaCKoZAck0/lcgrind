@@ -1,13 +1,16 @@
 import { CompanyLogo } from "../company-logo";
 import { COMPANIES } from "~/config/constants";
 import type { TierLevel } from "~/utils/company-tiers";
-import { DifficultyMarker, PayMarker } from "./tier-markers";
+import { PayMarker } from "./tier-markers";
+import { DifficultyBar } from "./difficulty-bar";
 
 interface CompanyHeaderProps {
     name: string;
     slug: string;
     payTier?: TierLevel;
-    difficultyTier?: TierLevel;
+    easyCount?: number;
+    mediumCount?: number;
+    hardCount?: number;
     headingSuffix?: string;
     headingFull?: string;
 }
@@ -16,7 +19,9 @@ export function CompanyHeader({
     name,
     slug,
     payTier = 0,
-    difficultyTier = 0,
+    easyCount = 0,
+    mediumCount = 0,
+    hardCount = 0,
     headingSuffix = "Interview Questions",
     headingFull,
 }: CompanyHeaderProps) {
@@ -35,12 +40,16 @@ export function CompanyHeader({
                 />
                 <div className="flex flex-col justify-center gap-2">
                     <h1 className="font-semibold text-2xl">{headingFull ?? `${name} ${headingSuffix}`}</h1>
-                    {(payTier > 0 || difficultyTier > 0) && (
+                    {payTier > 0 && (
                         <span className="flex items-center gap-3">
                             <PayMarker tier={payTier} />
-                            <DifficultyMarker tier={difficultyTier} />
                         </span>
                     )}
+                    <DifficultyBar
+                        easyCount={easyCount}
+                        mediumCount={mediumCount}
+                        hardCount={hardCount}
+                    />
                 </div>
             </div>
         </div>

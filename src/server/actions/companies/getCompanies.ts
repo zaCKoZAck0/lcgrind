@@ -37,7 +37,9 @@ export async function getCompanies(query: string, offset: number, ITEMS_PER_PAGE
                     reportCount: true,
                     lastSeen: true,
                     payTier: true,
-                    difficultyTier: true,
+                    easyCount: true,
+                    mediumCount: true,
+                    hardCount: true,
                     _count: { select: { compRollups: true } },
                 },
             }),
@@ -50,7 +52,9 @@ export async function getCompanies(query: string, offset: number, ITEMS_PER_PAGE
             lastSeen: c.lastSeen,
             hasComp: c._count.compRollups > 0,
             payTier: c.payTier as TierLevel,
-            difficultyTier: c.difficultyTier as TierLevel,
+            easyCount: c.easyCount,
+            mediumCount: c.mediumCount,
+            hardCount: c.hardCount,
         }));
         return {
             totalCountResult,

@@ -26,7 +26,7 @@ async function getCompanyBySlug(slug: string) {
     if (slug === "other") return null;
     return db.company.findUnique({
         where: { slug },
-        select: { id: true, name: true, slug: true, reportCount: true, lastSeen: true, payTier: true, difficultyTier: true },
+        select: { id: true, name: true, slug: true, reportCount: true, lastSeen: true, payTier: true },
     });
 }
 
@@ -116,7 +116,6 @@ export default async function CompanyCompensationPage({ params }: { params: Prom
                         name={company.name}
                         slug={company.slug}
                         payTier={0}
-                        difficultyTier={0}
                         headingFull={`${company.name} Salary & Compensation`}
                     />
                 </div>

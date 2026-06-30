@@ -240,24 +240,14 @@ function pagedSections(view: SectionView[], start: number, end: number): Section
     });
 }
 
-const SECTION_KEY_TO_CATEGORY: Record<keyof InterviewSections, string> = {
-    problemSolving: "dsa",
-    systemDesign: "system-design",
-    lld: "lld",
-    others: "behavioral",
-};
-
-export function QuestionSections({ sections, companyName, companySlug, enabledCategories }: {
+export function QuestionSections({ sections, companyName }: {
     sections: InterviewSections;
     companyName?: string;
-    companySlug?: string;
-    enabledCategories?: string[];
 }) {
     const router = useRouter();
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<SortKey>("asked");
     const [diffs, setDiffs] = useState<string[]>([]);
-    const [activeSection, setActiveSection] = useState<keyof InterviewSections | null>(null);
     const [page, setPage] = useState(1);
 
     const onCompanyClick = useCallback((slug: string) => {
@@ -265,11 +255,15 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
     }, [router]);
 
     const availableSections = SECTION_ORDER.filter((s) => sections[s.key].length > 0);
+    // DSA-first default: availableSections preserves SECTION_ORDER, so [0] is DSA when present.
+    const [activeSection, setActiveSection] = useState<keyof InterviewSections>(
+        () => availableSections[0]?.key ?? "problemSolving",
+    );
 
     const view = useMemo(
         () =>
             SECTION_ORDER
-                .filter((s) => activeSection === null || s.key === activeSection)
+                .filter((s) => s.key === activeSection)
                 .map((s) => ({
                     ...s,
                     list: sortQuestions(
@@ -294,17 +288,6 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
         <div>
             {availableSections.length > 1 && (
                 <div className="flex flex-wrap gap-2 mb-4">
-                    <button
-                        onClick={() => { setActiveSection(null); setPage(1); }}
-                        className={cn(
-                            "px-3 py-1 text-sm font-bold border-2 border-border rounded-base transition-colors",
-                            activeSection === null
-                                ? "bg-main text-main-foreground shadow-shadow"
-                                : "bg-background text-foreground hover:bg-secondary-background",
-                        )}
-                    >
-                        All
-                    </button>
                     {availableSections.map((s) => (
                         <button
                             key={s.key}
@@ -350,14 +333,6 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
                                     {s.icon}
                                     <h2>{s.title}</h2>
                                     <span className="text-sm opacity-70">({sectionTotals.get(s.key) ?? s.list.length})</span>
-                                    {companySlug && enabledCategories?.includes(SECTION_KEY_TO_CATEGORY[s.key]) && (
-                                        <a
-                                            href={`/companies/${companySlug}/${SECTION_KEY_TO_CATEGORY[s.key]}`}
-                                            className="ml-auto text-sm underline hover:no-underline"
-                                        >
-                                            View all →
-                                        </a>
-                                    )}
                                 </div>
                                 {s.list.map((q) => {
                                     const row = (

@@ -27,7 +27,6 @@ import { CompanyHeader } from "~/components/company/company-header";
 import { QuestionSections } from "~/components/company/question-sections";
 import { isBand } from "~/components/company/band-selector";
 import { buttonVariants } from "~/components/ui/button";
-import type { TierLevel } from "~/utils/company-tiers";
 
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -56,7 +55,9 @@ async function getCompanyBySlug(slug: string) {
       reportCount: true,
       lastSeen: true,
       payTier: true,
-      difficultyTier: true,
+      easyCount: true,
+      mediumCount: true,
+      hardCount: true,
     },
   });
 }
@@ -183,7 +184,9 @@ export default async function CompanyCategoryPage({
             name={company.name}
             slug={company.slug}
             payTier={0}
-            difficultyTier={company.difficultyTier as TierLevel}
+            easyCount={company.easyCount}
+            mediumCount={company.mediumCount}
+            hardCount={company.hardCount}
             headingFull={config.h1Template(company.name)}
           />
         </div>

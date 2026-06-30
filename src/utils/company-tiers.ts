@@ -4,8 +4,6 @@
 
 export type TierLevel = 0 | 1 | 2 | 3 | 4 | 5;
 
-/** Hide the difficulty marker below this many difficulty-known DSA asks. */
-export const DIFFICULTY_MIN_KNOWN_ASKS = 50;
 /** Hide the pay marker when the best-sampled rollup has fewer reports. */
 export const PAY_MIN_N = 5;
 /** A pay baseline needs at least this many rollups sharing the grouping key. */
@@ -23,20 +21,6 @@ export function median(values: number[]): number {
     return sorted.length % 2
         ? sorted[mid]
         : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
-/**
- * Per-ask difficulty score over DSA asks with a known linked-problem
- * difficulty: easy +0.5, medium +1, hard +3. Null below the data gate.
- */
-export function weightedDifficulty(asks: {
-    easy: number;
-    medium: number;
-    hard: number;
-}): number | null {
-    const known = asks.easy + asks.medium + asks.hard;
-    if (known < DIFFICULTY_MIN_KNOWN_ASKS) return null;
-    return (asks.easy * 0.5 + asks.medium + asks.hard * 3) / known;
 }
 
 export type PayRollup = {

@@ -129,7 +129,9 @@ async function seedCompanies() {
                 lastSeen: faker.date.recent({ days: 365 }).toISOString().slice(0, 7),
                 sheetId: sheet.id,
                 payTier: faker.number.int({ min: 0, max: 5 }),
-                difficultyTier: faker.number.int({ min: 0, max: 5 }),
+                easyCount: faker.number.int({ min: 0, max: 60 }),
+                mediumCount: faker.number.int({ min: 0, max: 120 }),
+                hardCount: faker.number.int({ min: 0, max: 40 }),
             },
         });
         companies.push(company);

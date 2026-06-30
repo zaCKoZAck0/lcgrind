@@ -1,4 +1,4 @@
-import { DollarSign, Star } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { TierLevel } from "~/utils/company-tiers";
 
@@ -15,15 +15,6 @@ const PAY_LABELS = [
     "Average pay",
     "Above-average pay",
     "Among the highest paying in our data",
-] as const;
-
-const DIFFICULTY_LABELS = [
-    "",
-    "Among the easiest interviews",
-    "Easier than most",
-    "Average difficulty",
-    "Harder than most",
-    "Among the hardest interviews",
 ] as const;
 
 function Marker({
@@ -70,18 +61,6 @@ export function PayMarker({ tier, className }: { tier: TierLevel; className?: st
             tier={tier}
             label={PAY_LABELS[tier]}
             icon={DollarSign}
-            className={className}
-        />
-    );
-}
-
-export function DifficultyMarker({ tier, className }: { tier: TierLevel; className?: string }) {
-    return (
-        <Marker
-            tier={tier}
-            label={DIFFICULTY_LABELS[tier]}
-            icon={Star}
-            filled
             className={className}
         />
     );

@@ -21,7 +21,10 @@ export interface CompanyDetails {
   lastSeen: string | null;
   hasComp: boolean;
   payTier: import("~/utils/company-tiers").TierLevel;
-  difficultyTier: import("~/utils/company-tiers").TierLevel;
+  /** Distinct DSA problems by difficulty — the problem set is public. */
+  easyCount: number;
+  mediumCount: number;
+  hardCount: number;
 }
 
 export type TSheetProblem = SheetProblem & {
