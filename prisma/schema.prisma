@@ -187,6 +187,8 @@ model Post {
   acceptedCommentId String?
   status            String                   @default("PUBLISHED")
   lockedAt          DateTime?
+  // Set once the forked submission is merged; later social edits stop spawning
+  // admin versions and never touch aggregates (point-in-time, anti-gaming).
   parseFrozen       Boolean                  @default(false)
   editedAt          DateTime?
   createdAt         DateTime                 @default(now())
@@ -303,6 +305,8 @@ model User {
   handle        String?        @unique
   reputation    Int            @default(0)
   onboardedAt   DateTime?
+  // "USER" | "MODERATOR" | "ADMIN". Email-based ADMIN_EMAILS env var takes
+  // precedence; this field enables DB-granted moderator and admin roles.
   role          String         @default("USER")
   syncProgress        Boolean        @default(false)
   progressData        Json?
