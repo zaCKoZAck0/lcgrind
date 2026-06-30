@@ -39,12 +39,28 @@ export async function generateMetadata({
     const filtered = Boolean(
         type || company || tag || cursor || sort === "new" || sort === "top",
     );
+    const title = "Grinds — interview experiences, questions, and discussion";
+    const description = "Real interview experiences, questions, and discussion from the community.";
     return {
-        title: "Grinds — interview experiences, questions, and discussion",
-        description:
-            "Real interview experiences, questions, and discussion from the community.",
+        title,
+        description,
         alternates: { canonical: `${BASE_URL}/grinds` },
-        ...(filtered ? { robots: { index: false, follow: true } } : {}),
+        ...(filtered
+            ? { robots: { index: false, follow: true } }
+            : {
+                  openGraph: {
+                      type: "website",
+                      title,
+                      description,
+                      url: `${BASE_URL}/grinds`,
+                      siteName: "LC Grind",
+                  },
+                  twitter: {
+                      card: "summary_large_image",
+                      title,
+                      description,
+                  },
+              }),
     };
 }
 
