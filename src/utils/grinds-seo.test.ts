@@ -8,6 +8,9 @@ describe("stripMarkdown", () => {
   it("strips italic markers", () => {
     expect(stripMarkdown("*italic* and _also_")).toBe("italic and also");
   });
+  it("strips nested bold+italic", () => {
+    expect(stripMarkdown("**bold *italic* text**")).toBe("bold italic text");
+  });
   it("strips headings", () => {
     expect(stripMarkdown("## My Heading")).toBe("My Heading");
   });
