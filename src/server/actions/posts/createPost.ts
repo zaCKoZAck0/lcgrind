@@ -31,7 +31,7 @@ export async function createPost(
 
 export async function editPost(
     postId: string,
-    input: { title: string; body: string },
+    input: { title: string; body?: string; structured?: unknown },
 ): Promise<EditPostResult> {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {

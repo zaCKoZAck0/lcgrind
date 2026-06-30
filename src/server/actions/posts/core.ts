@@ -289,10 +289,10 @@ type ExperienceEntry = {
     company: string;
     role?: string;
     rounds?: { type: string; questions: { text: string }[] }[];
-    comp?: { currency: string; tc: number };
+    comp?: { currency: string; tc: number; components?: { label: string; amount: number }[] };
 };
 
-type LegacyStructured = { role?: string; rounds?: { type: string; questions: { text: string }[] }[]; comp?: { currency: string; tc: number } };
+type LegacyStructured = { role?: string; rounds?: { type: string; questions: { text: string }[] }[]; comp?: { currency: string; tc: number; components?: { label: string; amount: number }[] } };
 
 function getExperienceEntries(structured: unknown, fallbackCompany: string): ExperienceEntry[] {
     if (!structured || typeof structured !== "object") return [];
@@ -318,7 +318,18 @@ function buildExperienceSection(exp: ExperienceEntry, roundOffset = 0): string[]
         lines.push("");
     }
     if (exp.comp) {
-        lines.push(`**Compensation:** ${exp.comp.currency} ${exp.comp.tc.toLocaleString()}/year`);
+        const { currency, tc, components } = exp.comp;
+        const filled = components?.filter((c) => c.label && c.amount);
+        if (filled?.length) {
+            lines.push("**Compensation**");
+            lines.push("");
+            for (const c of filled) {
+                lines.push(`- **${c.label}:** ${currency} ${c.amount.toLocaleString()}`);
+            }
+            lines.push(`- **Total:** ${currency} ${tc.toLocaleString()}/year`);
+        } else {
+            lines.push(`**Compensation:** ${currency} ${tc.toLocaleString()}/year`);
+        }
         lines.push("");
     }
     return lines;
@@ -474,10 +485,13 @@ export async function editPostCore(
     db: PrismaClient,
     userId: string,
     postId: string,
-    input: { title: string; body: string },
+    input: { title: string; body?: string; structured?: unknown },
 ): Promise<EditPostResult> {
     const title = input.title?.trim() ?? "";
-    const body = input.body?.trim() ?? "";
+    const body = (input.structured
+        ? buildExperienceBody("", input.structured)
+        : input.body ?? ""
+    ).trim();
     const lenError = validateTitleBody(title, body);
     if (lenError) return { ok: false, error: lenError };
 
@@ -528,7 +542,13 @@ export async function editPostCore(
                     status: "PENDING",
                     parsed: Prisma.JsonNull,
                     adminNote: null,
+                    ...(input.structured ? { structured: input.structured as Prisma.InputJsonValue } : {}),
                 },
+            });
+        } else if (sub && merged && input.structured) {
+            await tx.submission.update({
+                where: { id: sub.id },
+                data: { structured: input.structured as Prisma.InputJsonValue },
             });
         }
     });

@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { buttonVariants } from "./ui/button"
-import { HeartIcon } from "lucide-react"; 
+import { HeartIcon } from "lucide-react";
 import { NavLinks } from "./nav-links"
 import { MobileNav } from "./mobile-nav"
 import { UserMenu } from "./auth/user-menu"

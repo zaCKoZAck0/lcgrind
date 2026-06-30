@@ -3,7 +3,6 @@ import { MessageSquare } from "lucide-react";
 import { SignInCard } from "~/components/auth/sign-in-card";
 import { CommentReply } from "./comment-reply";
 import { CommentNodeView } from "./comment-node";
-import { EmptyState } from "./empty-state";
 import type { PublicCommentNode } from "~/server/actions/comments/getComments";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
@@ -43,7 +42,7 @@ export function CommentSection({
             ) : null}
 
             {comments.length === 0 ? (
-                <EmptyState>No comments yet. Be the first to reply.</EmptyState>
+                <p className="text-sm text-muted-foreground py-2">No comments yet. Be the first to reply.</p>
             ) : (
                 <div className="flex flex-col gap-3">
                     {comments.map((node) => (

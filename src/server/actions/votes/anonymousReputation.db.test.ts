@@ -54,8 +54,8 @@ afterAll(async () => {
     await db.$disconnect();
 });
 
-describe("castVoteCore — anonymous content earns no karma", () => {
-    it("denormalizes the score on an anonymous post but accrues no author karma", async () => {
+describe("castVoteCore — anonymous content earns no reputation", () => {
+    it("denormalizes the score on an anonymous post but accrues no author reputation", async () => {
         const res = await castVoteCore(db, VOTER, {
             targetType: "POST",
             targetId: anonPostId,
@@ -71,15 +71,15 @@ describe("castVoteCore — anonymous content earns no karma", () => {
         expect(post.score).toBe(1);
         expect(post.upCount).toBe(1);
 
-        // ...but the author earns no karma for anonymous content.
+        // ...but the author earns no reputation for anonymous content.
         const author = await db.user.findUniqueOrThrow({
             where: { id: AUTHOR },
-            select: { karma: true },
+            select: { reputation: true },
         });
-        expect(author.karma).toBe(0);
+        expect(author.reputation).toBe(0);
     });
 
-    it("accrues no karma for votes on an anonymous comment", async () => {
+    it("accrues no reputation for votes on an anonymous comment", async () => {
         const res = await castVoteCore(db, VOTER, {
             targetType: "COMMENT",
             targetId: anonCommentId,
@@ -95,8 +95,8 @@ describe("castVoteCore — anonymous content earns no karma", () => {
 
         const author = await db.user.findUniqueOrThrow({
             where: { id: AUTHOR },
-            select: { karma: true },
+            select: { reputation: true },
         });
-        expect(author.karma).toBe(0);
+        expect(author.reputation).toBe(0);
     });
 });

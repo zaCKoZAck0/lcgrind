@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MessageSquare, Building2, ArrowLeft } from "lucide-react";
+import { MessageSquare, ArrowLeft, Pin, Building2 } from "lucide-react";
 import { headers } from "next/headers";
 import { auth, isAdminEmail } from "~/lib/auth";
 import { getUserRole, canPin } from "~/lib/rbac";
@@ -104,9 +104,6 @@ export default async function GrindsPostPage({
                     isOwner={post.isOwner}
                     canPin={userCanPin}
                     isPinned={post.isPinned}
-                    postTitle={post.title}
-                    postBody={post.body}
-                    postType={post.type}
                 />
             </div>
 
@@ -115,6 +112,12 @@ export default async function GrindsPostPage({
 
                 {/* Header: title + author */}
                 <div className="p-5 pb-0">
+                    {post.isPinned && (
+                        <div className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mb-3">
+                            <Pin className="size-3" />
+                            Pinned
+                        </div>
+                    )}
                     <h1 className="font-bold text-xl leading-snug mb-4">{post.title}</h1>
                     <div className="flex items-center gap-3">
                         <Avatar className="size-9 shrink-0 border-2 border-border">

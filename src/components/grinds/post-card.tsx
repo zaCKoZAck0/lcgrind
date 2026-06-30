@@ -29,10 +29,7 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
     return (
         <article className="relative rounded-base border-2 border-border bg-card p-4 flex gap-3 hover:bg-secondary-background/40 transition-colors">
             {post.isPinned && (
-                <span className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                    <Pin className="size-3" />
-                    Pinned
-                </span>
+                <Pin className="absolute top-3 right-3 size-4 text-muted-foreground" aria-label="Pinned" />
             )}
             <Avatar className="size-9 shrink-0 border-2 border-border">
                 <AvatarImage src={post.author?.avatar ?? undefined} alt={post.author?.handle ?? "anon"} />

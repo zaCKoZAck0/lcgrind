@@ -61,8 +61,13 @@ export function FeedStream({
     return (
         <FeedVotes postIds={postIds}>
             <div className="flex flex-col gap-3">
-                {posts.map((post) => (
-                    <FeedPostCard key={post.id} post={post} />
+                {posts.map((post, i) => (
+                    <div key={post.id}>
+                        <FeedPostCard post={post} />
+                        {post.isPinned && !posts[i + 1]?.isPinned && posts[i + 1] && (
+                            <div className="mt-3" />
+                        )}
+                    </div>
                 ))}
             </div>
 
