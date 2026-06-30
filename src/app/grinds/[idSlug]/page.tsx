@@ -14,7 +14,7 @@ import { CommentSection } from "~/components/grinds/comment-thread";
 import { VoteControl } from "~/components/grinds/vote-control";
 import { ModerationMenu } from "~/components/grinds/moderation-menu";
 import { GrindsForumPostingJsonLd } from "~/components/seo/json-ld";
-import { shouldNoindexPost } from "~/utils/grinds-seo";
+import { shouldNoindexPost, stripMarkdown } from "~/utils/grinds-seo";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { Badge } from "~/components/ui/badge";
@@ -35,13 +35,27 @@ export async function generateMetadata({
     const post = await getPublicPost(postIdFromParam(idSlug));
     if (!post) return { title: "Post not found" };
     const canonical = `${BASE_URL}/grinds/${postParam(post.id, post.title)}`;
+    const description = stripMarkdown(post.body).slice(0, 160);
+    const noindex = shouldNoindexPost(post);
     return {
         title: post.title,
-        description: post.body.slice(0, 160),
+        description,
         alternates: { canonical },
-        ...(shouldNoindexPost(post)
-            ? { robots: { index: false, follow: true } }
-            : {}),
+        ...(noindex ? { robots: { index: false, follow: true } } : {}),
+        ...(!noindex && {
+            openGraph: {
+                type: "article",
+                title: post.title,
+                description,
+                url: canonical,
+                siteName: "LC Grind",
+            },
+            twitter: {
+                card: "summary_large_image",
+                title: post.title,
+                description,
+            },
+        }),
     };
 }
 
