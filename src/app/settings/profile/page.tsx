@@ -11,40 +11,36 @@ import { Card } from "~/components/ui/card";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export const metadata: Metadata = {
-    title: "Edit profile (Legacy)",
-    robots: { index: false },
+  title: "Edit profile (Legacy)",
+  robots: { index: false },
 };
 
 export default async function EditProfilePage() {
-    if (!FEATURE_FLAGS.LOGIN) redirect("/");
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) redirect("/");
+  if (!FEATURE_FLAGS.LOGIN) redirect("/");
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect("/");
 
-    const [profile, syncStatus] = await Promise.all([
-        getMyProfileStatus(),
-        getProgressSync(),
-    ]);
+  const [profile, syncStatus] = await Promise.all([
+    getMyProfileStatus(),
+    getProgressSync(),
+  ]);
 
-    return (
-        <div className="w-full max-w-[480px] py-10 px-4 mx-auto flex flex-col gap-8">
-            <div className="flex items-center gap-2">
-                <UserPen className="size-5" />
-                <h1 className="font-bold text-xl">Edit profile</h1>
-                <span className="text-xs text-muted-foreground border border-border rounded px-1.5 py-0.5 ml-1">
-                    Legacy
-                </span>
-            </div>
+  return (
+    <div className="w-full max-w-[480px] py-10 px-4 mx-auto flex flex-col gap-8">
+      <div className="flex items-center gap-2">
+        <UserPen className="size-5" />
+        <h1 className="font-bold text-xl">Edit profile</h1>
+      </div>
 
-            <ProfileForm
-                initialName={profile.name}
-                email={profile.email}
-                initialHandle={profile.handle}
-            />
+      <ProfileForm
+        initialName={profile.name}
+        email={profile.email}
+        initialHandle={profile.handle}
+      />
 
-            <Card className="p-4 flex flex-col gap-1">
-                <p className="font-semibold text-sm mb-2">Progress storage</p>
-                <ProgressSyncToggle initialEnabled={syncStatus.enabled} />
-            </Card>
-        </div>
-    );
+      <Card className="p-4 flex flex-col gap-1">
+        <ProgressSyncToggle initialEnabled={syncStatus.enabled} initialLastSyncedAt={syncStatus.lastSyncedAt} />
+      </Card>
+    </div>
+  );
 }

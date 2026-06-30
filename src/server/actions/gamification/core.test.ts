@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BADGES, BADGE_BY_ID, EXP, type BadgeId } from "~/config/gamification";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
 import {
     awardForExperience,
     evaluateBadges,
@@ -50,11 +51,11 @@ describe("awardForExperience", () => {
         expect(delta).toBe(50);
     });
 
-    it("awards 25 for a comp-only submission", () => {
+    it("awards comp-only exp gated on the COMPENSATION flag (25 on, 0 off)", () => {
         const { delta } = awardForExperience({
             comp: { currency: "USD", tc: 200000 },
         });
-        expect(delta).toBe(25);
+        expect(delta).toBe(FEATURE_FLAGS.COMPENSATION ? 25 : 0);
     });
 
     it("treats a submission with rounds and comp as a report (50) plus detail bonus", () => {

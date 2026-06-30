@@ -14,7 +14,7 @@ import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import { cn } from "~/lib/utils";
 import { isCurrentUserAdmin } from "~/server/actions/admin/whoami";
-import { getMyGameStats } from "~/server/actions/gamification/actions";
+import { getMyGameStats, creditMyDailyLogin } from "~/server/actions/gamification/actions";
 import {
     getMyProfileStatus,
     type ProfileStatus,
@@ -32,10 +32,14 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { signOut, useSession, signIn } from "~/lib/auth-client";
+import { useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+
+const CREDIT_KEY = "daily_credited";
 
 export function UserMenu() {
     const { data: session, isPending } = useSession();
+    const router = useRouter();
     const [isAdmin, setIsAdmin] = useState(false);
     const [exp, setExp] = useState<number | null>(null);
     const [loginStreak, setLoginStreak] = useState<number>(0);
@@ -46,8 +50,30 @@ export function UserMenu() {
     useEffect(() => {
         if (session) {
             isCurrentUserAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-            getMyGameStats()
-                .then(({ exp, loginStreak }) => { setExp(exp); setLoginStreak(loginStreak); })
+
+            try { localStorage.removeItem("gs_cache"); } catch { /* ignore */ }
+
+            const today = new Date().toISOString().slice(0, 10);
+            let alreadyCredited = false;
+            try { alreadyCredited = localStorage.getItem(CREDIT_KEY) === today; } catch { /* ignore */ }
+
+            const statsPromise = alreadyCredited
+                ? getMyGameStats().then((stats) => ({ ...stats, didCredit: false }))
+                : creditMyDailyLogin().then((credited) => {
+                    // Only mark the day credited (and refresh) when the server
+                    // actually credited — a no-op call must not poison the flag.
+                    if (credited) {
+                        try { localStorage.setItem(CREDIT_KEY, today); } catch { /* ignore */ }
+                    }
+                    return getMyGameStats().then((stats) => ({ ...stats, didCredit: credited }));
+                });
+
+            statsPromise
+                .then(({ exp, loginStreak, didCredit }) => {
+                    setExp(exp);
+                    setLoginStreak(loginStreak);
+                    if (didCredit) router.refresh();
+                })
                 .catch(() => { setExp(null); setLoginStreak(0); });
             if (FEATURE_FLAGS.NOTIFICATIONS) {
                 getUnreadCount().then(setUnreadCount).catch(() => setUnreadCount(0));

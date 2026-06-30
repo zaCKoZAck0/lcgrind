@@ -59,31 +59,39 @@ describe("approval gamification", () => {
 
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: reportId } });
         expect(ledger).toHaveLength(1);
-        // Report (50) + detail bonus (10).
+        // Report (50) + detail bonus (10). Badge exp lives in separate ledger
+        // rows with submissionId null, so this submission row stays 60.
         expect(ledger[0].delta).toBe(60);
 
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.exp).toBe(60);
+        // 60 award + contribution badges: valuable-contributor (50) +
+        // well-structured (100) = 210, granted by syncBadges after the award.
+        expect(user?.exp).toBe(210);
     });
 
     it("is idempotent: re-approving does not double-count", async () => {
         await approveSubmissionCore(db, reportId);
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.exp).toBe(60);
+        expect(user?.exp).toBe(210);
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: reportId } });
         expect(ledger).toHaveLength(1);
     });
 
-    it("awards the First Report badge after approval", async () => {
+    it("awards contribution badges after approval", async () => {
         const badges = await db.userBadge.findMany({ where: { userId: USER } });
-        expect(badges.map((b) => b.badge)).toContain("first-report");
+        const ids = badges.map((b) => b.badge);
+        expect(ids).toContain("valuable-contributor");
+        expect(ids).toContain("well-structured");
     });
 
-    it("reverses points to zero when the submission is rejected", async () => {
+    it("reverses the submission award on reject (badge exp is sticky)", async () => {
         const result = await rejectSubmissionCore(db, reportId, "spam");
         expect(result.ok).toBe(true);
         const user = await db.user.findUnique({ where: { id: USER } });
-        expect(user?.exp).toBe(0);
+        // The 60 submission award is withdrawn; the 150 of badge exp persists
+        // because badges are never revoked (their ledger rows are submission-
+        // independent). 210 - 60 = 150.
+        expect(user?.exp).toBe(150);
         const ledger = await db.pointsLedger.findMany({ where: { submissionId: reportId } });
         expect(ledger).toHaveLength(0);
     });

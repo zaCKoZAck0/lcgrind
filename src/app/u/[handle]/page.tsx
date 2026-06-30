@@ -16,6 +16,7 @@ import { EmptyState } from "~/components/grinds/empty-state";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Card } from "~/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { buttonVariants } from "~/components/ui/button";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
@@ -86,70 +87,86 @@ export default async function UserProfilePage({
                     )}
                 </div>
 
-                <div className="px-5 pb-5 flex flex-col gap-4">
-                    {/* Avatar + name — avatar overlaps banner */}
-                    <div className="flex items-end gap-4 -mt-12">
-                        <div className="rounded-full border-[3px] border-secondary-background outline outline-2 outline-border shrink-0">
-                            <Avatar className="size-24">
-                                <AvatarImage
-                                    src={(profile.image ?? profile.avatar) ?? undefined}
-                                    alt={profile.name}
-                                />
-                                <AvatarFallback className="font-bold text-3xl bg-main text-main-foreground">
-                                    {profile.name[0]?.toUpperCase() ?? "U"}
-                                </AvatarFallback>
-                            </Avatar>
-                        </div>
-                        <div className="pb-1 min-w-0">
-                            <h1 className="font-bold text-2xl leading-tight truncate">{profile.name}</h1>
-                            <p className="text-muted-foreground text-sm font-medium">@{profile.handle}</p>
+                {/* Avatar + name — avatar overlaps banner */}
+                <div className="px-5 pb-4 flex items-end gap-4 -mt-12">
+                    <div className="rounded-full border-[3px] border-secondary-background outline outline-2 outline-border shrink-0">
+                        <Avatar className="size-24">
+                            <AvatarImage
+                                src={(profile.image ?? profile.avatar) ?? undefined}
+                                alt={profile.name}
+                            />
+                            <AvatarFallback className="font-bold text-3xl bg-main text-main-foreground">
+                                {profile.name[0]?.toUpperCase() ?? "U"}
+                            </AvatarFallback>
+                        </Avatar>
+                    </div>
+                    <div className="pb-1 min-w-0">
+                        <h1 className="font-bold text-2xl leading-tight truncate">{profile.name}</h1>
+                        {/* Handle + compact stats (count + icon only; label in tooltip) on one line
+                            so the name column stays two lines and never overlaps the banner. */}
+                        <div className="flex items-center gap-3 min-w-0">
+                            <p className="text-muted-foreground text-sm font-medium truncate">@{profile.handle}</p>
+                            <TooltipProvider>
+                                <div className="flex items-center gap-3 shrink-0">
+                                    <Tooltip>
+                                        <TooltipTrigger
+                                            aria-label="Reputation"
+                                            className="flex items-center gap-1 text-sm font-semibold tabular-nums text-muted-foreground cursor-default"
+                                        >
+                                            {profile.reputation}
+                                            <ThumbsUp className="size-3.5" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>Reputation</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                        <TooltipTrigger
+                                            aria-label="Exp"
+                                            className="flex items-center gap-1 text-sm font-semibold tabular-nums text-muted-foreground cursor-default"
+                                        >
+                                            {profile.exp}
+                                            <Zap className="size-3.5" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>Exp</TooltipContent>
+                                    </Tooltip>
+                                </div>
+                            </TooltipProvider>
                         </div>
                     </div>
-
-                    {/* Stats */}
-                    <div className="flex rounded-base border-2 border-border overflow-hidden">
-                        <div className="flex-1 flex flex-col items-center py-4 px-4 border-r-2 border-border">
-                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.reputation}</span>
-                            <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
-                                <ThumbsUp className="size-4" />
-                                Reputation
-                            </span>
-                        </div>
-                        <div className="flex-1 flex flex-col items-center py-4 px-4 border-r-2 border-border">
-                            <span className="font-bold text-3xl tabular-nums leading-none">{profile.exp}</span>
-                            <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
-                                <Zap className="size-4" />
-                                Exp
-                            </span>
-                        </div>
-                        <div className="flex-1 flex flex-col items-center py-4 px-4">
-                            <span className="font-bold text-3xl tabular-nums leading-none text-orange-500">{profile.loginStreak}</span>
-                            <span className="text-muted-foreground text-sm flex items-center gap-1.5 mt-2">
-                                <Flame className="size-4 text-orange-500" />
-                                Day Streak
-                            </span>
-                            <span className="text-xs text-muted-foreground mt-1">Best: <span className="font-semibold text-foreground">{profile.longestStreak}</span></span>
-                        </div>
-                    </div>
-
-                    {profile.loginStreak > 0 && (
-                        <div className="rounded-base border-2 border-border px-4 pt-3 pb-4">
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Last 7 Days</p>
-                            <StreakCalendar loginStreak={profile.loginStreak} lastSeenOn={profile.lastSeenOn} />
-                        </div>
-                    )}
-
-                    {profile.badges.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                            {profile.badges.map((b) => (
-                                <Badge key={b.id} variant="default" className="gap-1.5 px-2.5 py-1" title={b.description}>
-                                    <Award className="size-3.5" />
-                                    {b.label}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
                 </div>
+
+                {/* Streak — one compact row: Day Streak + Best on the left, the
+                    Last 7 Days calendar on the right (stacks on narrow screens). */}
+                <div className="border-t-2 border-border px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-6 gap-y-3">
+                    <div className="flex items-center gap-5 shrink-0">
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex size-10 items-center justify-center rounded-base border-2 border-orange-400 bg-orange-100 shrink-0">
+                                <Flame className="size-5 text-orange-500 fill-orange-400" />
+                            </div>
+                            <div className="flex flex-col leading-none">
+                                <span className="font-bold text-2xl tabular-nums text-orange-500">{profile.loginStreak}</span>
+                                <span className="text-muted-foreground text-xs font-medium mt-1">Day Streak</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col leading-none">
+                            <span className="font-bold text-xl tabular-nums">{profile.longestStreak}</span>
+                            <span className="text-muted-foreground text-xs mt-1">Best</span>
+                        </div>
+                    </div>
+                    <div className="w-full sm:w-[280px] shrink-0">
+                        <StreakCalendar loginStreak={profile.loginStreak} lastSeenOn={profile.lastSeenOn} />
+                    </div>
+                </div>
+
+                {profile.badges.length > 0 && (
+                    <div className="px-5 py-4 border-t-2 border-border flex flex-wrap gap-2">
+                        {profile.badges.map((b) => (
+                            <Badge key={b.id} variant="default" className="gap-1.5 px-2.5 py-1" title={b.description}>
+                                <Award className="size-3.5" />
+                                {b.label}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
             </Card>
 
             {posts.length === 0 ? (

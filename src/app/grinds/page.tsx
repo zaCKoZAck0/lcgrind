@@ -18,7 +18,7 @@ import { GrindsPageHeader } from "~/components/grinds/page-header";
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { buttonVariants } from "~/components/ui/button";
-import { Badge, badgeVariants } from "~/components/ui/badge";
+import { Badge } from "~/components/ui/badge";
 import { Card } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
@@ -57,10 +57,6 @@ function buildQuery(params: Record<string, string | undefined>): string {
     return s ? `?${s}` : "";
 }
 
-const TYPE_FILTERS: { value: string; label: string }[] = [
-    { value: "ALL", label: "All" },
-    { value: "EXPERIENCE", label: "Experiences" },
-];
 
 export default async function GrindsFeedPage({
     searchParams,
@@ -153,25 +149,6 @@ export default async function GrindsFeedPage({
                     ))}
                 </Card>
 
-                <div className="flex flex-wrap gap-2">
-                    {TYPE_FILTERS.map((f) => {
-                        const active = f.value === "ALL" ? !type : type === f.value;
-                        return (
-                            <Link
-                                key={f.value}
-                                href={`/grinds${buildQuery({
-                                    company: companySlug,
-                                    tag: tagSlug,
-                                    sort: sortParam,
-                                    type: f.value === "ALL" ? undefined : f.value,
-                                })}`}
-                                className={badgeVariants({ variant: active ? "default" : "neutral" })}
-                            >
-                                {f.label}
-                            </Link>
-                        );
-                    })}
-                </div>
             </div>
 
             {company && (

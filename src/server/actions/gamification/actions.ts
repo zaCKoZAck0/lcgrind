@@ -22,11 +22,15 @@ export type GameStats = {
     lastSeenOn: string | null;
 };
 
+export async function creditMyDailyLogin(): Promise<boolean> {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) return false;
+    return creditDailyLogin(db, session.user.id);
+}
+
 export async function getMyGameStats(): Promise<GameStats> {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) return { exp: 0, loginStreak: 0, longestStreak: 0, lastSeenOn: null };
-
-    await creditDailyLogin(db, session.user.id);
 
     const user = await db.user.findUnique({
         where: { id: session.user.id },

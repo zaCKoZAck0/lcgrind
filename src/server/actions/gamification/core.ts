@@ -26,7 +26,10 @@ export function awardForExperience(payload: SanitizedExperience): AwardOutcome {
             delta += EXP.DETAIL_BONUS;
             reasons.push("detail");
         }
-    } else if (hasComp) {
+    } else if (hasComp && typeof EXP.COMP_ONLY === "number") {
+        // COMP_ONLY only exists on EXP when the COMPENSATION flag is on; the
+        // conditional spread leaves it `undefined` otherwise, so guard the type
+        // to avoid `delta += undefined` (NaN).
         delta += EXP.COMP_ONLY;
         reasons.push("comp_only");
     }
@@ -171,10 +174,18 @@ export async function syncGrindBadges(db: PrismaClient, userId: string): Promise
 
     const completedIds = completedEntries.map(([id]) => id);
 
-    const problems = await db.problem.findMany({
-        where: { frontendQuestionId: { in: completedIds } },
-        select: { frontendQuestionId: true, difficulty: true },
-    });
+    const [problems, sheets] = await Promise.all([
+        db.problem.findMany({
+            where: { frontendQuestionId: { in: completedIds } },
+            select: { frontendQuestionId: true, difficulty: true },
+        }),
+        db.sheet.findMany({
+            select: {
+                id: true,
+                SheetProblem: { select: { problem: { select: { frontendQuestionId: true } } } },
+            },
+        }),
+    ]);
     const diffMap = new Map(problems.map((p) => [p.frontendQuestionId, p.difficulty]));
 
     const totalSolved = completedEntries.length;
@@ -195,12 +206,6 @@ export async function syncGrindBadges(db: PrismaClient, userId: string): Promise
         solvingStreak++;
     }
 
-    const sheets = await db.sheet.findMany({
-        select: {
-            id: true,
-            SheetProblem: { select: { problem: { select: { frontendQuestionId: true } } } },
-        },
-    });
     const completedSet = new Set(completedIds);
     const completedSheetIds = sheets
         .filter((s) => s.SheetProblem.length > 0 && s.SheetProblem.every((sp) => completedSet.has(sp.problem.frontendQuestionId)))
@@ -313,7 +318,10 @@ export async function syncBadges(db: PrismaClient, userId: string): Promise<void
 // Credits +5 exp once per calendar day (UTC). Idempotent — concurrent calls are
 // safe because the updateMany guard (NOT lastSeenOn: today) is atomic. Also
 // tracks login streak and awards login-streak badges.
-export async function creditDailyLogin(db: PrismaClient, userId: string): Promise<void> {
+// Returns true only when this call performed the credit, so clients can mirror
+// server truth (e.g. set a "credited today" flag / refresh) without poisoning
+// their cache on a no-op call.
+export async function creditDailyLogin(db: PrismaClient, userId: string): Promise<boolean> {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
@@ -321,14 +329,22 @@ export async function creditDailyLogin(db: PrismaClient, userId: string): Promis
         where: { id: userId },
         select: { lastSeenOn: true, loginStreak: true, longestStreak: true },
     });
-    if (!user || user.lastSeenOn === today) return;
+    if (!user || user.lastSeenOn === today) return false;
 
     const newStreak = user.lastSeenOn === yesterday ? user.loginStreak + 1 : 1;
     const newLongest = Math.max(user.longestStreak, newStreak);
 
+    let credited = false;
     await db.$transaction(async (tx) => {
         const updated = await tx.user.updateMany({
-            where: { id: userId, NOT: { lastSeenOn: today } },
+            // `NOT: { lastSeenOn: today }` excludes NULL rows (SQL three-valued
+            // logic: NOT(NULL = today) is NULL, not TRUE), so a brand-new user
+            // whose lastSeenOn is null would never get their first credit.
+            // Match "not today OR never seen" explicitly.
+            where: {
+                id: userId,
+                OR: [{ lastSeenOn: { not: today } }, { lastSeenOn: null }],
+            },
             data: {
                 lastSeenOn: today,
                 loginStreak: newStreak,
@@ -340,8 +356,12 @@ export async function creditDailyLogin(db: PrismaClient, userId: string): Promis
         await tx.pointsLedger.create({
             data: { userId, submissionId: null, delta: EXP.DAILY, reason: "daily" },
         });
+        credited = true;
     });
+
+    if (!credited) return false;
 
     const loginBadges = evaluateLoginBadges(newStreak);
     await grantNewBadgesWithExp(db, userId, loginBadges);
+    return true;
 }
