@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MessageSquare, Building2, ArrowLeft } from "lucide-react";
+import { MessageSquare, ArrowLeft, Pin } from "lucide-react";
 import { headers } from "next/headers";
 import { auth, isAdminEmail } from "~/lib/auth";
+import { getUserRole, canPin } from "~/lib/rbac";
 import { postIdFromParam, postParam } from "~/server/actions/posts/core";
 import { getPublicPost } from "~/server/actions/posts/getPost";
 import { getPostComments } from "~/server/actions/comments/getComments";
@@ -56,6 +57,8 @@ export default async function GrindsPostPage({
         : null;
     const viewerId = session?.user.id;
     const isAdmin = isAdminEmail(session?.user.email);
+    const role = await getUserRole(viewerId, session?.user.email);
+    const userCanPin = canPin(role);
 
     const post = await getPublicPost(postIdFromParam(idSlug), viewerId);
     if (!post) notFound();
@@ -93,8 +96,11 @@ export default async function GrindsPostPage({
                     targetType="POST"
                     targetId={post.id}
                     postParam={param}
-                    canReport={Boolean(session)}
+                    canReport={Boolean(session) && !post.isOwner}
                     isAdmin={isAdmin}
+                    isOwner={post.isOwner}
+                    canPin={userCanPin}
+                    isPinned={post.isPinned}
                 />
             </div>
 
@@ -103,6 +109,12 @@ export default async function GrindsPostPage({
 
                 {/* Header: title + author */}
                 <div className="p-5 pb-0">
+                    {post.isPinned && (
+                        <div className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mb-3">
+                            <Pin className="size-3" />
+                            Pinned
+                        </div>
+                    )}
                     <h1 className="font-bold text-xl leading-snug mb-4">{post.title}</h1>
                     <div className="flex items-center gap-3">
                         <Avatar className="size-9 shrink-0 border-2 border-border">
@@ -129,18 +141,23 @@ export default async function GrindsPostPage({
                                 {post.editedMonth && post.editedMonth !== post.createdMonth && (
                                     <span className="italic">· edited {formatMonth(post.editedMonth)}</span>
                                 )}
-                                {post.company && (
-                                    <Badge variant="neutral" className="text-[10px] px-1.5 py-0 h-4" asChild>
-                                        <Link href={`/companies/${post.company.slug}`}>
-                                            <Building2 className="size-3 mr-1" />
-                                            {post.company.name}
-                                        </Link>
-                                    </Badge>
-                                )}
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Flair tags */}
+                {post.tags.length > 0 && (
+                    <div className="px-5 pt-3 pb-0 flex flex-wrap gap-1.5">
+                        {post.tags.map((tag) => (
+                            <Badge key={tag.slug} variant="default" className="text-xs" asChild>
+                                <Link href={`/grinds/tag/${tag.slug}`}>
+                                    {tag.name}
+                                </Link>
+                            </Badge>
+                        ))}
+                    </div>
+                )}
 
                 {/* Body */}
                 <div

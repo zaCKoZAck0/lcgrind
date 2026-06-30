@@ -189,7 +189,7 @@ export function ShareExperienceForm({
                 const result = await updateSubmission(edit.id, input);
                 if (result.ok === true) {
                     toast.success("Changes saved — your submission is back in review.");
-                    router.push("/my-submissions");
+                    router.push("/grinds");
                     router.refresh();
                 } else {
                     toast.error(result.error);
@@ -199,7 +199,7 @@ export function ShareExperienceForm({
             const result = await createSubmission(input);
             if (result.ok === true) {
                 toast.success("Experience submitted — it will appear once reviewed.");
-                router.push("/my-submissions");
+                router.push("/grinds");
             } else {
                 if (result.remaining !== undefined) setQuota(result.remaining);
                 toast.error(result.error);

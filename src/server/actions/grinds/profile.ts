@@ -4,15 +4,20 @@ import { BADGE_BY_ID, type BadgeId } from "~/config/gamification";
 
 // ---------------------------------------------------------------------------
 // Public profile shape — the only user data that may leave the server for a
-// public page. Critically: no name, no email, no image, no exact dates.
-// id is included for server-side feed queries only (never rendered to clients).
+// public page. name and image are intentionally public (same as GitHub/Twitter).
+// email stays private. id is for server-side feed queries only (never rendered).
 // ---------------------------------------------------------------------------
 export type PublicProfile = {
     id: string;
     handle: string;
+    name: string;
+    image: string | null;
     avatar: string | null;
-    karma: number;
-    points: number;
+    reputation: number;
+    exp: number;
+    loginStreak: number;
+    longestStreak: number;
+    lastSeenOn: string | null;
     badges: { id: BadgeId; label: string; description: string }[];
 };
 
@@ -27,9 +32,14 @@ export async function getProfileByHandle(
         select: {
             id: true,
             handle: true,
+            name: true,
+            image: true,
             avatar: true,
-            karma: true,
-            points: true,
+            reputation: true,
+            exp: true,
+            loginStreak: true,
+            longestStreak: true,
+            lastSeenOn: true,
             bannedAt: true,
             badges: { select: { badge: true } },
         },
@@ -44,9 +54,14 @@ export async function getProfileByHandle(
     return {
         id: row.id,
         handle: row.handle!,
+        name: row.name,
+        image: row.image,
         avatar: row.avatar,
-        karma: row.karma,
-        points: row.points,
+        reputation: row.reputation,
+        exp: row.exp,
+        loginStreak: row.loginStreak,
+        longestStreak: row.longestStreak,
+        lastSeenOn: row.lastSeenOn,
         badges,
     };
 }

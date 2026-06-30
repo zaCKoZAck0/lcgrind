@@ -33,7 +33,7 @@ export async function castVote(input: {
 
     if (res.ok === true) {
         revalidatePath(`/grinds/${input.postParam}`);
-        // Sync karma-based badges for the content author (best-effort).
+        // Sync reputation-based badges for the content author (best-effort).
         const target =
             input.targetType === "POST"
                 ? await db.post.findUnique({ where: { id: input.targetId }, select: { authorId: true } })

@@ -46,6 +46,7 @@ const FEED_SELECT = {
     status: true,
     createdAt: true,
     editedAt: true,
+    pinnedAt: true,
     author: { select: { handle: true, avatar: true, image: true } },
     company: { select: { slug: true, name: true } },
     tags: { select: { tag: { select: { slug: true, name: true } } } },
@@ -64,14 +65,15 @@ export async function getFeed(
     const limit = opts.limit ?? DEFAULT_LIMIT;
     const sort = opts.sort ?? "hot";
 
-    // id desc is the deterministic tiebreak so equal hotRank/score/createdAt
-    // never reorders between pages.
+    // Pinned posts float to the top across all sort modes; within pinned, the
+    // normal sort order applies. id desc is the deterministic tiebreak.
+    const pinFirst: Prisma.PostOrderByWithRelationInput = { pinnedAt: { sort: "desc", nulls: "last" } };
     const orderBy: Prisma.PostOrderByWithRelationInput[] =
         sort === "new"
-            ? [{ createdAt: "desc" }, { id: "desc" }]
+            ? [pinFirst, { createdAt: "desc" }, { id: "desc" }]
             : sort === "top"
-              ? [{ score: "desc" }, { id: "desc" }]
-              : [{ hotRank: "desc" }, { id: "desc" }];
+              ? [pinFirst, { score: "desc" }, { id: "desc" }]
+              : [pinFirst, { hotRank: "desc" }, { id: "desc" }];
 
     const rows = await db.post.findMany({
         where: {

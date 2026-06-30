@@ -65,6 +65,7 @@ describe("serializePostPublic — the leak boundary", () => {
         status: "PUBLISHED",
         createdAt: new Date("2026-03-17T08:42:11.000Z"),
         editedAt: new Date("2026-03-19T11:00:00.000Z"),
+        pinnedAt: null,
         author: { handle: "candid_dev", avatar: null },
         company: { slug: "amazon", name: "Amazon" },
     };

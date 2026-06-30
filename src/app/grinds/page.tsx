@@ -14,11 +14,11 @@ import { getFeed, type FeedSort } from "~/server/actions/grinds/feed";
 import { getPostTag } from "~/server/actions/grinds/tags";
 import { FeedStream } from "~/components/grinds/feed-stream";
 import { GrindsPageHeader } from "~/components/grinds/page-header";
-import { EmptyState } from "~/components/grinds/empty-state";
+
 import { BASE_URL } from "~/config/constants";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { buttonVariants } from "~/components/ui/button";
-import { Badge, badgeVariants } from "~/components/ui/badge";
+import { Badge } from "~/components/ui/badge";
 import { Card } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
@@ -57,10 +57,6 @@ function buildQuery(params: Record<string, string | undefined>): string {
     return s ? `?${s}` : "";
 }
 
-const TYPE_FILTERS: { value: string; label: string }[] = [
-    { value: "ALL", label: "All" },
-    { value: "EXPERIENCE", label: "Experiences" },
-];
 
 export default async function GrindsFeedPage({
     searchParams,
@@ -153,25 +149,6 @@ export default async function GrindsFeedPage({
                     ))}
                 </Card>
 
-                <div className="flex flex-wrap gap-2">
-                    {TYPE_FILTERS.map((f) => {
-                        const active = f.value === "ALL" ? !type : type === f.value;
-                        return (
-                            <Link
-                                key={f.value}
-                                href={`/grinds${buildQuery({
-                                    company: companySlug,
-                                    tag: tagSlug,
-                                    sort: sortParam,
-                                    type: f.value === "ALL" ? undefined : f.value,
-                                })}`}
-                                className={badgeVariants({ variant: active ? "default" : "neutral" })}
-                            >
-                                {f.label}
-                            </Link>
-                        );
-                    })}
-                </div>
             </div>
 
             {company && (
@@ -205,20 +182,18 @@ export default async function GrindsFeedPage({
             )}
 
             {posts.length === 0 ? (
-                <EmptyState>
-                    No posts yet.
+                <div className="py-2 flex flex-col gap-3">
+                    <p className="text-sm text-muted-foreground">No posts yet.</p>
                     {FEATURE_FLAGS.LOGIN && (
-                        <> Be the first to{" "}
-                            <Link
-                                href="/grinds/new"
-                                className="font-semibold text-foreground underline underline-offset-2"
-                            >
-                                share something
-                            </Link>
-                            .
-                        </>
+                        <Link
+                            href="/grinds/new"
+                            className={buttonVariants({ variant: "default", size: "sm" }) + " w-fit"}
+                        >
+                            <PenSquare className="size-4 mr-2" />
+                            Create a post
+                        </Link>
                     )}
-                </EmptyState>
+                </div>
             ) : (
                 <FeedStream
                     initialPosts={posts}

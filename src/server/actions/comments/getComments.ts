@@ -34,6 +34,7 @@ async function getPostCommentsFlat(
             editedAt: true,
             isAnonymous: true,
             body: true,
+            authorId: true,
             author: { select: { handle: true, avatar: true } },
         },
     });
@@ -44,7 +45,7 @@ async function getPostCommentsFlat(
         rows.map((r) => r.id),
     );
 
-    return rows.map((r) => serializeCommentPublic(r, myVotes[r.id] ?? 0));
+    return rows.map((r) => serializeCommentPublic(r, myVotes[r.id] ?? 0, viewerId));
 }
 
 // Fetches the whole thread for a post and assembles it into a depth-capped tree.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { voteDeltas, karmaDelta, computeHotRank } from "./core";
+import { voteDeltas, reputationDelta, computeHotRank } from "./core";
 
 // Vote transitions: prev is the voter's current value (0 = no vote), next is what
 // the click resolves to (0 = toggled off). All denorm deltas derive from this.
@@ -22,13 +22,13 @@ describe("voteDeltas — denormalized count changes", () => {
     });
 });
 
-describe("karmaDelta — author reputation change", () => {
+describe("reputationDelta — author reputation change", () => {
     it("tracks the net change in the vote value", () => {
-        expect(karmaDelta(0, 1)).toBe(1);
-        expect(karmaDelta(0, -1)).toBe(-1);
-        expect(karmaDelta(1, 0)).toBe(-1);
-        expect(karmaDelta(1, -1)).toBe(-2);
-        expect(karmaDelta(-1, 1)).toBe(2);
+        expect(reputationDelta(0, 1)).toBe(1);
+        expect(reputationDelta(0, -1)).toBe(-1);
+        expect(reputationDelta(1, 0)).toBe(-1);
+        expect(reputationDelta(1, -1)).toBe(-2);
+        expect(reputationDelta(-1, 1)).toBe(2);
     });
 });
 

@@ -38,6 +38,7 @@ const SELECT = {
     status: true,
     createdAt: true,
     editedAt: true,
+    pinnedAt: true,
     author: { select: { handle: true, avatar: true, image: true } },
     company: { select: { slug: true, name: true } },
     tags: { select: { tag: { select: { slug: true, name: true } } } },
