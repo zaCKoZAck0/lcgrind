@@ -67,9 +67,19 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
                     )}
                 </Link>
 
-                {/* Flair tags */}
-                {post.tags.length > 0 && (
+                {/* Company + flair tags */}
+                {(post.company || post.tags.length > 0) && (
                     <div className="relative z-10 flex flex-wrap gap-1 mt-2">
+                        {post.company && (
+                            <Link
+                                href={`/companies/${post.company.slug}`}
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0 h-4 inline-flex items-center rounded-base border-2 border-border font-medium hover:bg-secondary-background transition-colors",
+                                )}
+                            >
+                                {post.company.name}
+                            </Link>
+                        )}
                         {post.tags.map((tag) => (
                             <Link
                                 key={tag.slug}
