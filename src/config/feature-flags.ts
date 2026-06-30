@@ -3,7 +3,7 @@ export const FEATURE_FLAGS = {
   OTHERS: false,
   SYSTEM_DESIGN: true,
   COMPENSATION: false,
-  GRINDS: false,
+  GRINDS: true,
   NOTIFICATIONS: false,
   LOGIN: true,
 } as const;
