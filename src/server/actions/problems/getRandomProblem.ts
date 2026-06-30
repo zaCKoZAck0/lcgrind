@@ -47,7 +47,7 @@ export async function getRandomProblem(
 
     const query = `
         WITH pc AS (
-            SELECT cqs."problemId" AS pid, co.slug, co.name, co."reportCount",
+            SELECT cqs."problemId" AS pid, co.slug, co.name, co."reportCount" AS report_count,
                    SUM(cqs."${windowCol}") AS freq, SUM(cqs."askCount") AS ask_count,
                    MAX(cqs."lastAsked") AS last_asked
             FROM "CompanyQuestionStat" cqs
