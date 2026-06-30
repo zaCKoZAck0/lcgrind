@@ -28,7 +28,9 @@ export default async function Image({
 
   const fontData = await fetch(
     "https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu8-Dg.woff"
-  ).then((r) => r.arrayBuffer());
+  )
+    .then((r) => r.arrayBuffer())
+    .catch(() => null);
 
   return new ImageResponse(
     (
@@ -81,6 +83,6 @@ export default async function Image({
         </p>
       </div>
     ),
-    { ...size, fonts: [{ name: "DM Sans", data: fontData, style: "normal", weight: 700 }] }
+    { ...size, ...(fontData ? { fonts: [{ name: "DM Sans", data: fontData, style: "normal", weight: 800 }] } : {}) }
   );
 }
