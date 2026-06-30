@@ -77,7 +77,7 @@ export async function generateMetadata(
     const companyName = company.name;
     const currentYear = new Date().getFullYear();
     // Cap title to ~60 chars to prevent SERP truncation
-    const shortTitle = `${companyName} Interview Questions & Process [${currentYear}]`;
+    const shortTitle = `${companyName} Interview Questions [${currentYear}]`;
     const pageTitle = shortTitle.length > 60
         ? `${companyName} Interview Questions [${currentYear}]`
         : shortTitle;
@@ -86,7 +86,6 @@ export async function generateMetadata(
 
     const keywords = [
         `${companyName} interview questions`,
-        `${companyName} interview process`,
         `${companyName} coding questions`,
         `${companyName} compensation`,
         `prepare for ${companyName} interview`,
