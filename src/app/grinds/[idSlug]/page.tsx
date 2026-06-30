@@ -33,7 +33,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { idSlug } = await params;
     const post = await getPublicPost(postIdFromParam(idSlug));
-    if (!post) return { title: "Post not found" };
+    if (!post) return { title: "Post not found", robots: { index: false } };
     const canonical = `${BASE_URL}/grinds/${postParam(post.id, post.title)}`;
     const description = stripMarkdown(post.body).slice(0, 160);
     const noindex = shouldNoindexPost(post);
@@ -42,20 +42,22 @@ export async function generateMetadata({
         description,
         alternates: { canonical },
         ...(noindex ? { robots: { index: false, follow: true } } : {}),
-        ...(!noindex && {
-            openGraph: {
-                type: "article",
-                title: post.title,
-                description,
-                url: canonical,
-                siteName: "LC Grind",
-            },
-            twitter: {
-                card: "summary_large_image",
-                title: post.title,
-                description,
-            },
-        }),
+        ...(!noindex
+            ? {
+                  openGraph: {
+                      type: "article",
+                      title: post.title,
+                      description,
+                      url: canonical,
+                      siteName: "LC Grind",
+                  },
+                  twitter: {
+                      card: "summary_large_image",
+                      title: post.title,
+                      description,
+                  },
+              }
+            : {}),
     };
 }
 
