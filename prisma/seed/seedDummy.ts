@@ -1,6 +1,6 @@
 import { db } from "~/lib/db";
 import { faker } from "@faker-js/faker";
-import { seedPostTags } from "~/server/actions/discuss/tags";
+import { seedPostTags } from "~/server/actions/grinds/tags";
 
 const USER_COUNT = 100;
 const COMPANY_COUNT = 20;
@@ -99,7 +99,7 @@ async function seedUsers() {
         handle: makeHandle(),
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${faker.string.alphanumeric(8)}`,
         points: faker.number.int({ min: 0, max: 5000 }),
-        karma: faker.number.int({ min: 0, max: 1000 }),
+        reputation: faker.number.int({ min: 0, max: 1000 }),
         onboardedAt: faker.date.recent({ days: 60 }),
     }));
     await db.user.createMany({ data: users, skipDuplicates: true });

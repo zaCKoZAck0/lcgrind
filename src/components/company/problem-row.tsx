@@ -59,6 +59,8 @@ interface ProblemRowProps {
   pickerMode?: PickerMode;
   /** Extra inline badges (e.g. company recency chips) shown in the meta row. */
   chips?: React.ReactNode;
+  /** When provided, overrides the default filter-by-company behavior on click. */
+  onCompanyClick?: (slug: string) => void;
 }
 
 export const ProblemRow = ({
@@ -76,6 +78,7 @@ export const ProblemRow = ({
   solutionVideoLink,
   pickerMode,
   chips,
+  onCompanyClick,
 }: ProblemRowProps) => {
   const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
   const dispatch = useAppDispatch();
@@ -88,6 +91,10 @@ export const ProblemRow = ({
 
   const onCompanyChipClick = (slug: string, name: string) => {
     if (!slug) return;
+    if (onCompanyClick) {
+      onCompanyClick(slug);
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     if (params.getAll("companies").includes(slug)) {
       toast(`${name} already in filter`);

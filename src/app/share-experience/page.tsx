@@ -32,10 +32,10 @@ export default async function ShareExperiencePage({
     // CTA) permanently redirect to the unified composer with Experience preset;
     // the private edit flow still lives here until the /u/[handle] manage split.
     if (!editId) {
-        if (FEATURE_FLAGS.DISCUSS) {
+        if (FEATURE_FLAGS.GRINDS) {
             const params = new URLSearchParams({ experience: "true" });
             if (company?.trim()) params.set("company", company.trim());
-            permanentRedirect(`/discuss/new?${params.toString()}`);
+            permanentRedirect(`/grinds/new?${params.toString()}`);
         }
         // Fall through to the standalone form when discuss is off.
     }

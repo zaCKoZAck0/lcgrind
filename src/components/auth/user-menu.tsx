@@ -3,28 +3,26 @@
 import { useEffect, useState } from "react";
 import {
     LogOut,
-    Bug,
-    FileText,
-    MessagesSquare,
+    User,
+    ScrollText,
     ShieldCheck,
-    Trophy,
-    UserPen,
+    Zap, Flame,
     Bell,
+    LogIn,
 } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import { cn } from "~/lib/utils";
 import { isCurrentUserAdmin } from "~/server/actions/admin/whoami";
-import { getMyPoints } from "~/server/actions/gamification/actions";
+import { getMyGameStats, creditMyDailyLogin } from "~/server/actions/gamification/actions";
 import {
     getMyProfileStatus,
     type ProfileStatus,
-} from "~/server/actions/discuss/profile-actions";
+} from "~/server/actions/grinds/profile-actions";
 import { getUnreadCount } from "~/server/actions/notifications/getNotifications";
 import { ProfileDialog } from "./profile-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Twitter } from "../home/tweet";
-import { SyncMenuItems } from "../sync-dropdown";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,13 +31,18 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { signOut, useSession } from "~/lib/auth-client";
+import { signOut, useSession, signIn } from "~/lib/auth-client";
+import { useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+
+const CREDIT_KEY = "daily_credited";
 
 export function UserMenu() {
     const { data: session, isPending } = useSession();
+    const router = useRouter();
     const [isAdmin, setIsAdmin] = useState(false);
-    const [points, setPoints] = useState<number | null>(null);
+    const [exp, setExp] = useState<number | null>(null);
+    const [loginStreak, setLoginStreak] = useState<number>(0);
     const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -47,7 +50,31 @@ export function UserMenu() {
     useEffect(() => {
         if (session) {
             isCurrentUserAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-            getMyPoints().then(setPoints).catch(() => setPoints(null));
+
+            try { localStorage.removeItem("gs_cache"); } catch { /* ignore */ }
+
+            const today = new Date().toISOString().slice(0, 10);
+            let alreadyCredited = false;
+            try { alreadyCredited = localStorage.getItem(CREDIT_KEY) === today; } catch { /* ignore */ }
+
+            const statsPromise = alreadyCredited
+                ? getMyGameStats().then((stats) => ({ ...stats, didCredit: false }))
+                : creditMyDailyLogin().then((credited) => {
+                    // Only mark the day credited (and refresh) when the server
+                    // actually credited — a no-op call must not poison the flag.
+                    if (credited) {
+                        try { localStorage.setItem(CREDIT_KEY, today); } catch { /* ignore */ }
+                    }
+                    return getMyGameStats().then((stats) => ({ ...stats, didCredit: credited }));
+                });
+
+            statsPromise
+                .then(({ exp, loginStreak, didCredit }) => {
+                    setExp(exp);
+                    setLoginStreak(loginStreak);
+                    if (didCredit) router.refresh();
+                })
+                .catch(() => { setExp(null); setLoginStreak(0); });
             if (FEATURE_FLAGS.NOTIFICATIONS) {
                 getUnreadCount().then(setUnreadCount).catch(() => setUnreadCount(0));
             }
@@ -60,7 +87,8 @@ export function UserMenu() {
                 .catch(() => setProfileStatus(null));
         } else {
             setIsAdmin(false);
-            setPoints(null);
+            setExp(null);
+            setLoginStreak(0);
             setProfileStatus(null);
             setUnreadCount(0);
         }
@@ -77,10 +105,15 @@ export function UserMenu() {
                     className={cn(buttonVariants({ variant: "neutral", size: "icon" }))}
                     aria-label="Account menu"
                 >
-                    <Bug className="size-5" />
+                    <User className="size-5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <SyncMenuItems />
+                    {FEATURE_FLAGS.LOGIN && (
+                        <DropdownMenuItem onClick={() => signIn.social({ provider: "google" })}>
+                            <LogIn className="size-4" />
+                            Sign in
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">
                             <Twitter className="size-4" />
@@ -128,10 +161,18 @@ export function UserMenu() {
                     )}
                     aria-label="Account menu"
                 >
-                    {points !== null && (
-                        <div className="flex items-center gap-1.5 font-semibold tabular-nums pl-1">
-                            <Trophy className="size-4" />
-                            <span>{points}</span>
+                    {exp !== null && (
+                        <div className="flex items-center gap-2 pl-1">
+                            <div className="flex items-center gap-1.5 font-semibold tabular-nums">
+                                <Zap className="size-4" />
+                                <span>{exp}</span>
+                            </div>
+                            {loginStreak > 0 && (
+                                <div className="flex items-center gap-1 font-semibold tabular-nums text-sm text-orange-500">
+                                    <Flame className="size-4" />
+                                    <span>{loginStreak}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                     <Avatar className="size-7">
@@ -144,24 +185,16 @@ export function UserMenu() {
                         {user.name}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-                        <UserPen className="size-4" />
-                        Edit profile
-                    </DropdownMenuItem>
-                    {FEATURE_FLAGS.DISCUSS && (
+                    {FEATURE_FLAGS.GRINDS && profileStatus?.handle && (
                         <DropdownMenuItem asChild>
-                            <Link href="/discuss">
-                                <MessagesSquare className="size-4" />
-                                Discuss
+                            <Link href={`/u/${profileStatus.handle}`}>
+                                <ScrollText className="size-4" />
+                                Profile
                             </Link>
                         </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem asChild>
-                        <Link href="/my-submissions">
-                            <FileText className="size-4" />
-                            My submissions
-                        </Link>
-                    </DropdownMenuItem>
+
+
                     {isAdmin && (
                         <>
                             <DropdownMenuItem asChild>
@@ -179,7 +212,6 @@ export function UserMenu() {
                         </>
                     )}
                     <DropdownMenuSeparator />
-                    <SyncMenuItems />
                     <DropdownMenuItem asChild>
                         <a target="_blank" rel="noopener noreferrer" href="https://x.com/zaCKoZAck0/status/1913558597688009006">
                             <Twitter className="size-4" />

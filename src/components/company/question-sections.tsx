@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     Code2,
     Network,
@@ -10,6 +11,8 @@ import {
     ArrowUpDownIcon,
     SignalIcon,
     RotateCcwIcon,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Card } from "../ui/card";
@@ -40,7 +43,7 @@ import { CompanyAvatarGroup } from "../company-avatar-group";
 import type { InterviewQuestion, InterviewSections } from "~/server/actions/companies/getCompanyInterviews";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
-type SortKey = "asked" | "diff-asc" | "diff-desc";
+type SortKey = "asked" | "diff-asc" | "recent";
 
 const DIFF_RANK: Record<string, number> = { Easy: 1, Medium: 2, Hard: 3 };
 
@@ -72,17 +75,22 @@ function matchesFilters(
 }
 
 function sortQuestions(list: InterviewQuestion[], sort: SortKey): InterviewQuestion[] {
-    // "asked" preserves the server-side relevance order (weight never leaves the server).
     if (sort === "asked") return list;
-    const dir = sort === "diff-asc" ? 1 : -1;
+    if (sort === "recent") {
+        return [...list].sort((a, b) => {
+            if (!a.lastAsked && !b.lastAsked) return 0;
+            if (!a.lastAsked) return 1;
+            if (!b.lastAsked) return -1;
+            return b.lastAsked.localeCompare(a.lastAsked);
+        });
+    }
     return [...list].sort((a, b) => {
         const ra = DIFF_RANK[a.difficulty ?? ""];
         const rb = DIFF_RANK[b.difficulty ?? ""];
-        // Unknown difficulty always sinks, regardless of sort direction.
         if (ra === undefined && rb === undefined) return a.statement.localeCompare(b.statement);
         if (ra === undefined) return 1;
         if (rb === undefined) return -1;
-        return (ra - rb) * dir || a.statement.localeCompare(b.statement);
+        return (ra - rb) || a.statement.localeCompare(b.statement);
     });
 }
 
@@ -125,7 +133,7 @@ export function LightRow({ q, companyName }: { q: InterviewQuestion; companyName
     );
 }
 
-function QuestionRow({ q, index, companyName }: { q: InterviewQuestion; index: number; companyName?: string }) {
+function QuestionRow({ q, index, companyName, onCompanyClick }: { q: InterviewQuestion; index: number; companyName?: string; onCompanyClick?: (slug: string) => void }) {
     if (q.problemId != null && q.problemUrl) {
         return (
             <ProblemRow
@@ -140,6 +148,7 @@ function QuestionRow({ q, index, companyName }: { q: InterviewQuestion; index: n
                 tags={q.tags ?? []}
                 chips={<QuestionChips q={q} companyName={companyName} />}
                 companyChips={q.askedInCompanies}
+                onCompanyClick={onCompanyClick}
             />
         );
     }
@@ -154,6 +163,7 @@ function QuestionFilters({
     search,
     setSearch,
     onReset,
+    showDifficulty,
 }: {
     sort: SortKey;
     setSort: (v: SortKey) => void;
@@ -162,6 +172,7 @@ function QuestionFilters({
     search: string;
     setSearch: (v: string) => void;
     onReset: () => void;
+    showDifficulty: boolean;
 }) {
     return (
         <Card className="flex-col md:flex-row md:items-center p-3 mb-6 gap-3 shadow-none bg-card">
@@ -172,27 +183,29 @@ function QuestionFilters({
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="asked">Most asked</SelectItem>
-                    <SelectItem value="diff-asc">Difficulty: Easy → Hard</SelectItem>
-                    <SelectItem value="diff-desc">Difficulty: Hard → Easy</SelectItem>
+                    <SelectItem value="recent">Recently asked</SelectItem>
+                    {showDifficulty && <SelectItem value="diff-asc">Difficulty</SelectItem>}
                 </SelectContent>
             </Select>
-            <MultiSelect value={diffs} onValueChange={setDiffs}>
-                <MultiSelectTrigger className="flex-shrink-0 min-w-[150px]">
-                    <SignalIcon size={16} />
-                    <MultiSelectValue placeholder="Difficulty" />
-                </MultiSelectTrigger>
-                <MultiSelectContent>
-                    <MultiSelectList autoHeight>
-                        <MultiSelectGroup>
-                            {DIFFICULTIES.map((d) => (
-                                <MultiSelectItem key={d} value={d}>
-                                    {d}
-                                </MultiSelectItem>
-                            ))}
-                        </MultiSelectGroup>
-                    </MultiSelectList>
-                </MultiSelectContent>
-            </MultiSelect>
+            {showDifficulty && (
+                <MultiSelect value={diffs} onValueChange={setDiffs}>
+                    <MultiSelectTrigger className="flex-shrink-0 min-w-[150px]">
+                        <SignalIcon size={16} />
+                        <MultiSelectValue placeholder="Difficulty" />
+                    </MultiSelectTrigger>
+                    <MultiSelectContent>
+                        <MultiSelectList autoHeight>
+                            <MultiSelectGroup>
+                                {DIFFICULTIES.map((d) => (
+                                    <MultiSelectItem key={d} value={d}>
+                                        {d}
+                                    </MultiSelectItem>
+                                ))}
+                            </MultiSelectGroup>
+                        </MultiSelectList>
+                    </MultiSelectContent>
+                </MultiSelect>
+            )}
             <label htmlFor="question-search" className="sr-only">Search question</label>
             <Input
                 id="question-search"
@@ -213,6 +226,20 @@ function QuestionFilters({
     );
 }
 
+const PAGE_SIZE = 50;
+
+type SectionView = { key: keyof InterviewSections; title: string; icon: React.ReactNode; list: InterviewQuestion[] };
+
+function pagedSections(view: SectionView[], start: number, end: number): SectionView[] {
+    let offset = 0;
+    return view.map((s) => {
+        const sEnd = offset + s.list.length;
+        const sliced = s.list.slice(Math.max(0, start - offset), Math.max(0, end - offset));
+        offset = sEnd;
+        return { ...s, list: sliced };
+    });
+}
+
 const SECTION_KEY_TO_CATEGORY: Record<keyof InterviewSections, string> = {
     problemSolving: "dsa",
     systemDesign: "system-design",
@@ -226,10 +253,16 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
     companySlug?: string;
     enabledCategories?: string[];
 }) {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<SortKey>("asked");
     const [diffs, setDiffs] = useState<string[]>([]);
     const [activeSection, setActiveSection] = useState<keyof InterviewSections | null>(null);
+    const [page, setPage] = useState(1);
+
+    const onCompanyClick = useCallback((slug: string) => {
+        if (slug) router.push(`/companies/${slug}`);
+    }, [router]);
 
     const availableSections = SECTION_ORDER.filter((s) => sections[s.key].length > 0);
 
@@ -248,16 +281,21 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
     );
 
     const total = view.reduce((n, s) => n + s.list.length, 0);
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const pageStart = (page - 1) * PAGE_SIZE;
+    const pageEnd = page * PAGE_SIZE;
+    const currentView = useMemo(() => pagedSections(view, pageStart, pageEnd), [view, pageStart, pageEnd]);
+    const sectionTotals = useMemo(() => new Map(view.map((s) => [s.key, s.list.length])), [view]);
 
-    // Running index across every rendered row keeps ProblemRow's ad cadence sane.
-    let running = 0;
+    // Running index starts at page offset so ProblemRow's ad cadence stays consistent.
+    let running = pageStart;
 
     return (
         <div>
             {availableSections.length > 1 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     <button
-                        onClick={() => setActiveSection(null)}
+                        onClick={() => { setActiveSection(null); setPage(1); }}
                         className={cn(
                             "px-3 py-1 text-sm font-bold border-2 border-border rounded-base transition-colors",
                             activeSection === null
@@ -270,7 +308,7 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
                     {availableSections.map((s) => (
                         <button
                             key={s.key}
-                            onClick={() => setActiveSection(s.key)}
+                            onClick={() => { setActiveSection(s.key); setPage(1); if (s.key !== "problemSolving") { setDiffs([]); setSort("asked"); } }}
                             className={cn(
                                 "px-3 py-1 text-sm font-bold border-2 border-border rounded-base transition-colors flex items-center gap-1.5",
                                 activeSection === s.key
@@ -286,53 +324,79 @@ export function QuestionSections({ sections, companyName, companySlug, enabledCa
             )}
             <QuestionFilters
                 sort={sort}
-                setSort={setSort}
+                setSort={(v) => { setSort(v); setPage(1); }}
                 diffs={diffs}
-                setDiffs={setDiffs}
+                setDiffs={(v) => { setDiffs(v); setPage(1); }}
                 search={search}
-                setSearch={setSearch}
+                setSearch={(v) => { setSearch(v); setPage(1); }}
                 onReset={() => {
                     setSearch("");
                     setSort("asked");
                     setDiffs([]);
+                    setPage(1);
                 }}
+                showDifficulty={activeSection === "problemSolving"}
             />
             {total === 0 ? (
                 <Card className="p-10 text-center text-muted-foreground/70">
                     No questions match these filters.
                 </Card>
             ) : (
-                view.map((s) =>
-                    s.list.length === 0 ? null : (
-                        <div key={s.key} className="mb-8 shadow-shadow">
-                            <div className="p-3 border-2 border-border bg-main text-main-foreground flex items-center gap-2 font-heading">
-                                {s.icon}
-                                <h2>{s.title}</h2>
-                                <span className="text-sm opacity-70">({s.list.length})</span>
-                                {companySlug && enabledCategories?.includes(SECTION_KEY_TO_CATEGORY[s.key]) && (
-                                    <a
-                                        href={`/companies/${companySlug}/${SECTION_KEY_TO_CATEGORY[s.key]}`}
-                                        className="ml-auto text-sm underline hover:no-underline"
-                                    >
-                                        View all →
-                                    </a>
-                                )}
+                <>
+                    {currentView.map((s) =>
+                        s.list.length === 0 ? null : (
+                            <div key={s.key} className="mb-8 shadow-shadow">
+                                <div className="p-3 border-2 border-border bg-main text-main-foreground flex items-center gap-2 font-heading">
+                                    {s.icon}
+                                    <h2>{s.title}</h2>
+                                    <span className="text-sm opacity-70">({sectionTotals.get(s.key) ?? s.list.length})</span>
+                                    {companySlug && enabledCategories?.includes(SECTION_KEY_TO_CATEGORY[s.key]) && (
+                                        <a
+                                            href={`/companies/${companySlug}/${SECTION_KEY_TO_CATEGORY[s.key]}`}
+                                            className="ml-auto text-sm underline hover:no-underline"
+                                        >
+                                            View all →
+                                        </a>
+                                    )}
+                                </div>
+                                {s.list.map((q) => {
+                                    const row = (
+                                        <QuestionRow
+                                            key={`${q.statement}-${q.kind}`}
+                                            q={q}
+                                            index={running}
+                                            companyName={companyName}
+                                            onCompanyClick={onCompanyClick}
+                                        />
+                                    );
+                                    running += 1;
+                                    return row;
+                                })}
                             </div>
-                            {s.list.map((q) => {
-                                const row = (
-                                    <QuestionRow
-                                        key={`${q.statement}-${q.kind}`}
-                                        q={q}
-                                        index={running}
-                                        companyName={companyName}
-                                    />
-                                );
-                                running += 1;
-                                return row;
-                            })}
+                        ),
+                    )}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-3 mt-6 mb-2">
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold border-2 border-border rounded-base bg-background text-foreground hover:bg-secondary-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronLeft className="size-4" /> Prev
+                            </button>
+                            <span className="text-sm font-bold border-2 border-border rounded-base px-3 py-1.5 bg-card">
+                                {page} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold border-2 border-border rounded-base bg-background text-foreground hover:bg-secondary-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Next <ChevronRight className="size-4" />
+                            </button>
                         </div>
-                    ),
-                )
+                    )}
+                </>
             )}
         </div>
     );

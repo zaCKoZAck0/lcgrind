@@ -10,11 +10,11 @@ import {
     RATE_WINDOW_MS,
     HANDLE_RE,
     POST_TAG_MAX,
-} from "~/config/discuss";
+} from "~/config/grinds";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 import { toMonth } from "~/utils/public-date";
 import { createSubmissionCore, type DbClient } from "../submissions/core";
-import { attachPostTags, type PublicPostTag } from "../discuss/tags";
+import { attachPostTags, type PublicPostTag } from "../grinds/tags";
 import {
     hasProfanity,
     scanLinks,
@@ -74,7 +74,8 @@ export type PostRowForPublic = {
     status: string;
     createdAt: Date;
     editedAt: Date | null;
-    author: { handle: string | null; avatar: string | null };
+    pinnedAt: Date | null;
+    author: { handle: string | null; avatar: string | null; image?: string | null };
     company: { slug: string; name: string } | null;
     // Curated flair join rows; absent when a read path doesn't select them.
     tags?: { tag: { slug: string; name: string } }[];
@@ -96,6 +97,7 @@ export type PublicPost = {
     downCount: number;
     commentCount: number;
     status: string;
+    isPinned: boolean;
     // The viewer's own vote on this post (+1 / -1 / 0). Their vote only; never
     // anyone else's. 0 for signed-out viewers.
     myVote: number;
@@ -117,7 +119,7 @@ export function serializePostPublic(
         author:
             row.isAnonymous || row.author.handle === null
                 ? null
-                : { handle: row.author.handle, avatar: row.author.avatar },
+                : { handle: row.author.handle, avatar: (row.author.image ?? row.author.avatar) ?? null },
         company: row.company,
         tags: row.tags?.map((t) => t.tag) ?? [],
         createdMonth: toMonth(row.createdAt),
@@ -127,6 +129,7 @@ export function serializePostPublic(
         downCount: row.downCount,
         commentCount: row.commentCount,
         status: row.status,
+        isPinned: row.pinnedAt !== null,
         myVote,
     };
 }
@@ -282,15 +285,76 @@ export async function runPublishGate(
     return { ok: true };
 }
 
-// Auto-compute flair slugs for a structured experience from question types.
+type ExperienceEntry = {
+    company: string;
+    role?: string;
+    rounds?: { type: string; questions: { text: string }[] }[];
+    comp?: { currency: string; tc: number; components?: { label: string; amount: number }[] };
+};
+
+type LegacyStructured = { role?: string; rounds?: { type: string; questions: { text: string }[] }[]; comp?: { currency: string; tc: number; components?: { label: string; amount: number }[] } };
+
+function getExperienceEntries(structured: unknown, fallbackCompany: string): ExperienceEntry[] {
+    if (!structured || typeof structured !== "object") return [];
+    if ("experiences" in structured && Array.isArray((structured as { experiences: unknown }).experiences)) {
+        return (structured as { experiences: ExperienceEntry[] }).experiences;
+    }
+    const s = structured as LegacyStructured;
+    return [{ company: fallbackCompany, role: s.role, rounds: s.rounds, comp: s.comp }];
+}
+
+function buildExperienceSection(exp: ExperienceEntry, roundOffset = 0): string[] {
+    const lines: string[] = [];
+    const role = exp.role?.trim();
+    lines.push(role ? `## ${exp.company} — ${role}` : `## ${exp.company}`);
+    lines.push("");
+    for (let i = 0; i < (exp.rounds?.length ?? 0); i++) {
+        const r = exp.rounds![i];
+        lines.push(`### Round ${roundOffset + i + 1} — ${r.type}`);
+        lines.push("");
+        for (const q of r.questions.filter((q) => q.text.trim())) {
+            lines.push(`- ${q.text.trim()}`);
+        }
+        lines.push("");
+    }
+    if (exp.comp) {
+        const { currency, tc, components } = exp.comp;
+        const filled = components?.filter((c) => c.label && c.amount);
+        if (filled?.length) {
+            lines.push("**Compensation**");
+            lines.push("");
+            for (const c of filled) {
+                lines.push(`- **${c.label}:** ${currency} ${c.amount.toLocaleString()}`);
+            }
+            lines.push(`- **Total:** ${currency} ${tc.toLocaleString()}/year`);
+        } else {
+            lines.push(`**Compensation:** ${currency} ${tc.toLocaleString()}/year`);
+        }
+        lines.push("");
+    }
+    return lines;
+}
+
+function buildExperienceBody(companyName: string, structured: unknown): string {
+    const entries = getExperienceEntries(structured, companyName);
+    const parts: string[] = [];
+    for (let i = 0; i < entries.length; i++) {
+        if (i > 0) { parts.push("---"); parts.push(""); }
+        parts.push(...buildExperienceSection(entries[i]));
+    }
+    return parts.join("\n").trim();
+}
+
+// Auto-compute flair slugs from round types across all experiences.
 function autoFlairsForExperience(structured: unknown): string[] {
-    const s = structured as { rounds?: { questions?: { type?: string }[] }[] } | null;
-    if (!s?.rounds?.length) return [];
-    const qtypes = new Set(s.rounds.flatMap((r) => r.questions?.map((q) => q.type ?? "") ?? []));
+    const entries = getExperienceEntries(structured, "");
+    const rounds = entries.flatMap((e) => e.rounds ?? []);
+    if (!rounds.length) return [];
+    const rtypes = new Set(rounds.map((r) => r.type));
     const slugs: string[] = [];
-    if (qtypes.has("DSA")) slugs.push("dsa");
-    if (FEATURE_FLAGS.SYSTEM_DESIGN && qtypes.has("System Design")) slugs.push("system-design");
-    if (qtypes.has("Behavioral")) slugs.push("behavioral");
+    if (rtypes.has("Coding") || rtypes.has("Phone Screen")) slugs.push("dsa");
+    if (FEATURE_FLAGS.SYSTEM_DESIGN && rtypes.has("System Design")) slugs.push("system-design");
+    if (rtypes.has("Behavioral")) slugs.push("behavioral");
     return slugs.slice(0, POST_TAG_MAX);
 }
 
@@ -324,12 +388,9 @@ export async function createPostCore(
                 error: `Please write at least ${EXPERIENCE_BODY_MIN} characters about your experience`,
             };
         }
-        // For FORM mode generate a minimal public body so the post isn't empty.
+        // For FORM mode generate a structured markdown body from the interview data.
         if (input.mode === "FORM" && body.length === 0) {
-            const s = input.structured as { role?: string; rounds?: unknown[] } | null;
-            const role = s?.role?.trim() ? ` for ${s.role.trim()}` : "";
-            const n = s?.rounds?.length ?? 0;
-            body = `Interview experience at ${companyName}${role}${n > 0 ? ` — ${n} round${n !== 1 ? "s" : ""}` : ""}.`;
+            body = buildExperienceBody(companyName, input.structured);
         }
     }
 
@@ -424,10 +485,13 @@ export async function editPostCore(
     db: PrismaClient,
     userId: string,
     postId: string,
-    input: { title: string; body: string },
+    input: { title: string; body?: string; structured?: unknown },
 ): Promise<EditPostResult> {
     const title = input.title?.trim() ?? "";
-    const body = input.body?.trim() ?? "";
+    const body = (input.structured
+        ? buildExperienceBody("", input.structured)
+        : input.body ?? ""
+    ).trim();
     const lenError = validateTitleBody(title, body);
     if (lenError) return { ok: false, error: lenError };
 
@@ -478,7 +542,13 @@ export async function editPostCore(
                     status: "PENDING",
                     parsed: Prisma.JsonNull,
                     adminNote: null,
+                    ...(input.structured ? { structured: input.structured as Prisma.InputJsonValue } : {}),
                 },
+            });
+        } else if (sub && merged && input.structured) {
+            await tx.submission.update({
+                where: { id: sub.id },
+                data: { structured: input.structured as Prisma.InputJsonValue },
             });
         }
     });

@@ -14,6 +14,7 @@ const baseRow: CommentRow = {
     editedAt: null,
     isAnonymous: false,
     body: "A plain comment.",
+    authorId: "user-1",
     author: { handle: "candid_dev", avatar: null },
 };
 
