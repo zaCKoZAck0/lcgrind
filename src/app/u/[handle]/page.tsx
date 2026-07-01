@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { db } from "~/lib/db";
 import { auth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
+import { formatCount } from "~/utils/format-count";
 import { getFeed } from "~/server/actions/grinds/feed";
 import { getProfileByHandle } from "~/server/actions/grinds/profile";
 import { PostFeedList } from "~/components/grinds/post-feed-list";
@@ -113,7 +114,7 @@ export default async function UserProfilePage({
                                             aria-label="Reputation"
                                             className="flex items-center gap-1 text-sm font-semibold tabular-nums text-muted-foreground cursor-default"
                                         >
-                                            {profile.reputation}
+                                            {formatCount(profile.reputation)}
                                             <ThumbsUp className="size-3.5" />
                                         </TooltipTrigger>
                                         <TooltipContent>Reputation</TooltipContent>
@@ -123,7 +124,7 @@ export default async function UserProfilePage({
                                             aria-label="Exp"
                                             className="flex items-center gap-1 text-sm font-semibold tabular-nums text-muted-foreground cursor-default"
                                         >
-                                            {profile.exp}
+                                            {formatCount(profile.exp)}
                                             <Zap className="size-3.5" />
                                         </TooltipTrigger>
                                         <TooltipContent>Exp</TooltipContent>

@@ -10,6 +10,7 @@ import { getPublicPost } from "~/server/actions/posts/getPost";
 import { getPostComments } from "~/server/actions/comments/getComments";
 import { renderMarkdown } from "~/utils/markdown";
 import { POST_MD as BODY_MD } from "~/components/grinds/markdown-classes";
+import { formatCount } from "~/utils/format-count";
 import { formatMonth } from "~/utils/public-date";
 import { CommentSection } from "~/components/grinds/comment-thread";
 import { VoteControl } from "~/components/grinds/vote-control";
@@ -219,7 +220,7 @@ export default async function GrindsPostPage({
                     />
                     <span className="inline-flex items-center gap-1.5">
                         <MessageSquare className="size-4" />
-                        {post.commentCount}
+                        {formatCount(post.commentCount)}
                     </span>
                 </div>
             </article>
@@ -231,7 +232,7 @@ export default async function GrindsPostPage({
                 comments={comments}
                 canComment={Boolean(session)}
                 isAdmin={isAdmin}
-                heading={`Comments (${post.commentCount})`}
+                heading={`Comments (${formatCount(post.commentCount)})`}
             />
         </div>
     );

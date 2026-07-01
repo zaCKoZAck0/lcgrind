@@ -3,6 +3,7 @@ import { MessageSquare, Pin } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { formatMonth } from "~/utils/public-date";
+import { formatCount } from "~/utils/format-count";
 import { stripMarkdown } from "~/utils/grinds-seo";
 import { postParam } from "~/server/actions/posts/core";
 import type { PublicPost } from "~/server/actions/posts/core";
@@ -60,7 +61,7 @@ export function FeedPostCard({ post }: { post: PublicPost }) {
                     <span className="text-border">·</span>
                     <span className="inline-flex items-center gap-1">
                         <MessageSquare className="size-3.5" />
-                        {post.commentCount}
+                        {formatCount(post.commentCount)}
                     </span>
                 </div>
             </div>

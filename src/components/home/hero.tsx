@@ -14,7 +14,7 @@ export function HeroSection() {
                 </h1>
                 <p className="text-lg font-semibold mb-2">Ace your coding interview.</p>
                 <p className="max-w-2xl mx-auto text-xl mb-10">
-                    Company-specific practice problems, all LeetCode problems, and popular DSA sheets—all in one place, completely free.
+                    Company-specific practice problems, DSA sheets, system design, and real interview experiences from the community—all in one place, completely free.
                 </p>
                 <div className="flex justify-center mb-12">
                     <Image 

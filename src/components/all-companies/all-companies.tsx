@@ -46,7 +46,9 @@ export function AllCompanies({ initialData }: AllCompaniesProps) {
         return <AllCompaniesSkeleton />;
     }
 
-    const totalCompaniesCount = Number(data.totalCountResult[0].count);
+    // getCompanies returns totalCountResult: [] when the query fails; fall back
+    // to 0 so a fetch error degrades to an empty state instead of crashing.
+    const totalCompaniesCount = Number(data.totalCountResult[0]?.count ?? 0);
     const totalPages = Math.ceil(totalCompaniesCount / ITEMS_PER_PAGE);
     return <>
         {data.companies.length === 0 && (
