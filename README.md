@@ -5,7 +5,7 @@
 <h1 align="center">LC Grind - Company wise Leetcode Problems</h1>
 <p align="center">Focused Interview Preperation</p>
 
-<p align="center">Company-wise LeetCode problems | Topic-wise LeetCode preparation | DSA Sheets | Interview prep guide</p>
+<p align="center">Company-wise LeetCode problems | Topic &amp; System Design prep | DSA Sheets | Real interview experiences &amp; community</p>
 
 > Note: Company-wise question data scraped from publicly available sources.
 
@@ -18,4 +18,7 @@
 - 🔍 Powerful filter, sort, and search to fit your needs  
 - 📘 Get a focused prep guide for any company  
 - 📝 Solve top DSA sheets: Grind 75, Neetcode 150, Striver SDE Sheet, and more
+- Grinds: read and share real interview experiences, ask questions, and discuss with the community
+- System Design questions and topic-wise practice
+- Build custom problem lists and share them with a link
 - 🆓 Free forever

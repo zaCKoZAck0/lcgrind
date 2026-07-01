@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Target, Filter, Database, Book, List, Gift, Building, Timer, MessagesSquare } from "lucide-react";
+import { Target, Database, Book, List, Gift, Building, Timer, MessagesSquare } from "lucide-react";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 const features = [
@@ -22,11 +22,6 @@ const features = [
         title: "Local Progress Tracking",
         description: "Track your progress right in your browser—no login required, completely private.",
         icon: <Database className="w-6 h-6 text-secondary-foreground" />,
-    },
-    {
-        title: "Advanced Filtering",
-        description: "Powerful filter, sort, and search capabilities to find exactly what you need.",
-        icon: <Filter className="w-6 h-6 text-secondary-foreground" />,
     },
     {
         title: "Company Guides",

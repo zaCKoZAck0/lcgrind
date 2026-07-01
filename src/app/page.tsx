@@ -9,7 +9,11 @@ import { SoftwareApplicationJsonLd, FAQJsonLd } from "~/components/seo/json-ld";
 const faqItems = [
   {
     question: "What is LC Grind?",
-    answer: "LC Grind is a free platform for practicing company-wise LeetCode problems and interview preparation. It provides access to coding interview questions from top tech companies like Google, Meta, Amazon, Microsoft, and Apple.",
+    answer: "LC Grind is a free platform for coding interview preparation. Practice company-wise LeetCode problems and system design questions, work through top DSA sheets, and read or share real interview experiences with the community—covering top tech companies like Google, Meta, Amazon, Microsoft, and Apple.",
+  },
+  {
+    question: "What are Grinds?",
+    answer: "Grinds is LC Grind's community space for real interview experiences, questions, and discussion. Read first-hand accounts of interviews at top companies, ask your own questions, and vote and comment on posts from other candidates.",
   },
   {
     question: "Is LC Grind free to use?",

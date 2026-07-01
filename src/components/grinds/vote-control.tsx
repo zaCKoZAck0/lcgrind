@@ -8,6 +8,7 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { castVote } from "~/server/actions/votes/castVote";
 import type { VoteTargetType } from "~/server/actions/votes/core";
 import { cn } from "~/lib/utils";
+import { formatCount } from "~/utils/format-count";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 export function VoteControl({
@@ -104,7 +105,7 @@ export function VoteControl({
                     vote === 0 && "text-muted-foreground",
                 )}
             >
-                {score}
+                {formatCount(score)}
             </span>
             <button
                 type="button"

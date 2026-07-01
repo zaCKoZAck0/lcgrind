@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "tsx scripts/prefetch-build-cache.ts && next build && rm -rf .build-cache",
+    "build": "prisma migrate deploy && tsx scripts/prefetch-build-cache.ts && next build && rm -rf .build-cache",
     "start": "next start",
     "lint": "next lint",
+    "db:diff": "prisma migrate diff --from-url \"$DIRECT_URL\" --to-schema-datamodel prisma/schema.prisma --script",
+    "db:deploy": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
     "seed:all": "concurrently \"tsx prisma/seed/seedLeetcode.ts\" \"tsx prisma/seed/seedDummy.ts\"",
     "seed:leetcode": "tsx prisma/seed/seedLeetcode.ts",
     "seed:dummy": "tsx prisma/seed/seedDummy.ts",
