@@ -17,7 +17,6 @@ import { createSubmissionCore, type DbClient } from "../submissions/core";
 import { attachPostTags, type PublicPostTag } from "../grinds/tags";
 import {
     hasProfanity,
-    scanLinks,
     normalizeBody,
     quotaRemaining,
 } from "./publish-gate";
@@ -238,8 +237,8 @@ export type PublishGateResult =
     | { ok: false; error: string; remaining?: number };
 
 // Synchronous, AI-free publish gate. Runs before the post is created: harmful
-// words, provenance-shaped links, per-class rate limit, and exact-duplicate
-// body. Returns accept or reject-with-reason (and remaining quota for the cap).
+// words, per-class rate limit, and exact-duplicate body. Returns accept or
+// reject-with-reason (and remaining quota for the cap).
 export async function runPublishGate(
     db: DbClient,
     userId: string,
@@ -249,14 +248,6 @@ export async function runPublishGate(
         return {
             ok: false,
             error: "Please remove offensive language before posting",
-        };
-    }
-
-    const { deny } = scanLinks(input.body);
-    if (deny.length > 0) {
-        return {
-            ok: false,
-            error: "Links to LeetCode discuss posts aren't allowed",
         };
     }
 
@@ -288,6 +279,7 @@ export async function runPublishGate(
 type ExperienceEntry = {
     company: string;
     role?: string;
+    expYears?: number;
     rounds?: { type: string; questions: { text: string }[] }[];
     comp?: { currency: string; tc: number; components?: { label: string; amount: number }[] };
 };
@@ -306,7 +298,8 @@ function getExperienceEntries(structured: unknown, fallbackCompany: string): Exp
 function buildExperienceSection(exp: ExperienceEntry, roundOffset = 0): string[] {
     const lines: string[] = [];
     const role = exp.role?.trim();
-    lines.push(role ? `## ${exp.company} — ${role}` : `## ${exp.company}`);
+    const yoe = exp.expYears != null ? ` (${exp.expYears} YOE)` : "";
+    lines.push(role ? `## ${exp.company} — ${role}${yoe}` : `## ${exp.company}${yoe}`);
     lines.push("");
     for (let i = 0; i < (exp.rounds?.length ?? 0); i++) {
         const r = exp.rounds![i];
@@ -343,6 +336,27 @@ function buildExperienceBody(companyName: string, structured: unknown): string {
         parts.push(...buildExperienceSection(entries[i]));
     }
     return parts.join("\n").trim();
+}
+
+// Marker separating the author's free text from the generated interview section
+// in a combined FORM body. The post renderer splits on it to draw the experience
+// inside its own boxed "special element". It is an HTML comment so any other
+// consumer (excerpts, fallback render) silently drops it.
+export const EXPERIENCE_DIVIDER = "<!-- grind:experience -->";
+
+// Final body for a FORM experience post. When the author also wrote free text it
+// leads, followed by the divider and the generated interview section. Text-only
+// or experience-only inputs render on their own with no divider (no box).
+function composeExperienceBody(
+    companyName: string,
+    structured: unknown,
+    userText: string,
+): string {
+    const experience = buildExperienceBody(companyName, structured);
+    const text = userText.trim();
+    if (!text) return experience;
+    if (!experience) return text;
+    return `${text}\n\n${EXPERIENCE_DIVIDER}\n\n${experience}`;
 }
 
 // Auto-compute flair slugs from round types across all experiences.
@@ -388,9 +402,10 @@ export async function createPostCore(
                 error: `Please write at least ${EXPERIENCE_BODY_MIN} characters about your experience`,
             };
         }
-        // For FORM mode generate a structured markdown body from the interview data.
-        if (input.mode === "FORM" && body.length === 0) {
-            body = buildExperienceBody(companyName, input.structured);
+        // For FORM mode build the body from the interview data, keeping any free
+        // text the author wrote above a boxed interview section.
+        if (input.mode === "FORM") {
+            body = composeExperienceBody(companyName, input.structured, body);
         }
     }
 
@@ -489,7 +504,7 @@ export async function editPostCore(
 ): Promise<EditPostResult> {
     const title = input.title?.trim() ?? "";
     const body = (input.structured
-        ? buildExperienceBody("", input.structured)
+        ? composeExperienceBody("", input.structured, input.body ?? "")
         : input.body ?? ""
     ).trim();
     const lenError = validateTitleBody(title, body);

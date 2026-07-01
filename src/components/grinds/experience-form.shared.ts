@@ -6,6 +6,7 @@ export type ExperienceDraft = {
     suggestions: string[];
     role: string;
     roleSuggestions: string[];
+    expYears: string;
     rounds: RoundDraft[];
     compEnabled: boolean;
     comp: { currency: string; components: CompComponent[] };
@@ -65,6 +66,7 @@ export const emptyExperience = (): ExperienceDraft => ({
     suggestions: [],
     role: "",
     roleSuggestions: [],
+    expYears: "",
     rounds: [emptyRound()],
     compEnabled: false,
     comp: { currency: "INR", components: [emptyCompComponent()] },
@@ -76,6 +78,7 @@ export function buildStructured(experiences: ExperienceDraft[]) {
         .map((e) => ({
             company: e.company.trim(),
             role: e.role.trim() || undefined,
+            expYears: e.expYears !== "" ? Number(e.expYears) : undefined,
             rounds: e.rounds
                 .filter((r) => r.questions.some((q) => q.trim()))
                 .map((r) => ({

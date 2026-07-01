@@ -27,40 +27,6 @@ export function quotaRemaining(cap: number, recentCount: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// URL / provenance policy
-// ---------------------------------------------------------------------------
-
-const URL_RE = /https?:\/\/[^\s)<>\]]+/gi;
-
-// Provenance-shaped links betray the scraped LeetCode-discuss origin and must
-// never be publishable: any leetcode.com discuss path, or a topic-id query.
-const PROVENANCE_RE = /leetcode\.com\/(?:[a-z-]+\/)*discuss/i;
-const TOPIC_ID_RE = /[?&]topic[_-]?id=/i;
-
-export function isProvenanceLink(url: string): boolean {
-    return PROVENANCE_RE.test(url) || TOPIC_ID_RE.test(url);
-}
-
-// Splits the URLs found in a body into denied (provenance-shaped) and surviving
-// external links. A post with any denied link is rejected by the gate; the
-// external links are the ones the renderer later marks rel="nofollow ugc".
-export function scanLinks(body: string): {
-    deny: string[];
-    external: string[];
-} {
-    const urls = body.match(URL_RE) ?? [];
-    const deny: string[] = [];
-    const external: string[] = [];
-    for (const raw of urls) {
-        // Trim trailing punctuation that commonly rides along in prose.
-        const url = raw.replace(/[.,;:!?]+$/, "");
-        if (isProvenanceLink(url)) deny.push(url);
-        else external.push(url);
-    }
-    return { deny, external };
-}
-
-// ---------------------------------------------------------------------------
 // Harmful-words filter (obscenity, defeats leet/obfuscation)
 // ---------------------------------------------------------------------------
 

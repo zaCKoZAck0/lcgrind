@@ -9,6 +9,7 @@ import { db } from "~/lib/db";
 export type ExperienceFormEntry = {
     company: string;
     role: string;
+    expYears: string;
     rounds: { type: string; questions: string[] }[];
     compEnabled: boolean;
     comp: { currency: string; components: { label: string; amount: string }[] };
@@ -69,6 +70,7 @@ export async function getPostForEdit(postId: string): Promise<PostEditData> {
         experiences?: {
             company?: string;
             role?: string;
+            expYears?: number;
             rounds?: { type?: string; questions?: { text?: string }[] }[];
             comp?: { currency?: string; tc?: number; components?: { label: string; amount: number }[] };
         }[];
@@ -89,6 +91,7 @@ export async function getPostForEdit(postId: string): Promise<PostEditData> {
     const experiences: ExperienceFormEntry[] = (rawExperiences ?? []).map((e) => ({
         company: e?.company ?? "",
         role: e?.role ?? "",
+        expYears: e?.expYears != null ? String(e.expYears) : "",
         rounds:
             (e?.rounds ?? []).map((r) => ({
                 type: r.type ?? "Coding",

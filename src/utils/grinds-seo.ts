@@ -85,6 +85,7 @@ export function shouldNoindexPost(p: {
 
 export function stripMarkdown(text: string): string {
     return text
+        .replace(/<!--[\s\S]*?-->/g, "")
         .replace(/```[\s\S]*?```/g, "")
         .replace(/`([^`\n]*)`/g, "$1")
         .replace(/!\[.*?\]\(.*?\)/g, "")

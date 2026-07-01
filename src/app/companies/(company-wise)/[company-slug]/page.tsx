@@ -17,7 +17,7 @@ import { buttonVariants } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { db } from "~/lib/db";
 import { getFeed } from "~/server/actions/grinds/feed";
-import { PostCard } from "~/components/grinds/post-card";
+import { PostFeedList } from "~/components/grinds/post-feed-list";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 type Props = {
@@ -210,11 +210,9 @@ export default async function CompanyInterviews({
                             compensation={FEATURE_FLAGS.COMPENSATION ? <CompensationTab comp={comp!} band={band} /> : undefined}
                             experiences={FEATURE_FLAGS.GRINDS ? (
                                 hasExperiences ? (
-                                    <div className="flex flex-col gap-4">
-                                        {experienceFeed.posts.map((post) => (
-                                            <PostCard key={post.id} post={post} />
-                                        ))}
-                                        {experienceFeed.nextCursor && (
+                                    <PostFeedList
+                                        posts={experienceFeed.posts}
+                                        footer={experienceFeed.nextCursor && (
                                             <Link
                                                 href={`/grinds?type=EXPERIENCE&company=${encodeURIComponent(company.name)}`}
                                                 className="text-sm text-center text-muted-foreground hover:underline"
@@ -222,7 +220,7 @@ export default async function CompanyInterviews({
                                                 View all experiences on Discuss
                                             </Link>
                                         )}
-                                    </div>
+                                    />
                                     ) : (
                                     <Card className="p-10 items-center gap-3 text-center">
                                         <MessageSquarePlus className="size-10 text-muted-foreground/50" />

@@ -108,13 +108,23 @@ export async function removeContentCore(
     } else {
         const comment = await db.comment.findUnique({
             where: { id: targetId },
-            select: { id: true },
+            select: { id: true, postId: true, status: true },
         });
         if (!comment) return { ok: false, error: "Comment not found" };
-        await db.comment.update({
-            where: { id: targetId },
-            data: { status: "REMOVED" },
-        });
+        // Drop it from the post's commentCount the same way an author hard-delete
+        // does. Guard on the prior status so a repeat removal can't double-decrement.
+        if (comment.status !== "REMOVED") {
+            await db.$transaction([
+                db.comment.update({
+                    where: { id: targetId },
+                    data: { status: "REMOVED" },
+                }),
+                db.post.update({
+                    where: { id: comment.postId },
+                    data: { commentCount: { decrement: 1 } },
+                }),
+            ]);
+        }
     }
 
     await db.report.updateMany({

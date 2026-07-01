@@ -8,8 +8,6 @@ import {
     MAX_TEXT_LENGTH,
 } from "~/config/submissions";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
-import { reverseLedger } from "../gamification/core";
-import { recomputeCompanyTiers } from "~/server/recompute-tiers";
 
 export { WEEKLY_SUBMISSION_CAP, MIN_TEXT_LENGTH, MAX_TEXT_LENGTH };
 
@@ -52,7 +50,38 @@ const structuredSchemaBase = z
         message: "Add at least one interview round or compensation details",
     });
 
-export const structuredSchema = structuredSchemaBase;
+// Compensation as the multi-experience composer sends it: itemized components
+// plus a precomputed total, distinct from the legacy single base/tc shape above.
+const compComponentSchema = z.object({
+    label: z.string().trim().max(60),
+    amount: z.number().nonnegative(),
+});
+
+const wrapperCompSchema = z.object({
+    currency: z.string().trim().length(3),
+    tc: z.number().nonnegative(),
+    components: z.array(compComponentSchema).max(20).default([]),
+});
+
+// One company's experience inside the multi-experience wrapper. Everything past
+// company is optional — the composer already filters out empty entries, so a
+// role-only experience with no rounds is valid here (unlike the single shape).
+const experienceSchema = z.object({
+    company: z.string().trim().max(80).optional(),
+    role: z.string().trim().max(80).optional(),
+    expYears: z.number().min(0).max(50).optional(),
+    rounds: z.array(roundSchema).max(12).default([]),
+    ...(FEATURE_FLAGS.COMPENSATION ? { comp: wrapperCompSchema.optional() } : {}),
+});
+
+const experiencesWrapperSchema = z.object({
+    experiences: z.array(experienceSchema).min(1).max(20),
+});
+
+// Accept either the legacy single-experience object or the multi-experience
+// wrapper the grinds composer emits. Union tries the single shape first; the
+// wrapper has no top-level `role`, so it falls through cleanly.
+export const structuredSchema = z.union([structuredSchemaBase, experiencesWrapperSchema]);
 
 export type StructuredExperience = z.infer<typeof structuredSchema>;
 
@@ -156,104 +185,4 @@ export async function createSubmissionCore(
     });
 
     return { ok: true, id: created.id, remaining: remaining - 1 };
-}
-
-export type UpdateSubmissionResult =
-    | { ok: true; id: string }
-    | { ok: false; error: string };
-
-// Author-only edit. Any edit reopens review (status -> PENDING, parsed cleared);
-// if the submission was approved its live community rows are withdrawn and its
-// points reversed in the same transaction, preserving the invariant that only
-// approved submissions carry live data. Edits never consume the weekly quota.
-export async function updateSubmissionCore(
-    db: PrismaClient,
-    userId: string,
-    submissionId: string,
-    input: CreateSubmissionInput,
-): Promise<UpdateSubmissionResult> {
-    const existing = await db.submission.findUnique({
-        where: { id: submissionId },
-        select: { id: true, userId: true },
-    });
-    if (!existing) return { ok: false, error: "Submission not found" };
-    if (existing.userId !== userId) {
-        return { ok: false, error: "You can only edit your own submissions" };
-    }
-
-    const companyName = input.companyName?.trim() ?? "";
-    if (companyName.length === 0 || companyName.length > 80) {
-        return { ok: false, error: "Please provide a company name" };
-    }
-
-    let rawText: string | null = null;
-    let structured: StructuredExperience | null = null;
-
-    if (input.mode === "TEXT") {
-        rawText = input.rawText?.trim() ?? "";
-        if (rawText.length < MIN_TEXT_LENGTH) {
-            return {
-                ok: false,
-                error: `Please write at least ${MIN_TEXT_LENGTH} characters so reviewers have enough to work with`,
-            };
-        }
-        if (rawText.length > MAX_TEXT_LENGTH) {
-            return {
-                ok: false,
-                error: `Please keep it under ${MAX_TEXT_LENGTH} characters`,
-            };
-        }
-        const duplicate = await db.submission.findFirst({
-            where: { userId, rawText, id: { not: submissionId } },
-            select: { id: true },
-        });
-        if (duplicate) {
-            return {
-                ok: false,
-                error: "You have already submitted this exact experience",
-            };
-        }
-    } else if (input.mode === "FORM") {
-        const parsed = structuredSchema.safeParse(input.structured);
-        if (!parsed.success) {
-            const first = parsed.error.issues[0];
-            return {
-                ok: false,
-                error: first?.message ?? "Invalid structured experience",
-            };
-        }
-        structured = parsed.data;
-    } else {
-        return { ok: false, error: "Unknown submission mode" };
-    }
-
-    const company = await db.company.findFirst({
-        where: { name: { equals: companyName, mode: "insensitive" } },
-        select: { id: true },
-    });
-
-    await db.$transaction(async (tx) => {
-        // Withdraw any live community rows and reverse points before reopening.
-        await tx.communityQuestionAsk.deleteMany({ where: { submissionId } });
-        await tx.communityCompPoint.deleteMany({ where: { submissionId } });
-        await reverseLedger(tx, { userId, submissionId, reason: "edited" });
-        await tx.submission.update({
-            where: { id: submissionId },
-            data: {
-                companyId: company?.id ?? null,
-                companyName,
-                mode: input.mode,
-                rawText,
-                structured: structured ?? Prisma.JsonNull,
-                parsed: Prisma.JsonNull,
-                status: "PENDING",
-                adminNote: null,
-            },
-        });
-    });
-
-    // Editing an approved submission withdraws its community asks.
-    await recomputeCompanyTiers(db);
-
-    return { ok: true, id: submissionId };
 }

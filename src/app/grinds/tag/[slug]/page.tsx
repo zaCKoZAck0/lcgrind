@@ -6,7 +6,7 @@ import { Tag, ChevronRight } from "lucide-react";
 import { db } from "~/lib/db";
 import { getFeed } from "~/server/actions/grinds/feed";
 import { getPostTag } from "~/server/actions/grinds/tags";
-import { PostCard } from "~/components/grinds/post-card";
+import { PostFeedList } from "~/components/grinds/post-feed-list";
 import { BackLink } from "~/components/grinds/back-link";
 import { GrindsPageHeader } from "~/components/grinds/page-header";
 import { EmptyState } from "~/components/grinds/empty-state";
@@ -86,11 +86,7 @@ export default async function GrindsTagPage({
                     yet.
                 </EmptyState>
             ) : (
-                <div className="flex flex-col gap-4">
-                    {posts.map((post) => (
-                        <PostCard key={post.id} post={post} />
-                    ))}
-                </div>
+                <PostFeedList posts={posts} />
             )}
 
             {nextCursor && (
