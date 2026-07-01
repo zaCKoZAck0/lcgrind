@@ -9,7 +9,7 @@ import { auth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 import { getFeed } from "~/server/actions/grinds/feed";
 import { getProfileByHandle } from "~/server/actions/grinds/profile";
-import { PostCard } from "~/components/grinds/post-card";
+import { PostFeedList } from "~/components/grinds/post-feed-list";
 import { BackLink } from "~/components/grinds/back-link";
 import { ProfileBanner } from "~/components/grinds/profile-banner";
 import { EmptyState } from "~/components/grinds/empty-state";
@@ -172,11 +172,7 @@ export default async function UserProfilePage({
             {posts.length === 0 ? (
                 <EmptyState>No public posts yet.</EmptyState>
             ) : (
-                <div className="flex flex-col gap-4">
-                    {posts.map((post) => (
-                        <PostCard key={post.id} post={post} />
-                    ))}
-                </div>
+                <PostFeedList posts={posts} />
             )}
 
             {nextCursor && (

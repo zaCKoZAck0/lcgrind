@@ -6,16 +6,14 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Root, Element } from "hast";
 
-import { isProvenanceLink } from "~/server/actions/posts/publish-gate";
-
 // Protocols a link href may use after rendering. Everything else (javascript:,
 // data:, vbscript:, …) is neutralized to plain text.
 const SAFE_LINK_PROTOCOL = /^(https?:|mailto:)/i;
 
 // hast transform run BEFORE sanitize. Three jobs, all defense-in-depth so the
-// rendered HTML can never carry a live unsafe/provenance link or an image:
+// rendered HTML can never carry a live unsafe link or an image:
 //   - external links get rel="nofollow ugc" + a safe target
-//   - provenance-shaped or non-http(s) links are stripped to their text
+//   - non-http(s) links are stripped to their text
 //   - images are removed entirely (no embeds in v1)
 function rehypeDiscussLinks() {
     return (tree: Root) => {
@@ -28,8 +26,7 @@ function rehypeDiscussLinks() {
             if (node.tagName === "a") {
                 const href = node.properties?.href;
                 const url = typeof href === "string" ? href : "";
-                const unsafe =
-                    !SAFE_LINK_PROTOCOL.test(url) || isProvenanceLink(url);
+                const unsafe = !SAFE_LINK_PROTOCOL.test(url);
 
                 if (unsafe) {
                     // Drop the anchor, keep its text content in place.

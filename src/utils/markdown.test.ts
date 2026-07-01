@@ -49,16 +49,6 @@ describe("renderMarkdown — links", () => {
         expect(html).toContain('href="https://example.com/guide"');
         expect(html).toContain('rel="nofollow ugc"');
     });
-
-    it("neutralizes leetcode.com/discuss provenance links", () => {
-        const html = renderMarkdown(
-            "see [here](https://leetcode.com/discuss/interview/999)",
-        );
-        // The provenance URL must never survive as a live href.
-        expect(html).not.toContain("leetcode.com/discuss");
-        // The link text is preserved as plain content.
-        expect(html).toContain("here");
-    });
 });
 
 describe("renderMarkdown — images", () => {

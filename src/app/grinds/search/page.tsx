@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 
 import { db } from "~/lib/db";
 import { searchPosts } from "~/server/actions/grinds/search";
-import { PostCard } from "~/components/grinds/post-card";
+import { PostFeedList } from "~/components/grinds/post-feed-list";
 import { BackLink } from "~/components/grinds/back-link";
 import { EmptyState } from "~/components/grinds/empty-state";
 import { BASE_URL } from "~/config/constants";
@@ -65,11 +65,7 @@ export default async function GrindsSearchPage({
                     <span className="font-semibold text-foreground">{query}</span>.
                 </EmptyState>
             ) : (
-                <div className="flex flex-col gap-4">
-                    {posts.map((post) => (
-                        <PostCard key={post.id} post={post} />
-                    ))}
-                </div>
+                <PostFeedList posts={posts} />
             )}
         </div>
     );

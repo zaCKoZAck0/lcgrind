@@ -5,10 +5,11 @@ import { MessageSquare, ArrowLeft, Pin } from "lucide-react";
 import { headers } from "next/headers";
 import { auth, isAdminEmail } from "~/lib/auth";
 import { getUserRole, canPin } from "~/lib/rbac";
-import { postIdFromParam, postParam } from "~/server/actions/posts/core";
+import { postIdFromParam, postParam, EXPERIENCE_DIVIDER } from "~/server/actions/posts/core";
 import { getPublicPost } from "~/server/actions/posts/getPost";
 import { getPostComments } from "~/server/actions/comments/getComments";
 import { renderMarkdown } from "~/utils/markdown";
+import { POST_MD as BODY_MD } from "~/components/grinds/markdown-classes";
 import { formatMonth } from "~/utils/public-date";
 import { CommentSection } from "~/components/grinds/comment-thread";
 import { VoteControl } from "~/components/grinds/vote-control";
@@ -22,9 +23,38 @@ import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
-const BODY_MD =
-    "markdown-body break-words text-[15px] leading-relaxed [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-5 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h3]:font-semibold [&_h3]:mt-3 [&_p]:my-3 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded-base [&_code]:bg-secondary-background [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:border-2 [&_pre]:border-border [&_pre]:bg-secondary-background [&_pre]:p-3 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_blockquote]:border-l-4 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground";
-
+// Renders a post body, splitting an optional interview-experience section off
+// the EXPERIENCE_DIVIDER into its own boxed block.
+function PostBody({ body }: { body: string }) {
+    const [intro, experience] = body.split(EXPERIENCE_DIVIDER);
+    if (experience === undefined) {
+        return (
+            <div
+                className={cn(BODY_MD, "p-5")}
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }}
+            />
+        );
+    }
+    return (
+        <div className="p-5 space-y-4">
+            {intro.trim() && (
+                <div
+                    className={BODY_MD}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(intro) }}
+                />
+            )}
+            <div className="rounded-base border-2 border-border bg-secondary-background/50 p-4">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    Interview Experience
+                </p>
+                <div
+                    className={BODY_MD}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(experience) }}
+                />
+            </div>
+        </div>
+    );
+}
 
 export async function generateMetadata({
     params,
@@ -176,10 +206,7 @@ export default async function GrindsPostPage({
                 )}
 
                 {/* Body */}
-                <div
-                    className={cn(BODY_MD, "p-5")}
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }}
-                />
+                <PostBody body={post.body} />
 
                 {/* Action bar */}
                 <div className="px-5 py-3 border-t-2 border-border bg-secondary-background/30 flex items-center gap-3 text-sm text-muted-foreground">

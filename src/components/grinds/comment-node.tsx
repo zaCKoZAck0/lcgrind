@@ -10,13 +10,11 @@ import { formatMonth } from "~/utils/public-date";
 import { CommentReply } from "./comment-reply";
 import { VoteControl } from "./vote-control";
 import { ModerationMenu } from "./moderation-menu";
-import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { editComment } from "~/server/actions/comments/addComment";
 import type { PublicCommentNode } from "~/server/actions/comments/getComments";
-
-const COMMENT_MD =
-    "markdown-body break-words text-sm leading-relaxed [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded-base [&_code]:bg-secondary-background [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:border-2 [&_pre]:border-border [&_pre]:bg-secondary-background [&_pre]:p-2 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_blockquote]:border-l-4 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:italic";
+import { COMMENT_MD } from "./markdown-classes";
+import { MarkdownField } from "./markdown-field";
 
 function Byline({ node }: { node: PublicCommentNode }) {
     const who = node.author?.handle ? `@${node.author.handle}` : "Anonymous";
@@ -84,9 +82,10 @@ export function CommentNodeView({
                 <p className="my-2 text-sm italic text-muted-foreground">[deleted]</p>
             ) : isEditing ? (
                 <div className="mt-2 flex flex-col gap-2">
-                    <Textarea
+                    <MarkdownField
                         value={editBody}
-                        onChange={(e) => setEditBody(e.target.value)}
+                        onChange={setEditBody}
+                        previewClassName={COMMENT_MD}
                         rows={4}
                         disabled={isPending}
                         className="text-sm"

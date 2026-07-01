@@ -12,12 +12,13 @@ import {
 } from "~/components/ui/accordion";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
 import { editPost } from "~/server/actions/posts/createPost";
 import type { ExperienceFormEntry } from "~/server/actions/posts/getPostForEdit";
 import { emptyRound, emptyCompComponent, buildStructured } from "./experience-form.shared";
 import { useExperienceForm } from "./use-experience-form";
 import { ExperienceList } from "./experience-list";
+import { MarkdownField } from "./markdown-field";
+import { POST_MD } from "./markdown-classes";
 import type { ExperienceDraft } from "./experience-form.shared";
 
 function toExperienceDraft(e: ExperienceFormEntry): ExperienceDraft {
@@ -92,10 +93,11 @@ export function EditPostForm({
             {/* Body — always visible */}
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="edit-body">Body</Label>
-                <Textarea
+                <MarkdownField
                     id="edit-body"
                     value={body}
-                    onChange={(e) => setBody(e.target.value)}
+                    onChange={setBody}
+                    previewClassName={POST_MD}
                     rows={6}
                     disabled={isPending}
                     className="resize-y"

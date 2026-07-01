@@ -3,22 +3,10 @@ import { MessageSquare, Pin } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { formatMonth } from "~/utils/public-date";
+import { stripMarkdown } from "~/utils/grinds-seo";
 import { postParam } from "~/server/actions/posts/core";
 import type { PublicPost } from "~/server/actions/posts/core";
 import { PostVoteRail } from "./post-vote-rail";
-
-function stripMarkdown(text: string): string {
-    return text
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/`[^`]+`/g, "")
-        .replace(/^#{1,6}\s+/gm, "")
-        .replace(/\*\*([^*]+)\*\*/g, "$1")
-        .replace(/\*([^*]+)\*/g, "$1")
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-        .replace(/>\s+/g, "")
-        .replace(/\n+/g, " ")
-        .trim();
-}
 
 export function FeedPostCard({ post }: { post: PublicPost }) {
     const param = postParam(post.id, post.title);

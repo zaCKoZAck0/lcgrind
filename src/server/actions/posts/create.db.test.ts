@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { createPostCore, editPostCore } from "./core";
+import { createPostCore, editPostCore, EXPERIENCE_DIVIDER } from "./core";
 import { EXPERIENCE_WEEKLY_CAP } from "~/config/grinds";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 const db = new PrismaClient({
     datasourceUrl:
@@ -125,12 +126,91 @@ describe("createPostCore — Experience forks the admin copy", () => {
             where: { id: res.id },
             include: { submission: true },
         });
-        // Public post still carries the body; the admin copy is FORM-shaped.
-        expect(post.body).toBe(storyFor("form-mode"));
+        // Public post leads with the author's text, then the boxed experience;
+        // the admin copy is FORM-shaped.
+        const [before, after] = post.body.split(EXPERIENCE_DIVIDER);
+        expect(before).toContain(storyFor("form-mode"));
+        expect(after).toContain(`## ${companyName} — SDE2`);
         expect(post.submission?.mode).toBe("FORM");
         expect(post.submission?.rawText).toBeNull();
         const structured = post.submission?.structured as { role?: string };
         expect(structured?.role).toBe("SDE2");
+    });
+
+    it("forks the multi-experience wrapper, persisting expYears and comp components", async () => {
+        const res = await createPostCore(db, U_MAIN, {
+            isExperience: true,
+            title: "Wrapper Amazon SDE2 writeup",
+            body: "",
+            companyName,
+            mode: "FORM",
+            structured: {
+                experiences: [
+                    {
+                        company: companyName,
+                        role: "SDE2",
+                        expYears: 4.5,
+                        rounds: [
+                            { type: "Coding", questions: [{ text: "Two Sum" }] },
+                        ],
+                        comp: {
+                            currency: "INR",
+                            tc: 4500000,
+                            components: [{ label: "Base Pay", amount: 4500000 }],
+                        },
+                    },
+                ],
+            },
+        });
+        expect(res.ok).toBe(true);
+        if (res.ok === false) return;
+
+        const post = await db.post.findUniqueOrThrow({
+            where: { id: res.id },
+            include: { submission: true },
+        });
+        // Body renders the experience with its years of experience.
+        expect(post.body).toContain(`## ${companyName} — SDE2 (4.5 YOE)`);
+        // The fork keeps the wrapper verbatim so the edit round-trip can rehydrate.
+        const structured = post.submission?.structured as {
+            experiences?: { expYears?: number; comp?: { components?: unknown[] } }[];
+        };
+        expect(structured?.experiences?.[0].expYears).toBe(4.5);
+        // Compensation only survives the fork when the flag is on (otherwise gated out).
+        if (FEATURE_FLAGS.COMPENSATION) {
+            expect(structured?.experiences?.[0].comp?.components).toHaveLength(1);
+        }
+    });
+
+    it("keeps the author's free text above the divider when both text and experience are given", async () => {
+        const intro = "Sharing my onsite loop below — context first.";
+        const res = await createPostCore(db, U_MAIN, {
+            isExperience: true,
+            title: "Amazon SDE2 with notes",
+            body: intro,
+            companyName,
+            mode: "FORM",
+            structured: {
+                experiences: [
+                    {
+                        company: companyName,
+                        role: "SDE2",
+                        rounds: [{ type: "Coding", questions: [{ text: "Two Sum" }] }],
+                    },
+                ],
+            },
+        });
+        expect(res.ok).toBe(true);
+        if (res.ok === false) return;
+
+        const post = await db.post.findUniqueOrThrow({ where: { id: res.id } });
+        const [before, after] = post.body.split(EXPERIENCE_DIVIDER);
+        // Free text leads, the divider separates, the generated section follows.
+        expect(before).toContain(intro);
+        expect(after).toBeDefined();
+        expect(after).toContain(`## ${companyName} — SDE2`);
+        // The intro must not bleed into the experience half.
+        expect(after).not.toContain(intro);
     });
 
     it("does NOT fork a Submission for a Discussion post", async () => {
@@ -325,7 +405,7 @@ describe("publish gate — rate limits", () => {
 });
 
 describe("publish gate — content checks", () => {
-    it("rejects provenance links, profanity, and exact duplicates", async () => {
+    it("rejects profanity and exact duplicates", async () => {
         // Claim a handle with one clean post first.
         const seed = await createPostCore(db, U_GATE, {
             title: "Clean opening post to claim a handle",
@@ -333,14 +413,6 @@ describe("publish gate — content checks", () => {
             handle: HANDLE_GATE,
         });
         expect(seed.ok).toBe(true);
-
-        const provenance = await createPostCore(db, U_GATE, {
-            title: "Sharing where I found this",
-            body: "Found it here https://leetcode.com/discuss/interview/999 enjoy.",
-        });
-        expect(provenance.ok).toBe(false);
-        if (provenance.ok === true) return;
-        expect(provenance.error.toLowerCase()).toContain("discuss");
 
         const profane = await createPostCore(db, U_GATE, {
             title: "A post with bad language inside",

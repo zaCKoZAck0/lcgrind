@@ -117,7 +117,11 @@ describe("removeContentCore", () => {
         expect(open).toBe(0);
     });
 
-    it("soft-deletes a reported comment (status REMOVED)", async () => {
+    it("soft-deletes a reported comment (status REMOVED) and drops it from commentCount", async () => {
+        await db.post.update({
+            where: { id: postId },
+            data: { commentCount: 1 },
+        });
         await reportContentCore(db, R1, {
             targetType: "COMMENT",
             targetId: commentId,
@@ -131,5 +135,16 @@ describe("removeContentCore", () => {
         });
         expect(comment).not.toBeNull();
         expect(comment!.status).toBe("REMOVED");
+
+        const post = await db.post.findUnique({ where: { id: postId } });
+        expect(post!.commentCount).toBe(0);
+    });
+
+    it("does not double-decrement commentCount on repeat removal", async () => {
+        const res = await removeContentCore(db, "COMMENT", commentId);
+        expect(res.ok).toBe(true);
+
+        const post = await db.post.findUnique({ where: { id: postId } });
+        expect(post!.commentCount).toBe(0);
     });
 });

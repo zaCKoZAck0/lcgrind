@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Reply } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Textarea } from "~/components/ui/textarea";
 import { Checkbox } from "~/components/ui/checkbox";
 import { addComment } from "~/server/actions/comments/addComment";
+import { MarkdownField } from "./markdown-field";
+import { COMMENT_MD } from "./markdown-classes";
 
 export function CommentReply({
     postId,
@@ -64,9 +65,10 @@ export function CommentReply({
 
     return (
         <div className="basis-full w-full mt-1 flex flex-col gap-3">
-            <Textarea
+            <MarkdownField
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
+                onChange={setBody}
+                previewClassName={COMMENT_MD}
                 rows={4}
                 placeholder="Write a comment… Markdown supported."
                 autoFocus={!autoOpen}

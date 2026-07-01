@@ -119,35 +119,51 @@ function ExperienceEntry({
                 )}
             </div>
 
-            {/* Role */}
-            <div className="relative flex flex-col gap-1.5">
-                <Label>Role</Label>
-                {(() => {
-                    const visible = exp.roleSuggestions.length > 0
-                        ? exp.roleSuggestions
-                        : ROLE_SUGGESTIONS.filter(
-                              (s) => !exp.role.trim() || s.toLowerCase().includes(exp.role.trim().toLowerCase()),
-                          );
-                    return (
-                        <>
-                            <Input
-                                value={exp.role}
-                                onChange={(e) => form.onRoleChange(ei, e.target.value)}
-                                placeholder="e.g. Software Engineer"
-                                onFocus={() => form.setActiveRoleKey(ei)}
-                                onBlur={() => setTimeout(() => form.setActiveRoleKey(null), 150)}
-                                autoComplete="off"
-                                disabled={disabled}
-                            />
-                            {form.activeRoleKey === ei && visible.length > 0 && (
-                                <SuggestionCard
-                                    items={visible.map((s) => ({ value: s, label: s }))}
-                                    onSelect={(role) => form.selectRole(ei, role)}
+            {/* Role + Experience */}
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-start">
+                <div className="relative flex flex-col gap-1.5">
+                    <Label>Role</Label>
+                    {(() => {
+                        const visible = exp.roleSuggestions.length > 0
+                            ? exp.roleSuggestions
+                            : ROLE_SUGGESTIONS.filter(
+                                  (s) => !exp.role.trim() || s.toLowerCase().includes(exp.role.trim().toLowerCase()),
+                              );
+                        return (
+                            <>
+                                <Input
+                                    value={exp.role}
+                                    onChange={(e) => form.onRoleChange(ei, e.target.value)}
+                                    placeholder="e.g. Software Engineer"
+                                    onFocus={() => form.setActiveRoleKey(ei)}
+                                    onBlur={() => setTimeout(() => form.setActiveRoleKey(null), 150)}
+                                    autoComplete="off"
+                                    disabled={disabled}
                                 />
-                            )}
-                        </>
-                    );
-                })()}
+                                {form.activeRoleKey === ei && visible.length > 0 && (
+                                    <SuggestionCard
+                                        items={visible.map((s) => ({ value: s, label: s }))}
+                                        onSelect={(role) => form.selectRole(ei, role)}
+                                    />
+                                )}
+                            </>
+                        );
+                    })()}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <Label>Experience (years)</Label>
+                    <Input
+                        type="number"
+                        min={0}
+                        max={50}
+                        step={0.5}
+                        value={exp.expYears}
+                        onChange={(e) => form.updateExp(ei, "expYears", e.target.value)}
+                        placeholder="e.g. 4.5"
+                        className="w-45"
+                        disabled={disabled}
+                    />
+                </div>
             </div>
 
             {/* Rounds */}

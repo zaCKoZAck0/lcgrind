@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
     normalizeBody,
     quotaRemaining,
-    isProvenanceLink,
-    scanLinks,
     hasProfanity,
 } from "./publish-gate";
 
@@ -26,43 +24,6 @@ describe("quotaRemaining", () => {
         expect(quotaRemaining(7, 6)).toBe(1);
         expect(quotaRemaining(7, 7)).toBe(0);
         expect(quotaRemaining(7, 9)).toBe(0);
-    });
-});
-
-describe("isProvenanceLink / scanLinks", () => {
-    it("flags leetcode discuss links and topic-id queries", () => {
-        expect(isProvenanceLink("https://leetcode.com/discuss/interview/123")).toBe(
-            true,
-        );
-        expect(
-            isProvenanceLink("https://leetcode.com/discuss/post/456/amazon"),
-        ).toBe(true);
-        expect(
-            isProvenanceLink("https://example.com/thread?topicId=98765"),
-        ).toBe(true);
-        expect(isProvenanceLink("https://leetcode.com/problems/two-sum/")).toBe(
-            false,
-        );
-    });
-
-    it("separates denied provenance links from surviving external links", () => {
-        const body =
-            "See https://leetcode.com/discuss/interview/1 and also " +
-            "https://docs.google.com/spreadsheet, plus https://leetcode.com/problems/two-sum/.";
-        const { deny, external } = scanLinks(body);
-        expect(deny).toHaveLength(1);
-        expect(deny[0]).toContain("leetcode.com/discuss");
-        expect(external).toEqual([
-            "https://docs.google.com/spreadsheet",
-            "https://leetcode.com/problems/two-sum/",
-        ]);
-    });
-
-    it("returns empty arrays for a body with no links", () => {
-        expect(scanLinks("plain text, no links here")).toEqual({
-            deny: [],
-            external: [],
-        });
     });
 });
 
