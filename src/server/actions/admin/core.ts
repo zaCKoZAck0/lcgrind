@@ -233,3 +233,21 @@ export async function deleteSubmissionCore(
     await recomputeCompanyTiers(db);
     return { ok: true };
 }
+
+export type BatchItemResult = { id: string; ok: boolean; error?: string };
+
+export async function approveSubmissionsCore(
+    db: PrismaClient,
+    ids: string[],
+): Promise<BatchItemResult[]> {
+    const results: BatchItemResult[] = [];
+    for (const id of ids) {
+        const result = await approveSubmissionCore(db, id);
+        results.push({
+            id,
+            ok: result.ok,
+            error: result.ok === false ? result.error : undefined,
+        });
+    }
+    return results;
+}

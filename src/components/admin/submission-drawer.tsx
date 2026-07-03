@@ -114,15 +114,18 @@ export function SubmissionDrawer({
     const approve = () => {
         startTransition(async () => {
             const result = await approveSubmissions([submission.id]);
-            if (result.ok) {
-                toast.success("Approved");
-                onClose();
-                router.refresh();
-            } else {
-                toast.error(
-                    (result as { ok: false; error: string }).error ?? "Approve failed",
-                );
+            if (result.ok === false) {
+                toast.error(result.error ?? "Approve failed");
+                return;
             }
+            const itemResult = result.results[0];
+            if (!itemResult || itemResult.ok === false) {
+                toast.error(itemResult?.error ?? "Approve failed");
+                return;
+            }
+            toast.success("Approved");
+            onClose();
+            router.refresh();
         });
     };
 

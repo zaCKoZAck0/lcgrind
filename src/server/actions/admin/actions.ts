@@ -5,10 +5,11 @@ import { revalidatePath } from "next/cache";
 import { auth, isAdminEmail } from "~/lib/auth";
 import { db } from "~/lib/db";
 import {
-    approveSubmissionCore,
+    approveSubmissionsCore,
     rejectSubmissionCore,
     deleteSubmissionCore,
     type AdminActionResult,
+    type BatchItemResult,
 } from "./core";
 import {
     geminiAvailable,
@@ -39,18 +40,21 @@ async function revalidateForSubmission(submissionId: string) {
     }
 }
 
+export type ApproveSubmissionsResult =
+    | { ok: true; results: BatchItemResult[] }
+    | { ok: false; error: string };
+
 export async function approveSubmissions(
     ids: string[],
-): Promise<AdminActionResult> {
+): Promise<ApproveSubmissionsResult> {
     const gate = await requireAdmin();
     if (gate.ok === false) return gate;
-    for (const id of ids) {
-        const result = await approveSubmissionCore(db, id);
-        if (result.ok === false) return result;
-        await revalidateForSubmission(id);
+    const results = await approveSubmissionsCore(db, ids);
+    for (const r of results) {
+        if (r.ok) await revalidateForSubmission(r.id);
     }
     revalidatePath("/admin/submissions");
-    return { ok: true };
+    return { ok: true, results };
 }
 
 export async function rejectSubmissions(
