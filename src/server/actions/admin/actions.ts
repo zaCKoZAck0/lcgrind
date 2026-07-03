@@ -16,6 +16,7 @@ import {
     parseSubmissionsCore,
     type ParseItemResult,
 } from "./parse";
+import { buildMergePreviewCore, type MergePreview } from "./preview";
 
 async function requireAdmin(): Promise<
     { ok: true } | { ok: false; error: string }
@@ -104,6 +105,14 @@ export async function parseSubmissions(
     const results = await parseSubmissionsCore(db, ids, geminiGenerate);
     revalidatePath("/admin/submissions");
     return { ok: true, results };
+}
+
+export async function getMergePreview(
+    submissionId: string,
+): Promise<{ ok: true; preview: MergePreview } | { ok: false; error: string }> {
+    const gate = await requireAdmin();
+    if (gate.ok === false) return gate;
+    return buildMergePreviewCore(db, submissionId);
 }
 
 export async function updateSubmissionFields(

@@ -236,6 +236,7 @@ export function ReviewBoard({
                         setEditing(null);
                         router.refresh();
                     }}
+                    parseAvailable={parseAvailable}
                 />
             )}
         </div>
