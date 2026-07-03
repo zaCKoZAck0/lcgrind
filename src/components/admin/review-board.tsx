@@ -23,6 +23,7 @@ export type BoardSubmission = {
     rawText: string | null;
     structured: unknown;
     parsed: unknown;
+    parseError: string | null;
     status: string;
     adminNote: string | null;
     createdAt: string;
@@ -56,6 +57,8 @@ export function ReviewBoard({
             APPROVED: [],
             REJECTED: [],
         };
+        // PARSE_FAILED (and any unknown status) files under Pending: those
+        // submissions still await review and the manual Parse-with-AI fallback.
         for (const s of submissions) (map[s.status] ?? map.PENDING).push(s);
         return map;
     }, [submissions]);
@@ -202,6 +205,14 @@ export function ReviewBoard({
                                     {s.companyId === null && (
                                         <Badge className="bg-red-300 text-black">
                                             Unlinked company
+                                        </Badge>
+                                    )}
+                                    {s.status === "PARSE_FAILED" && (
+                                        <Badge
+                                            className="bg-red-300 text-black"
+                                            title={s.parseError ?? undefined}
+                                        >
+                                            Parse failed
                                         </Badge>
                                     )}
                                     <p className="text-xs text-muted-foreground line-clamp-3">

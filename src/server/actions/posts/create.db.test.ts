@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createPostCore, editPostCore, EXPERIENCE_DIVIDER } from "./core";
+import { autoParseSubmissionForPost } from "../admin/parse";
 import { EXPERIENCE_WEEKLY_CAP } from "~/config/grinds";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
 
@@ -211,6 +212,31 @@ describe("createPostCore — Experience forks the admin copy", () => {
         expect(after).toContain(`## ${companyName} — SDE2`);
         // The intro must not bleed into the experience half.
         expect(after).not.toContain(intro);
+    });
+
+    it("publish succeeds even when the auto-parse generator throws", async () => {
+        const res = await createPostCore(db, U_MAIN, {
+            isExperience: true,
+            title: "Publish survives a parse blowup",
+            body: storyFor("parse-throws"),
+            companyName,
+        });
+        expect(res.ok).toBe(true);
+        if (!res.ok) return;
+
+        await expect(
+            autoParseSubmissionForPost(db, res.id, async () => {
+                throw new Error("Gemini down");
+            }),
+        ).resolves.toBeUndefined();
+
+        const post = await db.post.findUniqueOrThrow({
+            where: { id: res.id },
+            include: { submission: true },
+        });
+        expect(post.status).toBe("PUBLISHED");
+        expect(post.submission?.status).toBe("PARSE_FAILED");
+        expect(post.submission?.parseError).toBe("Gemini down");
     });
 
     it("does NOT fork a Submission for a Discussion post", async () => {

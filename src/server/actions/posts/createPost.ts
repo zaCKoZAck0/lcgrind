@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
@@ -14,6 +15,7 @@ import {
     type DeletePostResult,
 } from "./core";
 import { syncSocialBadges } from "../gamification/core";
+import { autoParseSubmissionForPost } from "../admin/parse";
 
 export async function createPost(
     input: CreatePostInput,
@@ -25,6 +27,9 @@ export async function createPost(
     const result = await createPostCore(db, session.user.id, input);
     if (result.ok) {
         void syncSocialBadges(db, session.user.id);
+        // Parse the forked Submission once the response is out the door; the
+        // publish never waits on Gemini. No-op for posts without a fork.
+        after(() => autoParseSubmissionForPost(db, result.id));
     }
     return result;
 }
