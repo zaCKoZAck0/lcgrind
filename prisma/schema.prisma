@@ -199,11 +199,15 @@ model Post {
   updatedAt         DateTime                 @updatedAt
   searchVector      Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(title, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(body, ''::text)), 'B'::\"char\"))"))
   pinnedAt          DateTime?
+  viewCount         Int                      @default(0)
+  signedInViewCount Int                      @default(0)
   comments          Comment[]
   author            User                     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   company           Company?                 @relation(fields: [companyId], references: [id])
   tags              PostTags[]
   submission        Submission?
+  postViews         PostView[]
+  postViewDailies   PostViewDaily[]
 
   @@index([status, pinnedAt])
   @@index([status, hotRank])
@@ -228,6 +232,29 @@ model PostTags {
 
   @@id([postId, tagId])
   @@index([tagId])
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  viewerKey String
+  day       DateTime @db.Date
+  signedIn  Boolean
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, viewerKey, day])
+  @@index([day])
+}
+
+model PostViewDaily {
+  id            String   @id @default(cuid())
+  postId        String
+  day           DateTime @db.Date
+  views         Int
+  signedInViews Int
+  post          Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, day])
 }
 
 model Comment {
