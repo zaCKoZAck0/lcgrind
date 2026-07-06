@@ -85,3 +85,10 @@ export async function markAllRead(): Promise<void> {
     if (!session) return;
     await markRead(db, session.user.id);
 }
+
+// Mark a single notification as read for the current user.
+export async function markSingleRead(id: string): Promise<void> {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) return;
+    await markRead(db, session.user.id, [id]);
+}

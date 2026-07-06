@@ -110,3 +110,22 @@ describe("parseMentions", () => {
         expect(handles).toEqual(["alice"]);
     });
 });
+
+describe("markRead with ids (partial)", () => {
+    it("marks only the specified notification as read, leaves others unread", async () => {
+        await notify(db, { userId: RECIP, type: "REPLY_POST", actorId: ACTOR, postId });
+        await notify(db, { userId: RECIP, type: "REPLY_COMMENT", actorId: ACTOR, postId });
+        await db.notification.updateMany({ where: { userId: RECIP }, data: { read: false } });
+        const all = await db.notification.findMany({
+            where: { userId: RECIP, read: false },
+            orderBy: { createdAt: "asc" },
+        });
+        expect(all.length).toBeGreaterThanOrEqual(2);
+        const targetId = all[0].id;
+        await markRead(db, RECIP, [targetId]);
+        const marked = await db.notification.findUnique({ where: { id: targetId } });
+        expect(marked?.read).toBe(true);
+        const stillUnread = await db.notification.count({ where: { userId: RECIP, read: false } });
+        expect(stillUnread).toBe(all.length - 1);
+    });
+});
