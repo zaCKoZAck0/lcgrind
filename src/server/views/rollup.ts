@@ -1,5 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
+import { computeHotRank } from "~/server/actions/votes/core";
+
 /**
  * Roll up all PostView rows for closed days (day < today UTC) into:
  *   - PostViewDaily aggregates per (postId, day)
@@ -63,13 +65,28 @@ export async function rollupViews(db: PrismaClient): Promise<number> {
             postTotals.set(postId, t);
         }
 
-        // One counter update per unique post (not per day bucket).
-        for (const [postId, { views, signedInViews }] of postTotals) {
+        // One counter update per unique post (not per day bucket). Batch-fetch the
+        // current counters, then recompute hotRank against the post-increment values
+        // so view accumulation shifts feed ordering.
+        const posts = await tx.post.findMany({
+            where: { id: { in: [...postTotals.keys()] } },
+            select: { id: true, score: true, createdAt: true, viewCount: true, signedInViewCount: true },
+        });
+        for (const post of posts) {
+            const { views, signedInViews } = postTotals.get(post.id)!;
+            // Concurrency note: hotRank writes here race with castVoteCore's update (no shared lock);
+            // last-write-wins is acceptable because the next vote or rollup recomputes from fresh values.
             await tx.post.update({
-                where: { id: postId },
+                where: { id: post.id },
                 data: {
                     viewCount: { increment: views },
                     signedInViewCount: { increment: signedInViews },
+                    hotRank: computeHotRank(
+                        post.score,
+                        post.createdAt,
+                        post.viewCount + views,
+                        post.signedInViewCount + signedInViews,
+                    ),
                 },
             });
         }

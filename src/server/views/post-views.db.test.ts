@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { computeHotRank } from "../actions/votes/core";
 import { rollupViews } from "./rollup";
 
 const db = new PrismaClient({
@@ -132,17 +133,34 @@ describe("rollupViews — math and retention", () => {
         // Post counters: postA total=3, signedIn=1; postB total=1, signedIn=1
         const postA = await db.post.findUniqueOrThrow({
             where: { id: postAId },
-            select: { viewCount: true, signedInViewCount: true },
+            select: { viewCount: true, signedInViewCount: true, score: true, createdAt: true, hotRank: true },
         });
         expect(postA.viewCount).toBe(3);
         expect(postA.signedInViewCount).toBe(1);
 
         const postB = await db.post.findUniqueOrThrow({
             where: { id: postBId },
-            select: { viewCount: true, signedInViewCount: true },
+            select: { viewCount: true, signedInViewCount: true, score: true, createdAt: true, hotRank: true },
         });
         expect(postB.viewCount).toBe(1);
         expect(postB.signedInViewCount).toBe(1);
+
+        // hotRank should reflect the views term after rollup.
+        const expectedHotRankA = computeHotRank(
+            postA.score,
+            postA.createdAt,
+            postA.viewCount,
+            postA.signedInViewCount,
+        );
+        expect(postA.hotRank).toBeCloseTo(expectedHotRankA, 6);
+
+        const expectedHotRankB = computeHotRank(
+            postB.score,
+            postB.createdAt,
+            postB.viewCount,
+            postB.signedInViewCount,
+        );
+        expect(postB.hotRank).toBeCloseTo(expectedHotRankB, 6);
 
         // Raw rows for closed days deleted.
         const remainingClosed = await db.postView.count({

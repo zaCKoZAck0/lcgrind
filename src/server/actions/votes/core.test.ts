@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { voteDeltas, reputationDelta, computeHotRank } from "./core";
+import {
+    voteDeltas,
+    reputationDelta,
+    computeHotRank,
+    VIEWS_WEIGHT,
+    SIGNED_IN_VIEW_MULTIPLIER,
+} from "./core";
 
 // Vote transitions: prev is the voter's current value (0 = no vote), next is what
 // the click resolves to (0 = toggled off). All denorm deltas derive from this.
@@ -52,5 +58,46 @@ describe("computeHotRank — Reddit-style hotness", () => {
     it("is deterministic for the same inputs", () => {
         const t = new Date("2026-06-01T00:00:00Z");
         expect(computeHotRank(7, t)).toBe(computeHotRank(7, t));
+    });
+});
+
+describe("computeHotRank — views term", () => {
+    const t = new Date("2026-06-01T00:00:00Z");
+
+    it("zero views produces the same result as the two-arg call", () => {
+        const score = 5;
+        expect(computeHotRank(score, t, 0, 0)).toBe(computeHotRank(score, t));
+    });
+
+    it("more views yield a higher rank (monotonic)", () => {
+        expect(computeHotRank(0, t, 100, 0)).toBeGreaterThan(computeHotRank(0, t, 10, 0));
+        expect(computeHotRank(0, t, 1000, 0)).toBeGreaterThan(computeHotRank(0, t, 100, 0));
+    });
+
+    it("signed-in views move the rank more than the same count of anon views", () => {
+        const n = 50;
+        const withSignedIn = computeHotRank(0, t, n, n); // all signed-in
+        const withAnon = computeHotRank(0, t, n, 0);     // all anon
+        expect(withSignedIn).toBeGreaterThan(withAnon);
+    });
+
+    it("votes dominate: score-10 post outranks score-0 post with 1000 anon views", () => {
+        // VIEWS_WEIGHT * log10(1 + 1000) ≈ 0.25 * 3.0004 ≈ 0.75 < log10(10) = 1.0
+        const highVotes = computeHotRank(10, t, 0, 0);
+        const highViews = computeHotRank(0, t, 1000, 0);
+        expect(highVotes).toBeGreaterThan(highViews);
+    });
+
+    it("views term uses the exported constants consistently", () => {
+        const viewCount = 200;
+        const signedInViewCount = 50;
+        const anonViews = Math.max(0, viewCount - signedInViewCount);
+        const expected =
+            VIEWS_WEIGHT *
+            Math.log10(1 + anonViews + SIGNED_IN_VIEW_MULTIPLIER * signedInViewCount);
+        // Compute via the function (score=0 so order term=0, time=fixed)
+        const base = computeHotRank(0, t, 0, 0);
+        const withViews = computeHotRank(0, t, viewCount, signedInViewCount);
+        expect(withViews - base).toBeCloseTo(expected, 6);
     });
 });
