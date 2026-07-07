@@ -20,6 +20,7 @@ import {
     normalizeBody,
     quotaRemaining,
 } from "./publish-gate";
+import { notify, parseMentions } from "../notifications/core";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -481,6 +482,28 @@ export async function createPostCore(
 
             return created;
         });
+
+        if (FEATURE_FLAGS.NOTIFICATIONS) {
+            try {
+                const actorId = isAnonymous ? null : userId;
+                const handles = parseMentions(body);
+                if (handles.length > 0) {
+                    const mentioned = await db.user.findMany({
+                        where: { handle: { in: handles } },
+                        select: { id: true },
+                    });
+                    await Promise.all(
+                        mentioned
+                            .filter((u) => u.id !== userId)
+                            .map((u) =>
+                                notify(db, { userId: u.id, type: "MENTION", actorId, postId: post.id }).catch(() => undefined),
+                            ),
+                    );
+                }
+            } catch {
+                // notification errors must not fail the post creation
+            }
+        }
 
         return { ok: true, id: post.id, slug, param: postParam(post.id, title) };
     } catch (e) {

@@ -9,6 +9,7 @@ import {
     type NotifRow,
 } from "~/server/actions/notifications/getNotifications";
 import { FEATURE_FLAGS } from "~/config/feature-flags";
+import { MarkReadButton } from "~/components/notifications/MarkReadButton";
 
 export const metadata: Metadata = {
     title: "Notifications | LC Grind",
@@ -45,7 +46,10 @@ function NotifItem({ n }: { n: NotifRow }) {
                 </p>
             </div>
             {!n.read && (
-                <span className="size-2 rounded-full bg-main shrink-0 mt-1.5" />
+                <span className="flex items-center gap-1 shrink-0 mt-1.5">
+                    <span className="size-2 rounded-full bg-main" />
+                    <MarkReadButton id={n.id} />
+                </span>
             )}
         </Link>
     );

@@ -4,6 +4,6 @@ export const FEATURE_FLAGS = {
   SYSTEM_DESIGN: true,
   COMPENSATION: false,
   GRINDS: true,
-  NOTIFICATIONS: false,
+  NOTIFICATIONS: true,
   LOGIN: true,
 } as const;

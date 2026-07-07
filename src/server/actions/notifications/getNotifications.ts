@@ -57,7 +57,8 @@ export async function getNotifications(): Promise<NotifRow[]> {
             where: { id: { in: postIds } },
             select: { id: true, slug: true },
         });
-        for (const p of posts) slugMap.set(p.id, p.slug);
+        // URL param format is "{id}-{slug}" matching postParam() in posts/core.ts
+        for (const p of posts) slugMap.set(p.id, `${p.id}-${p.slug}`);
     }
 
     return rows.map((r) => ({
@@ -84,4 +85,11 @@ export async function markAllRead(): Promise<void> {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) return;
     await markRead(db, session.user.id);
+}
+
+// Mark a single notification as read for the current user.
+export async function markSingleRead(id: string): Promise<void> {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) return;
+    await markRead(db, session.user.id, [id]);
 }

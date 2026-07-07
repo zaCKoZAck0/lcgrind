@@ -186,6 +186,21 @@ export async function parseWithGemini(
 
 export type ParseItemResult = { id: string; ok: boolean; error?: string };
 
+// Record a parse failure without clobbering review state: only a submission
+// still waiting on a usable parse (PENDING or an earlier PARSE_FAILED) moves
+// to PARSE_FAILED; parsed/approved/rejected rows keep their status and any
+// previously stored payload.
+async function markParseFailed(db: PrismaClient, id: string, error: string) {
+    try {
+        await db.submission.updateMany({
+            where: { id, status: { in: ["PENDING", "PARSE_FAILED"] } },
+            data: { status: "PARSE_FAILED", parseError: error },
+        });
+    } catch {
+        // Best-effort bookkeeping; the ParseItemResult already carries the error.
+    }
+}
+
 // Orchestrates a batch parse: one model call per submission that has text,
 // each isolated so a single failure never aborts the batch. Only submissions
 // that parse cleanly are written and advanced to PARSED.
@@ -216,25 +231,54 @@ export async function parseSubmissionsCore(
                 generate,
             );
             if (parsed === null) {
-                results.push({
-                    id,
-                    ok: false,
-                    error: "Could not extract structured data",
-                });
+                const error = "Could not extract structured data";
+                await markParseFailed(db, id, error);
+                results.push({ id, ok: false, error });
                 continue;
             }
             await db.submission.update({
                 where: { id },
-                data: { parsed: parsed as object, status: "PARSED" },
+                data: {
+                    parsed: parsed as object,
+                    status: "PARSED",
+                    parsedAt: new Date(),
+                    parseError: null,
+                },
             });
             results.push({ id, ok: true });
         } catch (err) {
-            results.push({
-                id,
-                ok: false,
-                error: err instanceof Error ? err.message : "Parse failed",
-            });
+            const error = err instanceof Error ? err.message : "Parse failed";
+            await markParseFailed(db, id, error);
+            results.push({ id, ok: false, error });
         }
     }
     return results;
+}
+
+// Fire-and-forget parse of the Submission forked from a just-published post,
+// run after the response is sent (next/server `after`). Publish must never
+// block or fail on it: a missing API key or an unusable payload just leaves
+// the fork PENDING / PARSE_FAILED for the manual Parse-with-AI fallback.
+// FORM forks carry structured data already and are skipped, as is anything
+// no longer awaiting a parse.
+export async function autoParseSubmissionForPost(
+    db: PrismaClient,
+    postId: string,
+    generate?: GenerateFn,
+): Promise<void> {
+    try {
+        if (!generate) {
+            if (!geminiAvailable()) return;
+            generate = geminiGenerate;
+        }
+        const submission = await db.submission.findUnique({
+            where: { postId },
+            select: { id: true, status: true, rawText: true },
+        });
+        if (!submission || submission.status !== "PENDING") return;
+        if ((submission.rawText ?? "").trim().length === 0) return;
+        await parseSubmissionsCore(db, [submission.id], generate);
+    } catch {
+        // Swallow everything: auto-parse must never surface to the publish path.
+    }
 }

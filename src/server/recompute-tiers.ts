@@ -11,6 +11,12 @@ import {
     type TierLevel,
 } from "~/utils/company-tiers";
 
+// Concurrent recomputes (e.g. two admin approvals racing) update overlapping
+// Company rows in different orders and deadlock. A transaction-scoped
+// advisory lock serializes the write phase; recompute is idempotent so
+// last-writer-wins is fine.
+const RECOMPUTE_LOCK_KEY = 874_231_001;
+
 type DifficultyCounts = { easy: number; medium: number; hard: number };
 
 const DIFFICULTY_KEY: Record<string, keyof DifficultyCounts> = {
@@ -101,6 +107,7 @@ async function writeTiers(
         (byTier.get(tier) ?? byTier.set(tier, []).get(tier)!).push(companyId);
     }
     await db.$transaction([
+        db.$queryRaw`SELECT pg_advisory_xact_lock(${RECOMPUTE_LOCK_KEY})::text`,
         db.company.updateMany({
             where: { id: { notIn: [...tiers.keys()] }, [column]: { not: 0 } },
             data: { [column]: 0 },
@@ -119,6 +126,7 @@ async function writeDifficultyCounts(
     counts: Map<number, DifficultyCounts>,
 ) {
     await db.$transaction([
+        db.$queryRaw`SELECT pg_advisory_xact_lock(${RECOMPUTE_LOCK_KEY})::text`,
         // Reset companies that no longer have any counted DSA problems.
         db.company.updateMany({
             where: {

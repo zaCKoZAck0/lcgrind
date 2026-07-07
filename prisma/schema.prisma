@@ -155,6 +155,8 @@ model Submission {
   rawText       String?
   structured    Json?
   parsed        Json?
+  parsedAt      DateTime?
+  parseError    String?
   status        String                 @default("PENDING")
   adminNote     String?
   createdAt     DateTime               @default(now())

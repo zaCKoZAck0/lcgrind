@@ -108,11 +108,15 @@ export async function addCommentCore(
             const notifBase = { actorId, postId: input.postId, commentId: created.id };
 
             if (input.parentId && parentAuthorId) {
-                // Reply to a comment
-                await notify(db, { userId: parentAuthorId, type: "REPLY_COMMENT", ...notifBase }).catch(() => undefined);
+                // Reply to a comment — skip if replying to own comment (guards anonymous case too)
+                if (parentAuthorId !== userId) {
+                    await notify(db, { userId: parentAuthorId, type: "REPLY_COMMENT", ...notifBase }).catch(() => undefined);
+                }
             } else {
-                // Top-level reply to the post
-                await notify(db, { userId: postAuthorId, type: "REPLY_POST", ...notifBase }).catch(() => undefined);
+                // Top-level reply to the post — skip if the commenter is the post author (guards anonymous case too)
+                if (postAuthorId !== userId) {
+                    await notify(db, { userId: postAuthorId, type: "REPLY_POST", ...notifBase }).catch(() => undefined);
+                }
             }
 
             // @mention notifications
@@ -123,9 +127,11 @@ export async function addCommentCore(
                     select: { id: true },
                 });
                 await Promise.all(
-                    mentioned.map((u) =>
-                        notify(db, { userId: u.id, type: "MENTION", ...notifBase }).catch(() => undefined),
-                    ),
+                    mentioned
+                        .filter((u) => u.id !== userId)
+                        .map((u) =>
+                            notify(db, { userId: u.id, type: "MENTION", ...notifBase }).catch(() => undefined),
+                        ),
                 );
             }
         }
