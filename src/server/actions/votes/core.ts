@@ -35,14 +35,30 @@ export function reputationDelta(prev: number, next: number): number {
 }
 
 // Reddit-style hot ranking: log-scaled score plus a time term so newer items
-// drift up and old ones decay. Pure over (score, createdAt) and deterministic.
+// drift up and old ones decay. Views add a log-scaled bonus so they nudge rank
+// without drowning votes. Pure over its inputs and deterministic.
 const HOT_EPOCH_SECONDS = 1_700_000_000;
 
-export function computeHotRank(score: number, createdAt: Date): number {
+// Views term weights. Anon views count less than signed-in views.
+// 1000 anon views ≈ 0.75 hot units < one order-of-magnitude of votes (1.0),
+// so votes always dominate. Zero views → viewsTerm is exactly 0.
+export const VIEWS_WEIGHT = 0.25;
+export const SIGNED_IN_VIEW_MULTIPLIER = 3;
+
+export function computeHotRank(
+    score: number,
+    createdAt: Date,
+    viewCount = 0,
+    signedInViewCount = 0,
+): number {
     const order = Math.log10(Math.max(Math.abs(score), 1));
     const sign = score > 0 ? 1 : score < 0 ? -1 : 0;
     const seconds = createdAt.getTime() / 1000 - HOT_EPOCH_SECONDS;
-    return Math.round((sign * order + seconds / 45000) * 1e7) / 1e7;
+    const anonViews = Math.max(viewCount - signedInViewCount, 0);
+    const viewsTerm =
+        VIEWS_WEIGHT *
+        Math.log10(1 + anonViews + SIGNED_IN_VIEW_MULTIPLIER * signedInViewCount);
+    return Math.round((sign * order + viewsTerm + seconds / 45000) * 1e7) / 1e7;
 }
 
 // Resolves the next vote value for a click given the existing vote: same
@@ -83,6 +99,8 @@ export async function castVoteCore(
                               createdAt: true,
                               status: true,
                               isAnonymous: true,
+                              viewCount: true,
+                              signedInViewCount: true,
                           },
                       })
                     : await tx.comment.findUnique({
@@ -140,13 +158,19 @@ export async function castVoteCore(
             const newScore = target.score + d.score;
 
             if (targetType === "POST") {
+                // The POST branch of the fetch above always selects these counters;
+                // the cast bridges the post/comment union TypeScript can't narrow here.
+                const { viewCount, signedInViewCount } = target as unknown as {
+                    viewCount: number;
+                    signedInViewCount: number;
+                };
                 await tx.post.update({
                     where: { id: targetId },
                     data: {
                         score: { increment: d.score },
                         upCount: { increment: d.up },
                         downCount: { increment: d.down },
-                        hotRank: computeHotRank(newScore, target.createdAt),
+                        hotRank: computeHotRank(newScore, target.createdAt, viewCount, signedInViewCount),
                     },
                 });
             } else {

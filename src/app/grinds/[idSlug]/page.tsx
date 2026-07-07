@@ -23,6 +23,7 @@ import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
+import { ViewBeacon } from "~/components/grinds/view-beacon";
 
 // Renders a post body, splitting an optional interview-experience section off
 // the EXPERIENCE_DIVIDER into its own boxed block.
@@ -117,6 +118,7 @@ export default async function GrindsPostPage({
 
     return (
         <div className="w-full max-w-[800px] py-6 px-4 mx-auto">
+            <ViewBeacon postId={post.id} />
             {emitForumJsonLd && (
                 <GrindsForumPostingJsonLd
                     url={`${BASE_URL}/grinds/${param}`}

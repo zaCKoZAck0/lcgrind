@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/cron/views-rollup", "schedule": "30 0 * * *" }]
+}
