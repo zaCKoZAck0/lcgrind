@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,17 +7,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-      },
-      {
-        userAgent: "Googlebot",
-        allow: "/",
-      },
-      {
-        userAgent: "Bingbot",
-        allow: "/",
+        disallow: ["/_next/"],
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
-    host: BASE_URL,
+    sitemap: `${CANONICAL_URL}/sitemap.xml`,
   };
 }

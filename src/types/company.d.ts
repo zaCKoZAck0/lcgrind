@@ -16,7 +16,15 @@ export interface TotalCountResult {
 export interface CompanyDetails {
   name: string;
   slug: string;
-  numOfProblems: number;
+  /** Boolean only: raw report counts never leave the server. */
+  hasReports: boolean;
+  lastSeen: string | null;
+  hasComp: boolean;
+  payTier: import("~/utils/company-tiers").TierLevel;
+  /** Distinct DSA problems by difficulty — the problem set is public. */
+  easyCount: number;
+  mediumCount: number;
+  hardCount: number;
 }
 
 export type TSheetProblem = SheetProblem & {

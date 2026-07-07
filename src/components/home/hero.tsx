@@ -7,13 +7,14 @@ export function HeroSection() {
         <div className="max-w-7xl mx-auto">
             <div className="text-center">
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-8">
-                    Ace Your
+                    Company-Wise
                     <span className="bg-main text-main-foreground px-4 sm:ml-4 mt-2 sm:mt-0 rotate-2 inline-block transform hover:rotate-0 transition-transform border-2 border-border shadow-shadow py-3">
-                        Coding Interview
+                        LeetCode Interview Questions
                     </span>
                 </h1>
+                <p className="text-lg font-semibold mb-2">Ace your coding interview.</p>
                 <p className="max-w-2xl mx-auto text-xl mb-10">
-                    Company-specific practice problems, all LeetCode problems, and popular DSA sheets—all in one place, completely free.
+                    Company-specific practice problems, DSA sheets, system design, and real interview experiences from the community—all in one place, completely free.
                 </p>
                 <div className="flex justify-center mb-12">
                     <Image 

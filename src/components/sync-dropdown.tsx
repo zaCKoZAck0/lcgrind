@@ -4,14 +4,14 @@ import { Download, Upload, RefreshCw } from "lucide-react"
 import { useRef } from "react"
 import { toast } from "sonner"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { Button } from "~/components/ui/button"
+import { Badge } from "~/components/ui/badge"
 import { useAppSelector, useAppDispatch } from "~/hooks/redux"
 import { markCompleted } from "~/store/completedProblemsSlice"
 import { addNote } from "~/store/problemNotesSlice"
@@ -26,7 +26,7 @@ interface ExportedData {
 
 const EXPORT_VERSION = 1
 
-export function SyncDropdown() {
+export function SyncMenuItems() {
   const dispatch = useAppDispatch()
   const completedProblems = useAppSelector((state) => state.completedProblems)
   const problemNotes = useAppSelector((state) => state.problemNotes)
@@ -125,26 +125,22 @@ export function SyncDropdown() {
         // Import notes (skip duplicates based on problemId, title, and content)
         let importedNotesCount = 0
         const notes = importedData.problemNotes.notes
-        const existingNotesValues = Object.values(problemNotes.notes)
-        
+        const existingNoteKeys = new Set(
+          Object.values(problemNotes.notes).map(
+            (n) => `${n.problemId}\0${n.title}\0${n.content}`
+          )
+        )
+
         for (const noteId in notes) {
           const note = notes[noteId]
-          
-          // Validate note structure with proper type checks
-          if (note && 
-              typeof note.problemId === "string" && 
-              typeof note.title === "string" && 
+
+          if (note &&
+              typeof note.problemId === "string" &&
+              typeof note.title === "string" &&
               typeof note.content === "string") {
-            
-            // Check for duplicate notes (same problemId, title, and content)
-            const isDuplicate = existingNotesValues.some(
-              (existingNote) => 
-                existingNote.problemId === note.problemId &&
-                existingNote.title === note.title &&
-                existingNote.content === note.content
-            )
-            
-            if (!isDuplicate) {
+
+            const key = `${note.problemId}\0${note.title}\0${note.content}`
+            if (!existingNoteKeys.has(key)) {
               dispatch(addNote({
                 problemId: note.problemId,
                 title: note.title,
@@ -188,25 +184,143 @@ export function SyncDropdown() {
         className="hidden"
         aria-label="Import backup file"
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="neutral" size="icon" aria-label="Sync progress">
-            <RefreshCw className="size-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Sync Progress</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExport}>
-            <Download className="mr-2 size-4" />
-            Export Data
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleImportClick}>
-            <Upload className="mr-2 size-4" />
-            Import Data
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <RefreshCw className="mr-2 size-4" />
+          Sync Progress
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem onClick={handleExport}>
+              <Download className="mr-2 size-4" />
+              Export Data
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleImportClick}>
+              <Upload className="mr-2 size-4" />
+              Import Data
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
     </>
+  )
+}
+
+export function LocalProgressSync() {
+  const dispatch = useAppDispatch()
+  const completedProblems = useAppSelector((state) => state.completedProblems)
+  const problemNotes = useAppSelector((state) => state.problemNotes)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExport = () => {
+    try {
+      const exportData: ExportedData = {
+        version: EXPORT_VERSION,
+        exportedAt: Date.now(),
+        completedProblems,
+        problemNotes,
+      }
+      const dataStr = JSON.stringify(exportData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: "application/json" })
+      const url = URL.createObjectURL(dataBlob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `lcgrind-backup-${new Date().toISOString().split("T")[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      toast.success("Progress exported.", { description: "Downloaded as JSON file." })
+    } catch {
+      toast.error("Export failed.")
+    }
+  }
+
+  const validateImportedData = (data: unknown): data is ExportedData => {
+    if (!data || typeof data !== "object") return false
+    const obj = data as Record<string, unknown>
+    if (typeof obj.version !== "number") return false
+    if (typeof obj.exportedAt !== "number") return false
+    if (!obj.completedProblems || typeof obj.completedProblems !== "object") return false
+    const cp = obj.completedProblems as Record<string, unknown>
+    if (!cp.problems || typeof cp.problems !== "object") return false
+    if (!obj.problemNotes || typeof obj.problemNotes !== "object") return false
+    const pn = obj.problemNotes as Record<string, unknown>
+    if (!pn.notes || typeof pn.notes !== "object") return false
+    if (!pn.problemNotes || typeof pn.problemNotes !== "object") return false
+    return true
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target?.result as string)
+        if (!validateImportedData(importedData)) {
+          toast.error("Invalid file format.")
+          return
+        }
+        let problems = 0
+        for (const id in importedData.completedProblems.problems) {
+          const existing = completedProblems.problems[id]
+          const imported = importedData.completedProblems.problems[id]
+          if (!existing || (imported.completedAt && imported.completedAt > existing.completedAt)) {
+            dispatch(markCompleted(id))
+            problems++
+          }
+        }
+        let notes = 0
+        const existingKeys = new Set(
+          Object.values(problemNotes.notes).map((n) => `${n.problemId}\0${n.title}\0${n.content}`)
+        )
+        for (const id in importedData.problemNotes.notes) {
+          const note = importedData.problemNotes.notes[id]
+          if (note && typeof note.problemId === "string" && typeof note.title === "string" && typeof note.content === "string") {
+            const key = `${note.problemId}\0${note.title}\0${note.content}`
+            if (!existingKeys.has(key)) {
+              dispatch(addNote({ problemId: note.problemId, title: note.title, content: note.content, color: typeof note.color === "string" ? note.color : undefined }))
+              notes++
+            }
+          }
+        }
+        toast.success("Progress imported.", { description: `${problems} problems, ${notes} notes.` })
+      } catch {
+        toast.error("Import failed. Make sure it's a valid JSON backup.")
+      }
+    }
+    reader.onerror = () => toast.error("Failed to read file.")
+    reader.readAsText(file)
+    event.target.value = ""
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <p className="text-xs text-muted-foreground">
+          Manually export or import your local progress as a JSON file.
+        </p>
+        <Badge variant="neutral">Legacy</Badge>
+      </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".json"
+        className="hidden"
+        aria-label="Import backup file"
+      />
+      <div className="flex gap-2">
+        <Button size="sm" variant="neutral" onClick={handleExport} className="flex-1">
+          <Download className="size-3.5" />
+          Export
+        </Button>
+        <Button size="sm" variant="neutral" onClick={() => fileInputRef.current?.click()} className="flex-1">
+          <Upload className="size-3.5" />
+          Import
+        </Button>
+      </div>
+    </div>
   )
 }

@@ -90,7 +90,7 @@ export function NoteCard({ note }: NoteCardProps) {
     };
     return (
         <div
-            className={`p-4 rounded-base border-2 border-border shadow-sm hover:shadow-md transition-all ${getBackgroundClass(editColor || "#fef3c7")}`}
+            className={`p-4 rounded-base border-2 border-border shadow-sm hover:shadow-md transition-all text-gray-900 ${getBackgroundClass(editColor || "#fef3c7")}`}
         >
             {isEditing ? (
                 <div className="space-y-3">
@@ -134,7 +134,7 @@ export function NoteCard({ note }: NoteCardProps) {
             ) : (
                 <div className="space-y-3">
                     <div className="flex gap-1 justify-between items-start">
-                        <h3 className="font-semibold text-xl leading-tight">{note.title}</h3>
+                        <h3 className="font-semibold text-xl leading-tight text-gray-900">{note.title}</h3>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
@@ -166,10 +166,10 @@ export function NoteCard({ note }: NoteCardProps) {
                         </DropdownMenu>
                     </div>
                     <div
-                        className="text-sm leading-relaxed"
+                        className="text-sm leading-relaxed text-gray-900"
                         dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
                     />
-                    <div className="text-xs opacity-60 mt-2">
+                    <div className="text-xs opacity-60 mt-2 text-gray-700">
                         Created: {formatDate(note.createdAt)}
                         {note.updatedAt !== note.createdAt && (
                             <span className="ml-2">• Updated: {formatDate(note.updatedAt)}</span>

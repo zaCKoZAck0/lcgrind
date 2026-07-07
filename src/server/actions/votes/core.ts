@@ -1,0 +1,208 @@
+import { type PrismaClient } from "@prisma/client";
+
+export type VoteTargetType = "POST" | "COMMENT";
+
+export type CastVoteInput = {
+    targetType: VoteTargetType;
+    targetId: string;
+    // The direction the user clicked: +1 (up) or -1 (down). Clicking the same
+    // direction again toggles the vote off.
+    value: 1 | -1;
+};
+
+export type CastVoteResult =
+    | { ok: true; value: number; score: number }
+    | { ok: false; error: string };
+
+// ---------------------------------------------------------------------------
+// Pure helpers
+// ---------------------------------------------------------------------------
+
+// Denormalized count changes for a vote transition. `prev` is the voter's
+// current value (0 = no vote), `next` is what the click resolves to (0 = undone).
+export function voteDeltas(
+    prev: number,
+    next: number,
+): { score: number; up: number; down: number } {
+    const up = (next === 1 ? 1 : 0) - (prev === 1 ? 1 : 0);
+    const down = (next === -1 ? 1 : 0) - (prev === -1 ? 1 : 0);
+    return { score: next - prev, up, down };
+}
+
+// The author's reputation change for a vote transition: the net swing in vote value.
+export function reputationDelta(prev: number, next: number): number {
+    return next - prev;
+}
+
+// Reddit-style hot ranking: log-scaled score plus a time term so newer items
+// drift up and old ones decay. Views add a log-scaled bonus so they nudge rank
+// without drowning votes. Pure over its inputs and deterministic.
+const HOT_EPOCH_SECONDS = 1_700_000_000;
+
+// Views term weights. Anon views count less than signed-in views.
+// 1000 anon views ≈ 0.75 hot units < one order-of-magnitude of votes (1.0),
+// so votes always dominate. Zero views → viewsTerm is exactly 0.
+export const VIEWS_WEIGHT = 0.25;
+export const SIGNED_IN_VIEW_MULTIPLIER = 3;
+
+export function computeHotRank(
+    score: number,
+    createdAt: Date,
+    viewCount = 0,
+    signedInViewCount = 0,
+): number {
+    const order = Math.log10(Math.max(Math.abs(score), 1));
+    const sign = score > 0 ? 1 : score < 0 ? -1 : 0;
+    const seconds = createdAt.getTime() / 1000 - HOT_EPOCH_SECONDS;
+    const anonViews = Math.max(viewCount - signedInViewCount, 0);
+    const viewsTerm =
+        VIEWS_WEIGHT *
+        Math.log10(1 + anonViews + SIGNED_IN_VIEW_MULTIPLIER * signedInViewCount);
+    return Math.round((sign * order + viewsTerm + seconds / 45000) * 1e7) / 1e7;
+}
+
+// Resolves the next vote value for a click given the existing vote: same
+// direction toggles off, opposite flips, none sets it.
+function resolveNext(prev: number, clicked: number): number {
+    return prev === clicked ? 0 : clicked;
+}
+
+// ---------------------------------------------------------------------------
+// Vote casting (the write path)
+// ---------------------------------------------------------------------------
+
+// Casts (or toggles/flips) a vote on a post or comment in one transaction:
+// upsert/delete the Vote row, apply denormalized score/up/down deltas to the
+// target, recompute hotRank for posts, and move the author's reputation. Self-votes
+// count toward the score but don't affect the author's reputation.
+export async function castVoteCore(
+    db: PrismaClient,
+    userId: string,
+    input: CastVoteInput,
+): Promise<CastVoteResult> {
+    if (input.value !== 1 && input.value !== -1) {
+        return { ok: false, error: "Invalid vote" };
+    }
+    const { targetType, targetId } = input;
+
+    try {
+        const result = await db.$transaction(async (tx) => {
+            const target =
+                targetType === "POST"
+                    ? await tx.post.findUnique({
+                          where: { id: targetId },
+                          select: {
+                              authorId: true,
+                              score: true,
+                              upCount: true,
+                              downCount: true,
+                              createdAt: true,
+                              status: true,
+                              isAnonymous: true,
+                              viewCount: true,
+                              signedInViewCount: true,
+                          },
+                      })
+                    : await tx.comment.findUnique({
+                          where: { id: targetId },
+                          select: {
+                              authorId: true,
+                              score: true,
+                              upCount: true,
+                              downCount: true,
+                              createdAt: true,
+                              status: true,
+                              isAnonymous: true,
+                          },
+                      });
+
+            if (!target) throw new Error("Not found");
+
+            const existing = await tx.vote.findUnique({
+                where: {
+                    userId_targetType_targetId: { userId, targetType, targetId },
+                },
+                select: { value: true },
+            });
+            const prev = existing?.value ?? 0;
+            const next = resolveNext(prev, input.value);
+
+            if (next === 0) {
+                await tx.vote.delete({
+                    where: {
+                        userId_targetType_targetId: {
+                            userId,
+                            targetType,
+                            targetId,
+                        },
+                    },
+                });
+            } else if (existing) {
+                await tx.vote.update({
+                    where: {
+                        userId_targetType_targetId: {
+                            userId,
+                            targetType,
+                            targetId,
+                        },
+                    },
+                    data: { value: next },
+                });
+            } else {
+                await tx.vote.create({
+                    data: { userId, targetType, targetId, value: next },
+                });
+            }
+
+            const d = voteDeltas(prev, next);
+            const newScore = target.score + d.score;
+
+            if (targetType === "POST") {
+                // The POST branch of the fetch above always selects these counters;
+                // the cast bridges the post/comment union TypeScript can't narrow here.
+                const { viewCount, signedInViewCount } = target as unknown as {
+                    viewCount: number;
+                    signedInViewCount: number;
+                };
+                await tx.post.update({
+                    where: { id: targetId },
+                    data: {
+                        score: { increment: d.score },
+                        upCount: { increment: d.up },
+                        downCount: { increment: d.down },
+                        hotRank: computeHotRank(newScore, target.createdAt, viewCount, signedInViewCount),
+                    },
+                });
+            } else {
+                await tx.comment.update({
+                    where: { id: targetId },
+                    data: {
+                        score: { increment: d.score },
+                        upCount: { increment: d.up },
+                        downCount: { increment: d.down },
+                    },
+                });
+            }
+
+            // Anonymous content earns its author no public reputation — the vote
+            // counts still denormalize onto the target, but the author stays
+            // unattributed in the social graph. Self-votes also skip reputation.
+            const kd = reputationDelta(prev, next);
+            if (kd !== 0 && !target.isAnonymous && target.authorId !== userId) {
+                await tx.user.update({
+                    where: { id: target.authorId },
+                    data: { reputation: { increment: kd } },
+                });
+            }
+
+            return { value: next, score: newScore };
+        });
+
+        return { ok: true, value: result.value, score: result.score };
+    } catch (e) {
+        return {
+            ok: false,
+            error: e instanceof Error ? e.message : "Could not record your vote",
+        };
+    }
+}

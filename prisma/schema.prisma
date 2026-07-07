@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,78 +9,464 @@ datasource db {
 }
 
 model Problem {
-  id                 Int     @id @default(autoincrement())
+  id                 Int                    @id @default(autoincrement())
+  url                String                 @unique
+  difficulty         String
+  title              String
+  isPaid             Boolean
+  acceptance         Int                    @default(0)
+  difficultyOrder    Int                    @default(0)
   frontendQuestionId String
   platform           String
-  title              String
-  url                String  @unique
-  difficulty         String
-  difficultyOrder    Int     @default(0)
-  acceptance         Int     @default(0)
-  isPaid             Boolean
-
-  topicTags ProblemsOnTopicTags[]
-
-  SheetProblem SheetProblem[]
+  communityAsks      CommunityQuestionAsk[]
+  questionStats      CompanyQuestionStat[]
+  topicTags          ProblemsOnTopicTags[]
+  SheetProblem       SheetProblem[]
 
   @@index([url])
 }
 
 model TopicTag {
-  id   Int    @id @default(autoincrement())
-  slug String @unique
-  name String
-
+  id       Int                   @id @default(autoincrement())
+  slug     String                @unique
+  name     String
   problems ProblemsOnTopicTags[]
 }
 
 model ProblemsOnTopicTags {
-  problem    Problem  @relation(fields: [problemId], references: [id])
   problemId  Int
-  topicTag   TopicTag @relation(fields: [topicTagId], references: [id])
   topicTagId Int
+  problem    Problem  @relation(fields: [problemId], references: [id])
+  topicTag   TopicTag @relation(fields: [topicTagId], references: [id])
 
   @@id([problemId, topicTagId])
 }
 
 model SheetProblem {
-  problem Problem @relation(fields: [problemId], references: [id])
-  sheet   Sheet   @relation(fields: [sheetId], references: [id])
-
-  problemId Int
-  sheetId   Int
-
-  // Custom grouping by the sheet owner
-  group String @default("N/A")
-
-  // Metadata
+  problemId         Int
+  sheetId           Int
+  sheetOrder        Decimal @default(0)
+  sixMonthsOrder    Decimal @default(0)
+  thirtyDaysOrder   Decimal @default(0)
+  threeMonthsOrder  Decimal @default(0)
+  yearlyOrder       Decimal @default(0)
+  group             String  @default("N/A")
   solutionLink      String?
   solutionVideoLink String?
-
-  // Current Order in the Sheet
-  // Store all time ordering here for company wise sheets
-  sheetOrder Decimal @default(0)
-
-  thirtyDaysOrder Decimal @default(0)
-
-  threeMonthsOrder Decimal @default(0)
-
-  sixMonthsOrder Decimal @default(0)
-
-  yearlyOrder Decimal @default(0)
+  problem           Problem @relation(fields: [problemId], references: [id])
+  sheet             Sheet   @relation(fields: [sheetId], references: [id])
 
   @@unique([problemId, sheetId])
 }
 
 model Sheet {
   id           Int            @id @default(autoincrement())
-  slug         String         @unique
   name         String
-  description  String         @default("")
+  isCompany    Boolean        @default(false)
+  slug         String         @unique
   website      String         @default("")
+  description  String         @default("")
   ownerName    String         @default("N/A")
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  company      Company?
   SheetProblem SheetProblem[]
-  isCompany    Boolean        @default(false)
+}
+
+model Company {
+  id             Int                    @id @default(autoincrement())
+  slug           String                 @unique
+  name           String
+  reportCount    Int                    @default(0)
+  lastSeen       String?
+  sheetId        Int?                   @unique
+  easyCount      Int                    @default(0)
+  mediumCount    Int                    @default(0)
+  hardCount      Int                    @default(0)
+  payTier        Int                    @default(0)
+  communityComp  CommunityCompPoint[]
+  communityAsks  CommunityQuestionAsk[]
+  compCurves     CompCurve[]
+  compRollups    CompRollup[]
+  sheet          Sheet?                 @relation(fields: [sheetId], references: [id])
+  questionStats  CompanyQuestionStat[]
+  posts          Post[]
+  submissions    Submission[]
+}
+
+model CompRollup {
+  id          Int     @id @default(autoincrement())
+  companyId   Int
+  roleFamily  String
+  level       String
+  expBand     String
+  currency    String
+  n           Int
+  tcP25       Float
+  tcMedian    Float
+  tcP75       Float
+  baseMedian  Float?
+  expMedian   Float?
+  tcHistogram Json
+  company     Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, roleFamily, level, expBand, currency])
+  @@index([companyId])
+}
+
+model CompCurve {
+  id        Int     @id @default(autoincrement())
+  companyId Int
+  currency  String
+  points    Json
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, currency])
+}
+
+model CompanyQuestionStat {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  band       String
+  type       String
+  kind       String
+  statement  String
+  problemId  Int?
+  askCount   Int      @default(0)
+  lastAsked  String?
+  firstAsked String?
+  ask180d    Int      @default(0)
+  ask30d     Int      @default(0)
+  ask365d    Int      @default(0)
+  ask90d     Int      @default(0)
+  company    Company  @relation(fields: [companyId], references: [id])
+  problem    Problem? @relation(fields: [problemId], references: [id])
+
+  @@unique([companyId, band, type, statement])
+  @@index([companyId, band])
+}
+
+model Submission {
+  id            String                 @id @default(cuid())
+  userId        String
+  companyId     Int?
+  companyName   String
+  mode          String
+  rawText       String?
+  structured    Json?
+  parsed        Json?
+  parsedAt      DateTime?
+  parseError    String?
+  status        String                 @default("PENDING")
+  adminNote     String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  postId        String?                @unique
+  version       Int                    @default(1)
+  communityComp CommunityCompPoint[]
+  communityAsks CommunityQuestionAsk[]
+  company       Company?               @relation(fields: [companyId], references: [id])
+  post          Post?                  @relation(fields: [postId], references: [id], onDelete: SetNull)
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pointsLedger  PointsLedger[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model Post {
+  id                String                   @id @default(cuid())
+  type              String?
+  authorId          String
+  companyId         Int?
+  title             String
+  slug              String
+  body              String
+  isAnonymous       Boolean                  @default(false)
+  score             Int                      @default(0)
+  upCount           Int                      @default(0)
+  downCount         Int                      @default(0)
+  hotRank           Float                    @default(0)
+  commentCount      Int                      @default(0)
+  acceptedCommentId String?
+  status            String                   @default("PUBLISHED")
+  lockedAt          DateTime?
+  // Set once the forked submission is merged; later social edits stop spawning
+  // admin versions and never touch aggregates (point-in-time, anti-gaming).
+  parseFrozen       Boolean                  @default(false)
+  editedAt          DateTime?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  searchVector      Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(title, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(body, ''::text)), 'B'::\"char\"))"))
+  pinnedAt          DateTime?
+  viewCount         Int                      @default(0)
+  signedInViewCount Int                      @default(0)
+  comments          Comment[]
+  author            User                     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  company           Company?                 @relation(fields: [companyId], references: [id])
+  tags              PostTags[]
+  submission        Submission?
+  postViews         PostView[]
+  postViewDailies   PostViewDaily[]
+
+  @@index([status, pinnedAt])
+  @@index([status, hotRank])
+  @@index([companyId, type])
+  @@index([authorId])
+  @@index([searchVector], type: Gin)
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "Post_title_trgm_idx", type: Gin)
+}
+
+model PostTag {
+  id    Int        @id @default(autoincrement())
+  slug  String     @unique
+  name  String
+  posts PostTags[]
+}
+
+model PostTags {
+  postId String
+  tagId  Int
+  post   Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    PostTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  viewerKey String
+  day       DateTime @db.Date
+  signedIn  Boolean
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, viewerKey, day])
+  @@index([day])
+}
+
+model PostViewDaily {
+  id            String   @id @default(cuid())
+  postId        String
+  day           DateTime @db.Date
+  views         Int
+  signedInViews Int
+  post          Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, day])
+}
+
+model Comment {
+  id          String    @id @default(cuid())
+  postId      String
+  parentId    String?
+  rootId      String?
+  depth       Int       @default(0)
+  authorId    String
+  body        String
+  isAnonymous Boolean   @default(false)
+  status      String    @default("PUBLISHED")
+  score       Int       @default(0)
+  upCount     Int       @default(0)
+  downCount   Int       @default(0)
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Comment[] @relation("CommentReplies")
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([rootId])
+}
+
+model CommunityQuestionAsk {
+  id           String     @id @default(cuid())
+  companyId    Int
+  submissionId String
+  band         String
+  type         String
+  statement    String
+  problemId    Int?
+  createdAt    DateTime   @default(now())
+  company      Company    @relation(fields: [companyId], references: [id])
+  problem      Problem?   @relation(fields: [problemId], references: [id])
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, band])
+  @@index([submissionId])
+}
+
+model CommunityCompPoint {
+  id           String     @id @default(cuid())
+  companyId    Int
+  submissionId String
+  roleFamily   String
+  level        String?
+  expYears     Float?
+  expBand      String
+  currency     String
+  base         Float?
+  tc           Float
+  createdAt    DateTime   @default(now())
+  company      Company    @relation(fields: [companyId], references: [id])
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, currency])
+  @@index([submissionId])
+}
+
+model User {
+  id            String         @id
+  name          String
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  exp           Int            @default(0)
+  lastSeenOn    String?
+  loginStreak   Int            @default(0)
+  longestStreak Int            @default(0)
+  avatar        String?
+  bannedAt      DateTime?
+  handle        String?        @unique
+  reputation    Int            @default(0)
+  onboardedAt   DateTime?
+  // "USER" | "MODERATOR" | "ADMIN". Email-based ADMIN_EMAILS env var takes
+  // precedence; this field enables DB-granted moderator and admin roles.
+  role          String         @default("USER")
+  syncProgress        Boolean        @default(false)
+  progressData        Json?
+  lastProgressSyncAt  DateTime?
+  comments      Comment[]
+  notifications Notification[]
+  ledger        PointsLedger[]
+  posts         Post[]
+  reports       Report[]
+  submissions   Submission[]
+  badges        UserBadge[]
+  votes         Vote[]
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("user")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  actorId   String?
+  postId    String?
+  commentId String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType String
+  targetId   String
+  value      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  reporterId String
+  targetType String
+  targetId   String
+  reason     String
+  status     String   @default("OPEN")
+  createdAt  DateTime @default(now())
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([reporterId, targetType, targetId])
+  @@index([targetType, targetId])
+  @@index([status])
+}
+
+model PointsLedger {
+  id           String       @id @default(cuid())
+  userId       String
+  submissionId String?
+  delta        Int
+  reason       String
+  createdAt    DateTime     @default(now())
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission   Submission?  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([submissionId])
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badge     String
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badge])
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }

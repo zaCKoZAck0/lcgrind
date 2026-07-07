@@ -1,85 +1,169 @@
 import type { MetadataRoute } from "next";
 import {
-  BASE_URL,
-  MAANG_COMPANIES, 
-  TOP_PRODUCT_COMPANIES_INDIA, 
-  TOP_PRODUCT_MNCS
+  CANONICAL_URL,
+  COMPANIES,
+  MAANG_COMPANIES,
+  TOP_PRODUCT_COMPANIES_INDIA,
+  TOP_PRODUCT_MNCS,
 } from "~/config/constants";
+import { db } from "~/lib/db";
 
 import {
   generateSlug
 } from "~/utils/slug";
+import { getAllCompanyCategoryCounts } from "~/server/actions/companies/getCompanyCategoryCounts";
+import { POST_TAGS } from "~/config/grinds";
+import { postParam } from "~/server/actions/posts/core";
+import { shouldNoindexPost } from "~/utils/grinds-seo";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
 
-const ALL_SHEETS: Array<{ name: string; slug: string }> = [
-  { name: "Blind 75", slug: "blind-75" },
-  { name: "Top 100 Liked", slug: "leetcode-top-100-liked" },
-  { name: "LeetCode 75", slug: "leetcode-75" },
-  { name: "Top Interview 150", slug: "leetcode-top-interview-150" },
-  { name: "NeetCode 150", slug: "neetcode-150" },
-  { name: "NeetCode 250", slug: "neetcode-250" },
-];
+const HIGH_PRIORITY_COMPANIES = new Set([
+  ...MAANG_COMPANIES,
+  ...TOP_PRODUCT_COMPANIES_INDIA,
+  ...TOP_PRODUCT_MNCS,
+]);
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+
+  // Fetch all sheets from DB with updatedAt for meaningful lastModified dates
+  const sheets = await db.sheet.findMany({
+    where: { isCompany: false },
+    select: { slug: true, updatedAt: true },
+  });
+
+  // Fetch all topic tag slugs for topic pages
+  const topicTags = await db.topicTag.findMany({
+    select: { slug: true },
+  });
+
+  const categoryCounts = await getAllCompanyCategoryCounts();
+
+  const grindsPosts = FEATURE_FLAGS.GRINDS
+    ? await db.post.findMany({
+        where: { status: "PUBLISHED" },
+        select: { id: true, title: true, body: true, score: true, updatedAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
 
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: BASE_URL,
+      url: CANONICAL_URL,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/companies`,
+      url: `${CANONICAL_URL}/companies`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/sheets`,
+      url: `${CANONICAL_URL}/sheets`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/all-problems`,
+      url: `${CANONICAL_URL}/topics`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${CANONICAL_URL}/all-problems`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     },
   ];
 
-  const companyPages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
+  function companyEntry(
+    company: string,
+    suffix: string,
+    frequency: MetadataRoute.Sitemap[number]["changeFrequency"],
+    highPri: number,
+    lowPri: number,
+  ): MetadataRoute.Sitemap[number] {
     const slug = generateSlug(company);
     return {
-      url: `${BASE_URL}/companies/${slug}`,
+      url: `${CANONICAL_URL}/companies/${slug}${suffix}`,
       lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: frequency,
+      priority: HIGH_PRIORITY_COMPANIES.has(company) ? highPri : lowPri,
     };
-  });
+  }
 
-  const prepGuidePages: MetadataRoute.Sitemap = [...MAANG_COMPANIES, ...TOP_PRODUCT_COMPANIES_INDIA, ...TOP_PRODUCT_MNCS].map((company) => {
-    const slug = generateSlug(company);
-    return {
-      url: `${BASE_URL}/companies/${slug}/prep-guide`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    };
-  });
+  // Include ALL companies in sitemap, not just top 26
+  const allCompanyNames = Object.keys(COMPANIES);
+  const companyPages: MetadataRoute.Sitemap = allCompanyNames.map(
+    (c) => companyEntry(c, "", "weekly", 0.8, 0.6),
+  );
+  const prepGuidePages: MetadataRoute.Sitemap = allCompanyNames.map(
+    (c) => companyEntry(c, "/prep-guide", "monthly", 0.7, 0.5),
+  );
 
-  const sheetPages: MetadataRoute.Sitemap = ALL_SHEETS.map((sheet) => ({
-    url: `${BASE_URL}/sheets/${sheet.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
+  const sheetPages: MetadataRoute.Sitemap = sheets.map((sheet) => ({
+    url: `${CANONICAL_URL}/sheets/${sheet.slug}`,
+    lastModified: sheet.updatedAt ?? now,
+    changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
+
+  const topicPages: MetadataRoute.Sitemap = topicTags.map((topic) => ({
+    url: `${CANONICAL_URL}/topics/${topic.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  const categoryPages: MetadataRoute.Sitemap = categoryCounts.map(({ companySlug, category }) => ({
+    url: `${CANONICAL_URL}/companies/${companySlug}/${category}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  const grindsStaticPage: MetadataRoute.Sitemap = FEATURE_FLAGS.GRINDS
+    ? [
+        {
+          url: `${CANONICAL_URL}/grinds`,
+          lastModified: now,
+          changeFrequency: "hourly",
+          priority: 0.8,
+        },
+      ]
+    : [];
+
+  const grindsPostPages: MetadataRoute.Sitemap = grindsPosts
+    .filter((p) => !shouldNoindexPost({ status: "PUBLISHED", body: p.body, score: p.score }))
+    .map((p) => ({
+      url: `${CANONICAL_URL}/grinds/${postParam(p.id, p.title)}`,
+      lastModified: p.updatedAt ?? now,
+      changeFrequency: "weekly" as const,
+      priority: 0.65,
+    }));
+
+  const grindsTagPages: MetadataRoute.Sitemap = FEATURE_FLAGS.GRINDS
+    ? POST_TAGS.map((t) => ({
+        url: `${CANONICAL_URL}/grinds/tag/${t.slug}`,
+        lastModified: now,
+        changeFrequency: "daily" as const,
+        priority: 0.6,
+      }))
+    : [];
 
   return [
     ...staticPages,
     ...companyPages,
     ...prepGuidePages,
     ...sheetPages,
+    ...topicPages,
+    ...categoryPages,
+    ...grindsStaticPage,
+    ...grindsPostPages,
+    ...grindsTagPages,
   ];
 }

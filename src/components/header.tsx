@@ -1,11 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ThemeToggle } from "~/components/theme-toggle"
-import { SyncDropdown } from "~/components/sync-dropdown"
 import { buttonVariants } from "./ui/button"
-import { Twitter } from "./home/tweet"
-import { HeartIcon } from "lucide-react"; 
+import { HeartIcon } from "lucide-react";
 import { NavLinks } from "./nav-links"
+import { MobileNav } from "./mobile-nav"
+import { UserMenu } from "./auth/user-menu"
 import { cn } from "~/lib/utils"
 
 
@@ -13,33 +12,39 @@ interface RepoData {
   stargazers_count: number
 }
 
-async function getRepoData(): Promise<RepoData> {
-  const res = await fetch(
-    "https://api.github.com/repos/zaCKoZAck0/lcgrind",
-    {
-      // todo: add it back later
-      // cache: "force-cache",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-        Authorization: `Bearer ${process.env.GH_API_KEY}`,
+async function getRepoData(): Promise<RepoData | null> {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/zaCKoZAck0/lcgrind",
+      {
+        // todo: add it back later
+        // cache: "force-cache",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+          Authorization: `Bearer ${process.env.GH_API_KEY}`,
+        },
       },
-    },
-  )
+    )
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch data")
+    if (!res.ok) {
+      return null
+    }
+
+    return (res.json()) as unknown as RepoData;
+  } catch {
+    return null
   }
-
-  return (res.json()) as unknown as RepoData;
 }
 
 export async function Header() {
   const repo = await getRepoData();
-  const starsCount = (repo.stargazers_count ?? 0);
+  // A failed fetch must not render as "0 stars"; hide the count instead.
+  const starsCount = repo?.stargazers_count || null;
   return (
     <header className="sticky top-2 z-50 w-full shadow-shadow bg-main text-main-foreground border-2 border-border">
       <div className="w-full flex h-14 items-center justify-between px-4 md:px-6 lg:px-8">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <MobileNav />
           <Link href="/">
             <Image
               src="/images/logo.svg"
@@ -54,15 +59,22 @@ export async function Header() {
         <div className="ml-auto flex items-center gap-4">
           <a
             target="_blank"
+            rel="noopener noreferrer"
             href="https://github.com/zaCKoZAck0/lcgrind"
             className={buttonVariants({ variant: "neutral" })}
+            aria-label={
+              starsCount === null
+                ? "Star LC Grind on GitHub"
+                : `Star LC Grind on GitHub (${starsCount} stars)`
+            }
           >
-            <p className="font-semibold">{starsCount}</p>
+            {starsCount !== null && <p className="font-semibold">{starsCount}</p>}
 
             <svg
               className="size-5"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 496 512"
+              aria-hidden="true"
             >
               <path
                 className="fill-foreground"
@@ -72,30 +84,24 @@ export async function Header() {
           </a>
           <a
             target="_blank"
+            rel="noopener noreferrer sponsored"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
             className={cn(buttonVariants({ variant: "neutral"}), "hidden md:flex")}
+            aria-label="Sponsor LC Grind on GitHub"
           >
             <HeartIcon className="size-5" />
             Support
           </a>
           <a
             target="_blank"
+            rel="noopener noreferrer sponsored"
             href="https://github.com/sponsors/zaCKoZAck0?frequency=one-time"
             className={cn(buttonVariants({ variant: "neutral", size: "icon" }), "flex md:hidden")}
+            aria-label="Sponsor LC Grind on GitHub"
           >
             <HeartIcon className="size-5" />
           </a>
-          <a
-            target="_blank"
-            href="https://x.com/zaCKoZAck0/status/1913558597688009006"
-            className={buttonVariants({ variant: "neutral", size: "icon" })}
-          >
-            <Twitter className="size-5" />
-          </a>
-          <div className="hidden md:block">
-            <SyncDropdown />
-          </div>
-          <ThemeToggle />
+          <UserMenu />
         </div>
       </div>
     </header>

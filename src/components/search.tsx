@@ -39,8 +39,10 @@ export const CompanySearch = ({ className }: { className?: string }) => {
 
     return (
         <div className="p-6 pt-0 w-full max-w-xl flex items-center gap-2">
-            <SearchIcon className='text-muted-foreground/50' />
+            <SearchIcon className='text-muted-foreground/50' aria-hidden="true" />
+            <label htmlFor="company-search" className="sr-only">Search company</label>
             <Input
+                id="company-search"
                 placeholder="Search company..."
                 value={company}
                 onChange={handleInputChange}

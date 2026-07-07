@@ -1,14 +1,13 @@
 <p align="center">
   <img src="https://github.com/user-attachments/assets/5e531813-6f04-4877-be40-12f800ef46b4" alt="LC Grind" width="120" />
 </p>
-<h2 align="center"><a href="https://www.lcgrind.xyz/">lcgrind.xyz</a></h2>
+<h2 align="center"><a href="https://lcgrind.zackozack.xyz/">lcgrind.zackozack.xyz</a></h2>
 <h1 align="center">LC Grind - Company wise Leetcode Problems</h1>
 <p align="center">Focused Interview Preperation</p>
 
-<p align="center">Company-wise LeetCode problems | Topic-wise LeetCode preparation | DSA Sheets | Interview prep guide</p>
+<p align="center">Company-wise LeetCode problems | Topic &amp; System Design prep | DSA Sheets | Real interview experiences &amp; community</p>
 
-> Note:
-> Currently, this platform relies on [liquidslr/leetcode-company-wise-problems](https://github.com/liquidslr/leetcode-company-wise-problems.git) for company-wise question data.
+> Note: Company-wise question data scraped from publicly available sources.
 
 ## Features
 
@@ -19,4 +18,7 @@
 - 🔍 Powerful filter, sort, and search to fit your needs  
 - 📘 Get a focused prep guide for any company  
 - 📝 Solve top DSA sheets: Grind 75, Neetcode 150, Striver SDE Sheet, and more
+- Grinds: read and share real interview experiences, ask questions, and discuss with the community
+- System Design questions and topic-wise practice
+- Build custom problem lists and share them with a link
 - 🆓 Free forever

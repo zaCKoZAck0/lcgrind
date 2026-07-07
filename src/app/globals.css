@@ -12,6 +12,10 @@
   --border: oklch(0% 0 0);
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(0% 0 0);
+  --muted: oklch(96% 0.01 282);
+  --muted-foreground: oklch(45% 0.02 282);
   --shadow: 4px 4px 0px 0px var(--border);
   --chart-1: #7A83FF;
   --chart-2: #FACC00;
@@ -21,29 +25,16 @@
   --chart-active-dot: #000;
 }
 
-.dark {
-  --background: oklch(26.58% 0.0737 283.96);
-  --secondary-background: oklch(23.93% 0 0);
-  --foreground: oklch(92.49% 0 0);
-  --main-foreground: oklch(0% 0 0);
-  --main: oklch(66.34% 0.1806 277.2);
-  --border: oklch(0% 0 0);
-  --ring: oklch(100% 0 0);
-  --shadow: 4px 4px 0px 0px var(--border);
-  --chart-1: #7A83FF;
-  --chart-2: #E0B700;
-  --chart-3: #FF6669;
-  --chart-4: #00BD84;
-  --chart-5: #008AE5;
-  --chart-active-dot: #fff;
-}
-
 @theme inline {
   --color-main: var(--main);
   --color-background: var(--background);
   --color-secondary-background: var(--secondary-background);
   --color-foreground: var(--foreground);
   --color-main-foreground: var(--main-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-overlay: var(--overlay);
   --color-ring: var(--ring);
@@ -84,12 +75,6 @@ body,
   --sb-thumb-color: #000000;
 }
 
-html.dark body,
-html.dark .scrollbar {
-  --sb-track-color: #1f1f1f;
-  --sb-thumb-color: #e6e6e6;
-}
-
 .scrollbar::-webkit-scrollbar {
   width: 16px;
 }
@@ -114,10 +99,6 @@ body::-webkit-scrollbar-track {
 body::-webkit-scrollbar-thumb,
 .scrollbar::-webkit-scrollbar-thumb {
   background: var(--sb-thumb-color);
-}
-
-html.dark body::-webkit-scrollbar-thumb {
-  border-left: 4px solid #000;
 }
 
 .code::-webkit-scrollbar-track {

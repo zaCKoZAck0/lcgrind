@@ -1,4 +1,8 @@
-import { BASE_URL } from "~/config/constants";
+import { CANONICAL_URL } from "~/config/constants";
+import {
+  buildGrindsForumPostingJsonLd,
+  type GrindsForumPostingInput,
+} from "~/utils/grinds-seo";
 
 interface WebsiteJsonLdProps {
   name?: string;
@@ -9,7 +13,7 @@ interface WebsiteJsonLdProps {
 export function WebsiteJsonLd({
   name = "LC Grind",
   description = "Practice company-wise LeetCode problems for free. Access interview questions, DSA sheets, and premium problems for top tech companies.",
-  url = BASE_URL,
+  url = CANONICAL_URL,
 }: WebsiteJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -43,8 +47,8 @@ interface OrganizationJsonLdProps {
 
 export function OrganizationJsonLd({
   name = "LC Grind",
-  url = BASE_URL,
-  logo = `${BASE_URL}/images/logo.svg`,
+  url = CANONICAL_URL,
+  logo = `${CANONICAL_URL}/images/logo.svg`,
 }: OrganizationJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -126,6 +130,20 @@ export function FAQJsonLd({ items }: FAQJsonLdProps) {
   );
 }
 
+// Discuss post structured data for EXPERIENCE/DISCUSSION pages. Built by the
+// pure helper so dates stay month-coarsened and no provenance leaks.
+export function GrindsForumPostingJsonLd(
+  props: GrindsForumPostingInput,
+) {
+  const jsonLd = buildGrindsForumPostingJsonLd(props);
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
 interface SoftwareApplicationJsonLdProps {
   name?: string;
   description?: string;
@@ -139,7 +157,7 @@ export function SoftwareApplicationJsonLd({
   description = "Free platform for company-wise LeetCode problems and interview preparation",
   applicationCategory = "EducationalApplication",
   operatingSystem = "Web",
-  url = BASE_URL,
+  url = CANONICAL_URL,
 }: SoftwareApplicationJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -154,6 +172,34 @@ export function SoftwareApplicationJsonLd({
       price: "0",
       priceCurrency: "USD",
     },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+interface ItemListJsonLdProps {
+  name: string;
+  url: string;
+  items: string[]; // bare question statement strings only — no dates, no provenance
+}
+
+export function ItemListJsonLd({ name, url, items }: ItemListJsonLdProps) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    url,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item,
+    })),
   };
 
   return (

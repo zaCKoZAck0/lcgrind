@@ -67,9 +67,9 @@ export function AddNoteDialog({ problemId, problemTitle }: AddNoteDialogProps) {
                 Add Note
             </Button>
         </DialogTrigger>
-            <DialogContent className={cn("sm:max-w-[500px]", NOTE_COLORS.find(c => c.value === selectedColor)?.bgClass || NOTE_COLORS[0].bgClass)}>
+            <DialogContent className={cn("sm:max-w-[500px] text-gray-900", NOTE_COLORS.find(c => c.value === selectedColor)?.bgClass || NOTE_COLORS[0].bgClass)}>
                 <DialogHeader>
-                    <DialogTitle>Add Note for {problemTitle}</DialogTitle>
+                    <DialogTitle className="text-gray-900">Add Note for {problemTitle}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

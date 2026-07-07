@@ -118,7 +118,7 @@ export const PROBLEMS = [
     { order: 88, url: "https://leetcode.com/problems/course-schedule-ii/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=Akt3glAwyfY" },
     { order: 89, url: "https://leetcode.com/problems/graph-valid-tree/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=bXsUuownnoQ" },
     { order: 90, url: "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=8f1XPm4WOUc" },
-    { order: 91, url: "https://leetcode.com/problems/redundant-connection/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=FXWRE67PLL0" },
+    { order: 91, url: "https://leetcode.com/problems/redundant-connection/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=1lNK80tOTfc" },
     { order: 92, url: "https://leetcode.com/problems/word-ladder/", group: "Graphs", solutionVideoLink: "https://www.youtube.com/watch?v=h9iTnkgv05E" },
 
     // Advanced Graphs
@@ -151,7 +151,7 @@ export const PROBLEMS = [
     { order: 115, url: "https://leetcode.com/problems/target-sum/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=g0npyaQtAQM" },
     { order: 116, url: "https://leetcode.com/problems/interleaving-string/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=3Rw3p9LrgvE" },
     { order: 117, url: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=wCc_nd-GiEc" },
-    { order: 118, url: "https://leetcode.com/problems/distinct-subsequences/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=6XEDpYQwvms" },
+    { order: 118, url: "https://leetcode.com/problems/distinct-subsequences/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=-RDzMJ33nx8" },
     { order: 119, url: "https://leetcode.com/problems/edit-distance/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=XYi2-LPrwm4" },
     { order: 120, url: "https://leetcode.com/problems/burst-balloons/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=VFskby7lUbw" },
     { order: 121, url: "https://leetcode.com/problems/regular-expression-matching/", group: "2-D Dynamic Programming", solutionVideoLink: "https://www.youtube.com/watch?v=HAA8mgxlov8" },

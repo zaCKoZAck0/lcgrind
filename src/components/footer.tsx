@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { onClickAdUrl } from "~/lib/utils";
-import { useTheme } from "~/hooks/use-theme";
+
 import { getLogoUrl } from "~/utils/logo";
 
 export const Footer = () => {
-    const theme = useTheme();
     return (
         <footer className="p-2 bg-background">
             <div className="bg-main shadow-shadow border-2 border-border text-base text-main-foreground">
@@ -33,21 +31,22 @@ export const Footer = () => {
                         <div>
                             <h3 className="font-bold tracking-wide uppercase mb-4">Resources</h3>
                             <ul className="space-y-3">
-                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
-                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
-                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
-                                <li><Link onClick={onClickAdUrl} className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems">Problems</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/companies">Companies</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/sheets">DSA Sheets</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/topics">Topics</Link></li>
+                                <li><Link className="hover:underline hover:underline-offset-2" href="/all-problems?order=all-problems&sort=question-id&companies=Meta&companies=Apple&companies=Amazon&companies=Netflix&companies=Google&companies=Microsoft">MAANG Interview Problems</Link></li>
                             </ul>
                         </div>
 
                         <div className="flex-shrink-0">
-                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-md bg-secondary-background text-foreground" href="https://logo.dev"><Image src={getLogoUrl("logo.dev", theme)} className="rounded-md" alt="Logo" width={30} height={30} /> Logos provided by Logo.dev</a>
+                            <a className="flex items-center gap-1 text-lg border-2 border-border shadow-shadow px-1 rounded-base bg-secondary-background text-foreground" href="https://logo.dev" target="_blank" rel="noopener noreferrer nofollow"><Image src={getLogoUrl("logo.dev", "light")} className="rounded-base" alt="Logo.dev logo" width={30} height={30} /> Logos provided by Logo.dev</a>
                         </div>
                     </div>
 
                     <div className="mt-8 pt-8 border-t-2 border-border">
-                        <p className="text-center">
-                            © {new Date().getFullYear()} LC Grind. All rights reserved.
+                        <p>
+                            &copy; {new Date().getFullYear()} LC Grind. All rights reserved.
                         </p>
                     </div>
                 </div>

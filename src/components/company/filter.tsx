@@ -1,7 +1,7 @@
 "use client";
 import { ArrowUpDownIcon, BriefcaseBusinessIcon, ClockIcon, HashIcon, RotateCcwIcon, SignalIcon } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -17,10 +17,33 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { onClickAdUrl } from "~/lib/utils";
+import type { FilterCompany } from "~/server/actions/companies/getFilterCompanies";
+
 import { RandomProblemPicker } from "../random-problem-picker";
 
-export const Filters = ({ filters, isProblemFilter = false, companies, tags, difficulties }: { filters: { sorting: string; order: string, search?: string }, isProblemFilter?: boolean, companies?: string[], tags?: string[], difficulties?: string[] }) => {
+export type FilterValues = {
+    order: string;
+    sort: string;
+    search: string;
+    companies: string[];
+    tags: string[];
+    difficulties: string[];
+};
+
+type FiltersProps = {
+    filters: { sorting: string; order: string; search?: string };
+    isProblemFilter?: boolean;
+    companies?: string[];
+    companyOptions?: FilterCompany[];
+    tags?: string[];
+    difficulties?: string[];
+    slug?: string;
+    topicSlug?: string;
+    defaultSort?: string;
+    controlled?: { onChange: (values: FilterValues) => void; hideRandomPicker?: boolean };
+};
+
+export const Filters = ({ filters, isProblemFilter = false, companies, companyOptions, tags, difficulties, slug, topicSlug, defaultSort, controlled }: FiltersProps) => {
     const [sort, setSort] = useState(filters.sorting);
     const [order, setOrder] = useState(filters.order);
     const [c, setC] = useState<string[]>(companies ?? []);
@@ -31,8 +54,33 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     const currentSearchParams = useSearchParams();
     const pathName = usePathname();
 
+    // Slug-based company options (interview0-backed) when provided; the MAANG
+    // quick-toggle then operates on the matching slugs.
+    const useSlugCompanies = Boolean(companyOptions);
+    const maangSelection = useMemo(
+        () => useSlugCompanies
+            ? (companyOptions ?? []).filter((o) => MAANG_COMPANIES.includes(o.name)).map((o) => o.slug)
+            : MAANG_COMPANIES,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [useSlugCompanies, companyOptions],
+    );
+    const maangChecked = useMemo(
+        () => maangSelection.length > 0 && c.length === maangSelection.length && maangSelection.every((s) => c.includes(s)),
+        [maangSelection, c],
+    );
+
+    // Keep internal company state in sync with the URL-driven `companies` prop so
+    // a chip click on a row (which appends to the URL) isn't clobbered by the
+    // param-writing effect below. Keyed on the joined string to avoid loops.
+    const companiesKey = (companies ?? []).join(',');
+    useEffect(() => {
+        if (controlled) return;
+        setC(companies ?? []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [companiesKey]);
+
     function reset() {
-        setSort(isProblemFilter ? 'question-id' : 'frequency');
+        setSort(defaultSort ?? (isProblemFilter ? 'question-id' : 'frequency'));
         setOrder(isProblemFilter ? 'all-problems' : 'all');
         setProblemQuery('');
         setC([]);
@@ -45,6 +93,13 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     };
 
     useEffect(() => {
+        if (controlled) {
+            const timeoutId = setTimeout(() => {
+                controlled.onChange({ order, sort, search: problemQuery, companies: c, tags: t, difficulties: d });
+            }, 300);
+            return () => clearTimeout(timeoutId);
+        }
+
         const timeoutId = setTimeout(() => {
             const params = new URLSearchParams(currentSearchParams.toString());
 
@@ -64,7 +119,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
 
         return () => clearTimeout(timeoutId);
 
-    }, [problemQuery, currentSearchParams]);
+    }, [problemQuery, currentSearchParams, controlled, order, sort, c, t, d]);
 
     useEffect(() => {
         const params = new URLSearchParams(currentSearchParams.toString());
@@ -86,7 +141,7 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
     }, [sort, order, t, c, d, currentSearchParams])
 
     return <div
-        className="w-full bg-card flex flex-col md:flex-row border-2 border-border relative">
+        className="w-full bg-card flex flex-col md:flex-row border-2 border-border rounded-base relative shadow-shadow">
         <div className="flex gap-3 flex-col py-6 px-3 md:border-r-2 border-b-2 md:border-b-0 border-border">
             <div className='flex gap-3'>
                 <Select value={order} onValueChange={setOrder}>
@@ -115,13 +170,15 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="frequency">Frequency</SelectItem>
+                        {isProblemFilter && <SelectItem value="recency">Recently Asked</SelectItem>}
                         <SelectItem value="difficulty">Difficulty</SelectItem>
                         <SelectItem value="acceptance">Acceptance</SelectItem>
                         <SelectItem value="question-id">Question ID</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
-            <Input placeholder="Search Problem.." value={problemQuery} onChange={handleSearchInputChange} />
+            <label htmlFor="problem-search" className="sr-only">Search problem</label>
+            <Input id="problem-search" placeholder="Search Problem.." value={problemQuery} onChange={handleSearchInputChange} />
         </div>
         <div className="flex flex-col-reverse md:flex-row py-6 px-3 flex-1 gap-3 flex-shrink-0">
             {
@@ -137,36 +194,47 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                         <MultiSelectContent>
                             <MultiSelectInput placeholder="Search..." />
                             <MultiSelectList>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>MAANG</MultiSelectLabel>
-                                    {
-                                        MAANG_COMPANIES.map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
-                                <MultiSelectGroup>
-                                    <MultiSelectLabel>All Companies</MultiSelectLabel>
-                                    {
-                                        Object.keys(COMPANIES).map(tag => (
-                                            <MultiSelectItem key={tag} value={tag}>
-                                                {tag}
-                                            </MultiSelectItem>
-                                        ))
-                                    }
-                                </MultiSelectGroup>
+                                {useSlugCompanies ? (
+                                    <MultiSelectGroup>
+                                        <MultiSelectLabel>Companies</MultiSelectLabel>
+                                        {
+                                            (companyOptions ?? []).map(co => (
+                                                <MultiSelectItem key={co.slug} value={co.slug}>
+                                                    {co.name}
+                                                </MultiSelectItem>
+                                            ))
+                                        }
+                                    </MultiSelectGroup>
+                                ) : (
+                                    <>
+                                        <MultiSelectGroup>
+                                            <MultiSelectLabel>MAANG</MultiSelectLabel>
+                                            {
+                                                MAANG_COMPANIES.map(tag => (
+                                                    <MultiSelectItem key={tag} value={tag}>
+                                                        {tag}
+                                                    </MultiSelectItem>
+                                                ))
+                                            }
+                                        </MultiSelectGroup>
+                                        <MultiSelectGroup>
+                                            <MultiSelectLabel>All Companies</MultiSelectLabel>
+                                            {
+                                                Object.keys(COMPANIES).map(tag => (
+                                                    <MultiSelectItem key={tag} value={tag}>
+                                                        {tag}
+                                                    </MultiSelectItem>
+                                                ))
+                                            }
+                                        </MultiSelectGroup>
+                                    </>
+                                )}
                             </MultiSelectList>
                         </MultiSelectContent>
                     </MultiSelect>
-                    <div onClick={onClickAdUrl} className="flex items-center gap-3 px-1">
-                        <Checkbox id="MAANG" checked={c === MAANG_COMPANIES} onCheckedChange={(checked) => {
-                            if (checked) {
-                                setC(MAANG_COMPANIES);
-                            } else {
-                                setC([]);
-                            }
+                    <div className="flex items-center gap-3 px-1">
+                        <Checkbox id="MAANG" checked={maangChecked} onCheckedChange={(checked) => {
+                            setC(checked ? maangSelection : []);
                         }} />
                         <Label htmlFor="MAANG">MAANG</Label>
                     </div>
@@ -229,14 +297,18 @@ export const Filters = ({ filters, isProblemFilter = false, companies, tags, dif
                 </MultiSelectContent>
             </MultiSelect>
         </div>
-        <div className="absolute top-0 right-3 -translate-y-1/2 flex gap-2">
-            <RandomProblemPicker
-                order={order}
-                search={problemQuery}
-                tags={t.length > 0 ? t : null}
-                companies={c.length > 0 ? c : null}
-                difficulties={d.length > 0 ? d : null}
-            />
+        <div className={controlled ? "absolute top-0 right-12 -translate-y-1/2 flex gap-2" : "absolute top-0 right-3 -translate-y-1/2 flex gap-2"}>
+            {!controlled?.hideRandomPicker && (
+                <RandomProblemPicker
+                    order={order}
+                    search={problemQuery}
+                    tags={t.length > 0 ? t : null}
+                    companies={c.length > 0 ? c : null}
+                    difficulties={d.length > 0 ? d : null}
+                    slug={slug}
+                    topicSlug={topicSlug}
+                />
+            )}
             <Button className="bg-secondary-background text-secondary-foreground cursor-pointer w-fit" variant="noShadow" size='sm' onClick={reset}><RotateCcwIcon /> Reset</Button>
         </div>
 

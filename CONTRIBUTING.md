@@ -18,50 +18,32 @@ We welcome contributions from everyone. Please take a moment to review this guid
 
 ## Project Setup
 
-1. **Clone the Repository**  
-   Clone the following repository into your project root:
-   ```
-   https://github.com/liquidslr/leetcode-company-wise-problems
-   ```
-
-2. **Rename the Data Folder**  
-   Rename the `leetcode-company-wise-problems` folder to `.data`:
-   ```bash
-   mv leetcode-company-wise-problems .data
-   ```
-
-3. **Start the Database**  
+1. **Start the Database**  
    Launch your local Postgres database using Docker Compose:
    ```bash
    docker-compose up -d
    ```
 
-4. **Create the Environment File**  
+2. **Create the Environment File**  
    Copy `.env.example` to `.env` to set up your environment variables:
    ```bash
    cp .env.example .env
    ```
 
-5. **Install Dependencies**  
+3. **Install Dependencies**  
    Install project dependencies (preferably with `pnpm`):
    ```bash
    pnpm install
    ```
    > Or use `npm install` or `yarn install` if you prefer.
 
-6. **Apply Database Migrations**  
+4. **Apply Database Migrations**  
    Run Prisma migrations:
    ```bash
    npx prisma migrate dev
    ```
 
-7. **Seed the Database**  
-   Import CSV data into the database:
-   ```bash
-   pnpm run seed:all
-   ```
-
-8. **Start the Development Server**  
+5. **Start the Development Server**  
    Launch the development server:
    ```bash
    pnpm run dev

@@ -9,7 +9,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "~/components/ui/pagination"
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from "react";
 
 type GlobalPaginationProps = {
@@ -21,9 +21,16 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
     const MAX_VISIBILITY = 3;
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const buildPageUrl = (page: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', String(page));
+        return `${pathname}?${params.toString()}`;
+    };
 
     const handlePageClick = (page: number) => {
-        router.push(`${pathname}?page=${page}`);
+        router.push(buildPageUrl(page));
     };
 
     if (totalPages <= 1) {
@@ -76,7 +83,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
                 <PaginationItem>
                     <PaginationPrevious
                         size='sm'
-                        href={currentPage > 1 ? `${pathname}?page=${currentPage - 1}` : undefined}
+                        href={currentPage > 1 ? buildPageUrl(currentPage - 1) : undefined}
                         onClick={() => currentPage > 1 && handlePageClick(currentPage - 1)}
                     // disabled={currentPage <= 1}
                     />
@@ -92,7 +99,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
                                 <PaginationLink
                                     size='sm'
                                     isActive={page === currentPage}
-                                    href={`${pathname}?page=${page}`}
+                                    href={buildPageUrl(page)}
                                     onClick={() => handlePageClick(page)}
                                 >
                                     {page}
@@ -104,7 +111,7 @@ export function GlobalPagination({ totalPages, currentPage }: GlobalPaginationPr
                 <PaginationItem>
                     <PaginationNext
                         size='sm'
-                        href={currentPage < totalPages ? `${pathname}?page=${currentPage + 1}` : undefined}
+                        href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : undefined}
                         onClick={() => currentPage < totalPages && handlePageClick(currentPage + 1)}
                     // disabled={currentPage >= totalPages}
                     />

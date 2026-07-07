@@ -10,31 +10,45 @@ import { AllCompaniesSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { useTheme } from "~/hooks/use-theme";
 import { getLogoUrl } from "~/utils/logo";
+import { PayMarker } from "../company/tier-markers";
+import { DifficultyBarCompact } from "../company/difficulty-bar";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
+import type { CompanyDetails, TotalCountResult } from "~/types/company";
 
 const ITEMS_PER_PAGE = 24;
 
-export function AllCompanies() {
+interface AllCompaniesProps {
+    initialData?: {
+        totalCountResult: TotalCountResult[];
+        companies: CompanyDetails[];
+    };
+}
+
+export function AllCompanies({ initialData }: AllCompaniesProps) {
 
     const searchParams = useSearchParams();
     const currentPage = Number(searchParams.get('page')) || 1;
     const query = (searchParams.get('search') || '').trim().toLowerCase();
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-    const theme = useTheme();
+    // Only use initialData for the default query (first page, no search)
+    const isDefaultQuery = query === '' && currentPage === 1;
 
     const { data, isLoading } = useQuery({
         queryKey: ["companies", query, offset],
         queryFn: () => getCompanies(query, offset, ITEMS_PER_PAGE),
         staleTime: DEFAULT_REVALIDATION,
         gcTime: DEFAULT_REVALIDATION,
+        initialData: isDefaultQuery ? initialData : undefined,
     });
 
     if (isLoading) {
         return <AllCompaniesSkeleton />;
     }
 
-    const totalCompaniesCount = Number(data.totalCountResult[0].count);
+    // getCompanies returns totalCountResult: [] when the query fails; fall back
+    // to 0 so a fetch error degrades to an empty state instead of crashing.
+    const totalCompaniesCount = Number(data.totalCountResult[0]?.count ?? 0);
     const totalPages = Math.ceil(totalCompaniesCount / ITEMS_PER_PAGE);
     return <>
         {data.companies.length === 0 && (
@@ -54,12 +68,17 @@ export function AllCompanies() {
                         className={cn(buttonVariants({ variant: "neutral" }), "h-fit py-6 cursor-pointer w-full")}
                     >
                         <div className="flex gap-6 min-w-[360px] w-full h-fit text-left px-6">
-                            <Image src={getLogoUrl(domain, theme)} width={48} height={48} className="size-16 rounded-md object-cover" alt={company.name} />
+                            <Image src={getLogoUrl(domain, "light")} width={48} height={48} className="size-16 rounded-base object-cover" alt={company.name} />
                             <div>
                                 <p className="font-semibold text-2xl">{company.name}</p>
-                                <p className="text-muted-foreground text-lg">
-                                    {company.numOfProblems} Problems
-                                </p>
+                                <span className="flex items-center gap-3 mt-1">
+                                    {FEATURE_FLAGS.COMPENSATION && company.payTier > 0 && <PayMarker tier={company.payTier} />}
+                                    <DifficultyBarCompact
+                                        easyCount={company.easyCount}
+                                        mediumCount={company.mediumCount}
+                                        hardCount={company.hardCount}
+                                    />
+                                </span>
                             </div>
                         </div>
                     </Link>

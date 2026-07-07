@@ -1,4 +1,6 @@
-import { Target, Filter, Database, Book, List, Gift, Building, Timer } from "lucide-react";
+import Link from "next/link";
+import { Target, Database, Book, List, Gift, Building, Timer, MessagesSquare } from "lucide-react";
+import { FEATURE_FLAGS } from "~/config/feature-flags";
 
 const features = [
     {
@@ -22,11 +24,6 @@ const features = [
         icon: <Database className="w-6 h-6 text-secondary-foreground" />,
     },
     {
-        title: "Advanced Filtering",
-        description: "Powerful filter, sort, and search capabilities to find exactly what you need.",
-        icon: <Filter className="w-6 h-6 text-secondary-foreground" />,
-    },
-    {
         title: "Company Guides",
         description: "Get focused preparation guides tailored to specific companies' interview patterns.",
         icon: <Book className="w-6 h-6 text-secondary-foreground" />,
@@ -41,6 +38,12 @@ const features = [
         description: "All features completely free, no hidden costs or premium tiers.",
         icon: <Gift className="w-6 h-6 text-secondary-foreground" />,
     },
+    ...(FEATURE_FLAGS.GRINDS ? [{
+        title: "Grinds (Beta)",
+        description: "Real interview experiences, questions, and community posts.",
+        icon: <MessagesSquare className="w-6 h-6 text-secondary-foreground" />,
+        href: "/grinds",
+    }] : []),
 ];
 
 export function Features() {
@@ -63,16 +66,29 @@ interface FeatureCardProps {
     title: string;
     description: string;
     icon: React.ReactNode;
+    href?: string;
 }
 
-const FeatureCard = ({ title, description, icon }: FeatureCardProps) => {
-    return (
-        <div className="p-6 bg-secondary-background border-2 border-border rotate-1 transition-all duration-200 shadow-shadow hover:shadow-none hover:rotate-0">
+const FeatureCard = ({ title, description, icon, href }: FeatureCardProps) => {
+    const inner = (
+        <>
             <div className="w-12 h-12 bg-main border-2 border-border rounded-none flex items-center justify-center mb-4">
                 {icon}
             </div>
             <h3 className="text-xl font-bold text-secondary-foreground mb-2">{title}</h3>
             <p className="text-secondary-foreground">{description}</p>
+        </>
+    );
+
+    const cls = "p-6 bg-secondary-background border-2 border-border rounded-base rotate-1 transition-all duration-200 shadow-shadow hover:shadow-none hover:rotate-0";
+
+    return href ? (
+        <Link href={href} className={cls}>
+            {inner}
+        </Link>
+    ) : (
+        <div className={cls}>
+            {inner}
         </div>
     );
 };

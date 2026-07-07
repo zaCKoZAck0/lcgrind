@@ -90,7 +90,7 @@ export function MultiSelectTrigger({ className, children }: MultiSelectTriggerPr
                 role="button"
                 tabIndex={0}
                 className={cn(
-                    "flex h-fit w-full items-center justify-between rounded-base border-2 border-border bg-main gap-2 px-3 py-2 text-sm font-base text-main-foreground ring-offset-white placeholder:text-foreground/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus:outline-hidden focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                    "flex h-fit w-full items-center justify-between rounded-base border-2 border-border bg-secondary-background gap-2 px-3 py-2 text-sm font-base text-foreground ring-offset-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus:outline-hidden focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                     disabled && "cursor-not-allowed opacity-50",
                     className
                 )}
@@ -119,7 +119,7 @@ export function MultiSelectValue({ placeholder = "Select items...", className }:
                     </MultiSelectBadge>
                 ))
             ) : (
-                <span className="text-muted-foreground flex-shrink-0">{placeholder}</span>
+                <span className="text-foreground/50 flex-shrink-0">{placeholder}</span>
             )}
         </div>
     )
@@ -234,15 +234,15 @@ export function MultiSelectItem({ value, className, disabled, children }: MultiS
             onSelect={handleSelect}
             className={cn(
                 "flex items-center gap-2",
-                isSelected && "bg-accent",
+                isSelected && "bg-main/10",
                 disabled && "cursor-not-allowed opacity-50",
                 className
             )}
         >
             <div
                 className={cn(
-                    "flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                    isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
+                    "flex h-4 w-4 items-center justify-center rounded-base border-2 border-border",
+                    isSelected ? "bg-main text-main-foreground" : "opacity-50 [&_svg]:invisible"
                 )}
             >
                 <Check className="h-3 w-3" />

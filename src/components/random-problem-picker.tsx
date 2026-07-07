@@ -7,8 +7,8 @@ import {
     ChevronDownIcon,
     ChevronUpIcon,
     CircleCheck,
+    CircleDashed,
     Dice5Icon,
-    ExternalLinkIcon,
     Loader2Icon,
     LockIcon,
 } from "lucide-react";
@@ -26,7 +26,8 @@ import { useAppDispatch, useAppSelector, isProblemCompleted } from "~/hooks/redu
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
 import { getRandomProblem } from "~/server/actions/problems/getRandomProblem";
 import { difficultyColor } from "~/utils/sorting";
-import { cn, SanitizedProblem } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import type { SanitizedAggregatedProblem } from "~/types/problem";
 import { NotesViewer } from "~/components/problem-notes";
 import {
     MAANG_COMPANIES,
@@ -47,6 +48,8 @@ interface RandomProblemPickerProps {
     tags: string[] | null;
     companies: string[] | null;
     difficulties: string[] | null;
+    slug?: string;
+    topicSlug?: string;
 }
 
 export function RandomProblemPicker({
@@ -55,10 +58,12 @@ export function RandomProblemPicker({
     tags,
     companies,
     difficulties,
+    slug = '',
+    topicSlug,
 }: RandomProblemPickerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [problem, setProblem] = useState<SanitizedProblem | null>(null);
+    const [problem, setProblem] = useState<SanitizedAggregatedProblem | null>(null);
     const [allSolved, setAllSolved] = useState(false);
     const [includeCompleted, setIncludeCompleted] = useState(false);
     const [showTags, setShowTags] = useState(false);
@@ -99,7 +104,9 @@ export function RandomProblemPicker({
                 tags,
                 companies,
                 difficulties,
-                excludedIds
+                excludedIds,
+                slug,
+                topicSlug,
             );
 
             if (result) {
@@ -181,7 +188,7 @@ export function RandomProblemPicker({
                             "space-y-4 py-4 -mx-6 px-6",
                             isCompleted && "bg-secondary-background"
                         )}>
-                            <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start gap-2">
                                 <a
                                     href={problem.url}
                                     target="_blank"
@@ -196,17 +203,6 @@ export function RandomProblemPicker({
                                         />
                                     )}
                                 </a>
-                                <button
-                                    onClick={toggleCompletion}
-                                    className="cursor-pointer group focus:outline-none transition-colors duration-200"
-                                    aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
-                                >
-                                    {isCompleted ? (
-                                        <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
-                                    ) : (
-                                        <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
-                                    )}
-                                </button>
                             </div>
                             <div className="flex flex-wrap gap-4 items-center font-base">
                                 <Badge
@@ -257,11 +253,11 @@ export function RandomProblemPicker({
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             {problem.companies.filter(Boolean).map((company) => (
                                                 <Badge
-                                                    key={company}
-                                                    variant={TOP_COMPANIES.has(company) ? "neutral" : "default"}
+                                                    key={company.slug}
+                                                    variant={TOP_COMPANIES.has(company.name) ? "neutral" : "default"}
                                                     className="px-2 py-1 bg-muted text-xs text-muted-foreground"
                                                 >
-                                                    {company}
+                                                    {company.name}
                                                 </Badge>
                                             ))}
                                         </div>
@@ -291,16 +287,19 @@ export function RandomProblemPicker({
                                     <Dice5Icon /> Pick Another
                                 </Button>
                                 <Button
-                                    asChild
+                                    onClick={toggleCompletion}
                                     className="flex-1"
+                                    variant={isCompleted ? "neutral" : "default"}
                                 >
-                                    <a
-                                        href={problem.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <ExternalLinkIcon /> Open Problem
-                                    </a>
+                                    {isCompleted ? (
+                                        <>
+                                            <CircleCheck /> Mark Incomplete
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CircleDashed /> Mark Complete
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         )}

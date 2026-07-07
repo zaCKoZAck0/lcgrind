@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useTheme } from "~/hooks/use-theme";
 import { getLogoUrl } from "~/utils/logo";
 
 interface CompanyLogoProps {
@@ -14,11 +13,9 @@ interface CompanyLogoProps {
 }
 
 export function CompanyLogo({ domain, alt, className, width = 32, height = 32, priority = false }: CompanyLogoProps) {
-  const theme = useTheme();
-  
   return (
     <Image
-      src={getLogoUrl(domain, theme)}
+      src={getLogoUrl(domain, "light")}
       alt={alt}
       className={className}
       width={width}

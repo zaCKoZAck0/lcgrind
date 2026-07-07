@@ -2,31 +2,43 @@
 
 import React from "react";
 import {
-  BriefcaseBusinessIcon,
   CheckCheckIcon,
   CircleCheck,
   ClockIcon,
+  HashIcon,
   Loader2Icon,
   LockIcon,
   VideoIcon,
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { difficultyColor } from "~/utils/sorting";
+import type { CompanyChip } from "~/types/problem";
 import {
   useAppDispatch,
   useAppSelector,
   isProblemCompleted,
 } from "~/hooks/redux";
 import { markCompleted, markIncomplete } from "~/store/completedProblemsSlice";
-import {
-  MAANG_COMPANIES,
-  TOP_PRODUCT_COMPANIES_INDIA,
-  TOP_PRODUCT_MNCS,
-} from "~/config/constants";
 import { Badge } from "../ui/badge";
+import { CompanyAvatarGroup } from "../company-avatar-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { getLintCodeAlternative } from "~/server/actions/lintcode/getLintCodeAlternative";
 import { AdBanner } from "../ads/banner";
-import { onClickAdUrl } from "~/lib/utils";
+
 import { NotesViewer } from "../problem-notes";
+import { Checkbox } from "../ui/checkbox";
+
+interface PickerMode {
+  selected: boolean;
+  disabled?: boolean;
+  disabledLabel?: string;
+  onToggle: () => void;
+}
 
 interface ProblemRowProps {
   index: number;
@@ -39,8 +51,16 @@ interface ProblemRowProps {
   isPaid: boolean;
   acceptance: number;
   tags: string[];
+  /** Legacy sheet-derived company names (non-clickable avatars). */
   companies?: string[];
+  /** interview0 company chips ({slug,name}); clicking filters /all-problems. */
+  companyChips?: CompanyChip[];
   solutionVideoLink?: string | null;
+  pickerMode?: PickerMode;
+  /** Extra inline badges (e.g. company recency chips) shown in the meta row. */
+  chips?: React.ReactNode;
+  /** When provided, overrides the default filter-by-company behavior on click. */
+  onCompanyClick?: (slug: string) => void;
 }
 
 export const ProblemRow = ({
@@ -54,13 +74,37 @@ export const ProblemRow = ({
   isPaid,
   tags,
   companies = [],
+  companyChips,
   solutionVideoLink,
+  pickerMode,
+  chips,
+  onCompanyClick,
 }: ProblemRowProps) => {
   const [fetchingAlternative, setFetchingAlternative] = React.useState(false);
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isCompleted = useAppSelector((state) =>
     isProblemCompleted(state, problemId.toString()),
   );
+
+  const onCompanyChipClick = (slug: string, name: string) => {
+    if (!slug) return;
+    if (onCompanyClick) {
+      onCompanyClick(slug);
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.getAll("companies").includes(slug)) {
+      toast(`${name} already in filter`);
+      return;
+    }
+    params.append("companies", slug);
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+    toast(`${name} added to filter`);
+  };
 
   const toggleCompletion = () => {
     if (isCompleted) {
@@ -75,23 +119,6 @@ export const ProblemRow = ({
     getLintCodeAlternative(title)
       .then((url) => {
         window.open(url, "_blank", "noopener,noreferrer");
-        setTimeout(() => {
-          window.open(
-            "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
-            "_blank",
-          );
-          window.focus();
-        }
-          , 1000);
-        setTimeout(() => {
-          window.open(
-            "https://www.profitableratecpm.com/h8vuuevjcp?key=d93a3c027b3327b738e09d7ddaeaa1e6&g1",
-            "_blank",
-          );
-          window.focus();
-        }
-          , 1500);
-        window.focus();
       })
       .catch((error) => console.log(error))
       .finally(() => setFetchingAlternative(false));
@@ -99,28 +126,46 @@ export const ProblemRow = ({
 
   return (
     <>
-      {(index + 1) % 10 === 0 && (
+      {!pickerMode && (index + 1) % 10 === 0 && (
         <div className="border-2 border-border border-t-0">
           <AdBanner />
         </div>
       )}
       <div
-        className={`relative flex p-3 border-2 
-      border-border border-t-0 
-      ${isCompleted ? "bg-secondary-background" : ""}`}
+        role={pickerMode && !pickerMode.disabled ? "button" : undefined}
+        tabIndex={pickerMode && !pickerMode.disabled ? 0 : undefined}
+        aria-pressed={pickerMode ? pickerMode.selected : undefined}
+        onClick={pickerMode && !pickerMode.disabled ? pickerMode.onToggle : undefined}
+        onKeyDown={
+          pickerMode && !pickerMode.disabled
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  pickerMode.onToggle();
+                }
+              }
+            : undefined
+        }
+        className={`relative flex p-3 border-2
+      border-border border-t-0
+      ${isCompleted && !pickerMode ? "bg-secondary-background" : ""}
+      ${pickerMode && !pickerMode.disabled ? "cursor-pointer hover:bg-secondary-background/50" : ""}
+      ${pickerMode?.disabled ? "opacity-60" : ""}`}
       >
         <div className="flex-grow">
           <div className="flex items-center">
             <a
               href={problemUrl}
               target="_blank"
+              rel="noopener noreferrer nofollow"
+              onClick={(e) => e.stopPropagation()}
               className="text-blue-700 dark:text-main hover:underline underline-offset-2 text-xl md:text-2xl font-bold"
             >
               {problemId}. {problemTitle}
             </a>
             {isPaid && (
               <Badge
-                onClick={() => onLintCodeRedirect(problemTitle)}
+                onClick={(e) => { e.stopPropagation(); onLintCodeRedirect(problemTitle); }}
                 variant="neutral"
                 className="ml-2 cursor-pointer"
               >
@@ -136,20 +181,23 @@ export const ProblemRow = ({
               </Badge>
             )}
           </div>
-          {tags.length > 0 && (
-            <div
-              title="Tags"
-              className="flex flex-wrap gap-2 mt-1 text-sm md:text-base font-base"
-            >
-              {tags.join(", ")}
-            </div>
-          )}
           <div className="flex flex-wrap gap-4 mt-2 font-base">
+            {tags.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-default flex items-center">
+                    <HashIcon size={18} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{tags.join(", ")}</TooltipContent>
+              </Tooltip>
+            )}
             <Badge
               className={`${difficultyColor(difficulty)} text-main-foreground`}
             >
               {difficulty}
             </Badge>
+            {chips}
             {frequency && (
               <span title="Frequency" className="flex items-center gap-1">
                 <ClockIcon size={18} />{" "}
@@ -158,12 +206,15 @@ export const ProblemRow = ({
             )}            <span title="Acceptance" className="flex items-center gap-1">
               <CheckCheckIcon size={18} /> {acceptance}%
             </span>
-            <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+            <span onClick={(e) => e.stopPropagation()}>
+              <NotesViewer problemId={problemId} problemTitle={problemTitle} />
+            </span>
             {solutionVideoLink && (
               <a
                 href={solutionVideoLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 title="Watch Video Solution"
                 className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
@@ -172,41 +223,42 @@ export const ProblemRow = ({
               </a>
             )}
           </div>
-          {companies.length > 0 && (
-            <button onClick={onClickAdUrl} className="mt-3 flex flex-wrap gap-2 cursor-pointer">
-              <Badge
-                title={`Asked at ${companies.join(", ")}`}
-                className="px-2 py-1 bg-muted text-xs flex items-center gap-1 text-muted-foreground"
-              >
-                <BriefcaseBusinessIcon size={14} /> {companies.length}
-              </Badge>
-              {companies.map((company) => {
-                return MAANG_COMPANIES.includes(company) ||
-                  TOP_PRODUCT_MNCS.includes(company) ||
-                  TOP_PRODUCT_COMPANIES_INDIA.includes(company) ? (
-                  <Badge
-                    variant="neutral"
-                    key={company}
-                    className="px-2 py-1 bg-muted text-xs text-muted-foreground"
-                  >
-                    {company}
-                  </Badge>
-                ) : null;
-              })}
+          {companyChips && companyChips.length > 0 ? (
+            <CompanyAvatarGroup
+              companies={companyChips}
+              onCompanyClick={onCompanyChipClick}
+              maxVisible={5}
+            />
+          ) : companies.length > 0 ? (
+            <CompanyAvatarGroup companies={companies} />
+          ) : null}
+        </div>
+        <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6" onClick={(e) => e.stopPropagation()}>
+          {pickerMode ? (
+            <div className="flex items-center gap-2">
+              {pickerMode.disabled && pickerMode.disabledLabel && (
+                <span className="text-xs text-foreground/40">{pickerMode.disabledLabel}</span>
+              )}
+              <Checkbox
+                checked={pickerMode.selected}
+                disabled={pickerMode.disabled}
+                onCheckedChange={() => !pickerMode.disabled && pickerMode.onToggle()}
+                aria-label="Select problem"
+              />
+            </div>
+          ) : (
+            <button
+              onClick={toggleCompletion}
+              className="cursor-pointer group focus:outline-none transition-colors duration-200"
+              aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+            >
+              {isCompleted ? (
+                <CircleCheck className="text-main group-hover:text-text-foreground h-10 w-10" />
+              ) : (
+                <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
+              )}
             </button>
-          )}        </div>
-        <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
-          <button
-            onClick={toggleCompletion}
-            className="cursor-pointer group focus:outline-none transition-colors duration-200"
-            aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
-          >
-            {isCompleted ? (
-              <CircleCheck onClick={onClickAdUrl} className="text-main group-hover:text-text-foreground h-10 w-10" />
-            ) : (
-              <CircleCheck className="text-text-foreground group-hover:text-main h-10 w-10 hover:main-foreground" />
-            )}
-          </button>
+          )}
         </div>
       </div>
     </>

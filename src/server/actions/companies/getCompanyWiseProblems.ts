@@ -3,7 +3,7 @@ import { db } from "~/lib/db";
 import { ProblemWithStats } from "~/types/problem";
 import { getOrderKey, getDbOrderByClause, getDbWhereClause } from "~/utils/sorting";
 
-export async function getCompanyWiseProblems(order: string, search: string, slug: string, sort: string, tags: string | string[] | null, difficulties: string | string[] | null) {
+export async function getCompanyWiseProblems(order: string, search: string, slug: string, sort: string, tags: string | string[] | null, difficulties: string | string[] | null, page: number, perPage: number) {
     if (!Array.isArray(tags)) tags = [tags];
     if (tags.length === 0) tags = null;
     let difficultiesArray: string[] | null = null;
@@ -13,6 +13,7 @@ export async function getCompanyWiseProblems(order: string, search: string, slug
     const orderKey = getOrderKey(order);
     const orderClause = getDbOrderByClause(order, sort, true);
     const whereClause = getDbWhereClause(order, search, slug, difficultiesArray);
+    const offset = (page - 1) * perPage;
     const query = `
             SELECT
                 p.*,
@@ -31,6 +32,7 @@ export async function getCompanyWiseProblems(order: string, search: string, slug
           COUNT(CASE WHEN t."name" = ANY($1::text[]) THEN 1 END) > 0)
       )
             ORDER BY ${orderClause}
+            OFFSET ${offset} LIMIT ${perPage}
     `;
 
     try {
@@ -42,7 +44,7 @@ export async function getCompanyWiseProblems(order: string, search: string, slug
         return sanitizeProblems(problems);
     } catch (e) {
         console.error("Error fetching company-wise data:", e);
-        return null;
+        return [];
     }
 }
 
@@ -51,5 +53,7 @@ const sanitizeProblems = (problems: ProblemWithStats[]) => {
     return problems.map(problem => ({
         ...problem,
         order: problem.order.toNumber(),
+        companies: (problem.companies ?? []).filter(Boolean),
+        tags: (problem.tags ?? []).filter(Boolean),
     }));
 }
