@@ -63,7 +63,7 @@ export default async function NotificationsPage() {
     void markAllRead();
 
     return (
-        <div className="w-full max-w-[700px] py-6">
+        <div className="w-full max-w-[800px] py-6 px-4 mx-auto">
             <div className="flex items-center gap-3 mb-6">
                 <Bell className="size-6" />
                 <h1 className="text-2xl font-bold">Notifications</h1>
