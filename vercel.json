@@ -1,3 +1,6 @@
 {
-  "crons": [{ "path": "/api/cron/views-rollup", "schedule": "30 0 * * *" }]
+  "crons": [
+    { "path": "/api/cron/views-rollup", "schedule": "30 0 * * *" },
+    { "path": "/api/cron/notifications-cleanup", "schedule": "0 2 * * *" }
+  ]
 }

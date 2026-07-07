@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { notify, markRead, parseMentions } from "./core";
+import { deleteOldReadNotifications } from "~/server/notifications/cleanup";
 
 const db = new PrismaClient({
     datasourceUrl:
@@ -127,5 +128,74 @@ describe("markRead with ids (partial)", () => {
         expect(marked?.read).toBe(true);
         const stillUnread = await db.notification.count({ where: { userId: RECIP, read: false } });
         expect(stillUnread).toBe(all.length - 1);
+    });
+});
+
+describe("deleteOldReadNotifications", () => {
+    it("deletes a read notification older than 30 days", async () => {
+        const oldDate = new Date();
+        oldDate.setDate(oldDate.getDate() - 31);
+        const notif = await db.notification.create({
+            data: {
+                userId: RECIP,
+                type: "REPLY_POST",
+                actorId: ACTOR,
+                postId,
+                read: true,
+                createdAt: oldDate,
+            },
+        });
+
+        const count = await deleteOldReadNotifications(db);
+        expect(count).toBe(1);
+
+        const found = await db.notification.findUnique({ where: { id: notif.id } });
+        expect(found).toBeNull();
+    });
+
+    it("does not delete a read notification created 1 day ago", async () => {
+        const recentDate = new Date();
+        recentDate.setDate(recentDate.getDate() - 1);
+        const notif = await db.notification.create({
+            data: {
+                userId: RECIP,
+                type: "REPLY_POST",
+                actorId: ACTOR,
+                postId,
+                read: true,
+                createdAt: recentDate,
+            },
+        });
+
+        const count = await deleteOldReadNotifications(db);
+        expect(count).toBe(0);
+
+        const found = await db.notification.findUnique({ where: { id: notif.id } });
+        expect(found).not.toBeNull();
+
+        await db.notification.delete({ where: { id: notif.id } });
+    });
+
+    it("does not delete an unread notification older than 30 days", async () => {
+        const oldDate = new Date();
+        oldDate.setDate(oldDate.getDate() - 31);
+        const notif = await db.notification.create({
+            data: {
+                userId: RECIP,
+                type: "REPLY_POST",
+                actorId: ACTOR,
+                postId,
+                read: false,
+                createdAt: oldDate,
+            },
+        });
+
+        const count = await deleteOldReadNotifications(db);
+        expect(count).toBe(0);
+
+        const found = await db.notification.findUnique({ where: { id: notif.id } });
+        expect(found).not.toBeNull();
+
+        await db.notification.delete({ where: { id: notif.id } });
     });
 });
